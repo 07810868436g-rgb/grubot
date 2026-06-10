@@ -97,7 +97,8 @@ async def cmd_start(message: types.Message, command: CommandObject):
         refs_count = cursor.fetchone()[0]
         current_time = int(time.time())
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
-        
+        print(f"Сгенерирована ссылка: {custom_url}")
+
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text="🎮 Играть в RobuxTap", web_app=WebAppInfo(url=custom_url)))
         await message.answer("С возвращением! 🚀\nЖми кнопку ниже, чтобы запустить игру.", reply_markup=builder.as_markup())
@@ -119,6 +120,7 @@ async def process_check(callback: types.CallbackQuery):
         refs_count = cursor.fetchone()[0]
         current_time = int(time.time())
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
+        print(f"Сгенерирована ссылка: {custom_url}")
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 Играть в RobuxTap", web_app=WebAppInfo(url=custom_url)))
         await callback.message.edit_text("🎉 Отлично! Подписка подтверждена.\n\nЖми кнопку ниже, чтобы запустить игру!", reply_markup=game_builder.as_markup())
