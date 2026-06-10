@@ -62,7 +62,7 @@ async def process_check(callback: types.CallbackQuery):
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(
             text="🎮 Играть в RobuxTap",
-            web_app=WebAppInfo(url="https://telegram.org") # Пока заглушка
+            web_app=WebAppInfo(url="grubot-kybyiufi8-07810868436g-5373s-projects.vercel.app") # Пока заглушка
         ))
         
         # Меняем старое сообщение на успешное
