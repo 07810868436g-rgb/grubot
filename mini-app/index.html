@@ -11,9 +11,21 @@
         .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         .screen.active { display: flex; }
         .score-container { font-size: 42px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 40px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        
+        /* МОНЕТА */
         .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; }
         .tap-button:active { transform: scale(0.92); }
+        
+        /* СТИЛИ ЭНЕРГИИ */
+        .energy-container { width: 80%; max-width: 300px; margin-top: 25px; font-weight: bold; color: #94a3b8; font-size: 14px; }
+        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7); border-radius: 6px; transition: width 0.1s linear; }
+        
+        /* РЕЖИМ РАКЕТЫ */
+        .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 16px; animation: pulse 1s infinite; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
         .floating-text { position: absolute; color: white; font-size: 38px; font-weight: 900; pointer-events: none; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-140px) scale(1.3) rotate(15deg); } }
         .title { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -29,6 +41,8 @@
 
     <div class="content" id="gameContent">
         <div id="main" class="screen active">
+            <div id="rocketBadge" class="rocket-badge">🚀 РАКЕТА АКТИВНА! (+5 за тап) <span id="rocketTimer">15</span>с</div>
+
             <div class="score-container">
                 <span id="score">0</span>
                 <span style="font-size: 20px; color: #94a3b8; padding-top: 12px;">Поинтов</span>
@@ -36,18 +50,33 @@
             <div class="robux-estimate">≈ <span id="robuxScore">0</span> R$</div>
             
             <div class="tap-button" id="tapBtn"></div>
+
+            <div class="energy-container">
+                ⚡ <span id="energyText">1000</span> / 1000
+                <div class="energy-bar-bg">
+                    <div id="energyBar" class="energy-bar-fill"></div>
+                </div>
+            </div>
         </div>
 
         <div id="profile" class="screen">
-            <div class="title">Профиль</div>
+            <div class="title">Профиль и Бусты</div>
             <div id="userName" style="font-size: 22px; margin-bottom: 15px; color: #94a3b8;">Загрузка...</div>
-            <div style="font-size: 18px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
+            <div style="font-size: 18px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
                 Всего добыто: <br><b style="font-size: 24px; color: white;"><span id="profileScore">0</span> Поинтов</b><br>
                 <span style="color: #facc15; font-size: 16px; margin-top: 5px; display: inline-block;">Доступно: <span id="profileRobux">0</span> R$</span>
             </div>
+
+            <div class="task-box" style="margin-bottom: 20px;">
+                <b style="font-size: 18px;">🚀 Сверхзвуковая Ракета</b><br>
+                <span style="color: #38bdf8; font-size: 14px;">15 секунд без траты энергии и x5 к тапу!</span><br>
+                <span style="font-size: 14px; color: #aaa; display:block; margin-top: 5px;">Доступно на сегодня: <b id="rocketCount">3/3</b></span>
+                <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; margin-top: 10px; box-shadow: none;" onclick="activateRocket()">Запустить Ракету 🚀</button>
+            </div>
+
             <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px;">Друзей: <b><span id="friendsCount">0</span> / 10</b></div>
             
-            <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; font-size: 18px;" onclick="requestWithdraw()">Вывести <span id="withdrawRobux">0</span> R$ 💰</button>
+            <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; font-size: 18px; margin-top: 0;" onclick="requestWithdraw()">Вывести <span id="withdrawRobux">0</span> R$ 💰</button>
         </div>
 
         <div id="tasks" class="screen">
@@ -82,6 +111,9 @@
         const withdrawRobuxElement = document.getElementById('withdrawRobux');
         const tapBtn = document.getElementById('tapBtn');
         const gameContent = document.getElementById('gameContent'); 
+        
+        const energyText = document.getElementById('energyText');
+        const energyBar = document.getElementById('energyBar');
 
         // Идентификация
         const user = tg.initDataUnsafe?.user;
@@ -97,58 +129,167 @@
         document.getElementById('taskFriendsCount').innerText = refsCount;
 
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
+        
+        // Переменные Энергии и Ракеты
+        let energy = 1000;
+        let maxEnergy = 1000;
+        let isRocketActive = false;
+        let rocketsLeft = 3;
 
-        tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3'], (err, values) => {
+        // ЗАГРУЗКА ДАННЫХ ИЗ ОБЛАКА
+        tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count'], (err, values) => {
             if (!err && values) {
                 if (values.taps_balance) { taps = parseInt(values.taps_balance); }
                 if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; bonus += 450; setButtonClaimed(1); }
                 if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; bonus += 450; setButtonClaimed(2); }
                 if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; bonus += 450; setButtonClaimed(3); }
+                
+                // Ракета
+                if (values.rockets_count !== undefined) {
+                    rocketsLeft = parseInt(values.rockets_count);
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    if(rocketsLeft <= 0) { setRocketButtonDisabled(); }
+                }
+
+                // УМНОЕ ОФЛАЙН ВОССТАНОВЛЕНИЕ ЭНЕРГИИ
+                let savedEnergy = values.saved_energy !== undefined ? int(values.saved_energy) : 1000;
+                let lastLeave = values.last_leave_time !== undefined ? int(values.last_leave_time) : 0;
+                
+                if (lastLeave > 0) {
+                    let nowSeconds = Math.floor(Date.now() / 1000);
+                    let secondsPassed = nowSeconds - lastLeave;
+                    let energyGained = secondsPassed * 3; // +3 энергии за секунду офлайна
+                    energy = Math.min(maxEnergy, savedEnergy + energyGained);
+                } else {
+                    energy = savedEnergy;
+                }
             }
             updateScore();
+            updateEnergyVisual();
         });
+
+        function int(val) { return parseInt(val) || 0; }
 
         function setButtonClaimed(id) {
             let btn = document.getElementById('btnSponsor' + id);
             btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.style.boxShadow = "none";
         }
 
-        // --- ГЛАВНАЯ МАТЕМАТИКА ЭКОНОМИКИ (КУРС 1000 К 1) ---
         function updateScore() {
             let totalScore = taps + bonus; 
             let robux = Math.floor(totalScore / 1000); 
 
             scoreElement.innerText = totalScore;
             profileScoreElement.innerText = totalScore; 
-            
             robuxScoreElement.innerText = robux;
             profileRobuxElement.innerText = robux;
             withdrawRobuxElement.innerText = robux;
         }
 
-        // ЛОГИКА КНОПКИ ВЫВОДА
+        // КЛИК ПО МОНЕТЕ
+        tapBtn.addEventListener('click', (e) => {
+            // Если ракета НЕ активна, проверяем энергию
+            if (!isRocketActive) {
+                if (energy <= 0) {
+                    tg.showAlert("⚡ Энергия на нуле! Подожди восстановления или запусти Ракету в профиле!");
+                    return;
+                }
+                energy--;
+                updateEnergyVisual();
+            }
+
+            // Начисление поинтов
+            let earnAmount = isRocketActive ? 5 : 1;
+            taps += earnAmount;
+            updateScore();
+            
+            tg.HapticFeedback.impactOccurred('medium');
+            tg.CloudStorage.setItem('taps_balance', taps.toString());
+            // Каждую секунду будем также сохранять в фоне текущую энергию и время
+            saveCurrentEnergyState();
+
+            // Создаем красивую отлетающую циферку (+1 или +5)
+            const plusOne = document.createElement('div');
+            plusOne.classList.add('floating-text');
+            plusOne.innerText = `+${earnAmount}`;
+            if(isRocketActive) { plusOne.style.color = '#f59e0b'; plusOne.style.textShadow = '0 0 10px #ef4444'; }
+
+            let x, y;
+            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
+            else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
+
+            const randomX = (Math.random() - 0.5) * 60; 
+            plusOne.style.left = `${x + randomX - 15}px`; plusOne.style.top = `${y - 40}px`; 
+            gameContent.appendChild(plusOne); 
+            setTimeout(() => { plusOne.remove(); }, 800); 
+        });
+
+        // ВИЗУАЛ ЭНЕРГИИ
+        function updateEnergyVisual() {
+            energyText.innerText = energy;
+            let percent = (energy / maxEnergy) * 100;
+            energyBar.style.width = `${percent}%`;
+        }
+
+        // АКТИВАЦИЯ РАКЕТЫ
+        function activateRocket() {
+            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты на сегодня закончились!"); return; }
+            if (isRocketActive) { tg.showAlert("🚀 Ракета уже запущена!"); return; }
+            
+            rocketsLeft--;
+            document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+            tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
+            if(rocketsLeft <= 0) { setRocketButtonDisabled(); }
+
+            // Включаем режим ракеты
+            isRocketActive = true;
+            document.getElementById('rocketBadge').style.display = 'block';
+            showScreen('main', document.querySelector('.menu-btn')); // Перекидываем на главный экран игры
+            
+            let timeLeft = 15;
+            document.getElementById('rocketTimer').innerText = timeLeft;
+            tg.HapticFeedback.notificationOccurred('warning');
+
+            let countdown = setInterval(() => {
+                timeLeft--;
+                document.getElementById('rocketTimer').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    isRocketActive = false;
+                    document.getElementById('rocketBadge').style.display = 'none';
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+            }, 1000);
+        }
+
+        function setRocketButtonDisabled() {
+            let btn = document.getElementById('btnActivateRocket');
+            btn.innerText = "Закончились ❌"; btn.style.background = "#475569";
+        }
+
+        // ПАССИВНОЕ ВОССТАНОВЛЕНИЕ ЭНЕРГИИ В ИГРЕ (+3 в сек)
+        setInterval(() => {
+            if (energy < maxEnergy && !isRocketActive) {
+                energy = Math.min(maxEnergy, energy + 3);
+                updateEnergyVisual();
+                saveCurrentEnergyState();
+            }
+        }, 1000);
+
+        // Функция сохранения состояния энергии и времени в фоне
+        function saveCurrentEnergyState() {
+            let nowSeconds = Math.floor(Date.now() / 1000).toString();
+            tg.CloudStorage.setItem('saved_energy', energy.toString());
+            tg.CloudStorage.setItem('last_leave_time', nowSeconds);
+        }
+
+        // ОСТАЛЬНАЯ ЛОГИКА (ВЫВОД, СПОНСОРЫ, НАВИГАЦИЯ)
         function requestWithdraw() {
-            let totalScore = taps + bonus;
-            let robux = Math.floor(totalScore / 1000);
-            
-            // Минималка 10 R$ (10 000 поинтов)
-            if (robux < 10) {
-                tg.showAlert(`❌ Недостаточно средств.\nМинимум для вывода: 10 R$ (10 000 поинтов).\nУ тебя сейчас: ${robux} R$.`);
-                return;
-            }
-            
+            let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
+            if (robux < 10) { tg.showAlert(`❌ Недостаточно средств.\nМинимум для вывода: 10 R$ (10 000 поинтов).\nУ тебя сейчас: ${robux} R$.`); return; }
             let nickname = prompt("Введите ваш никнейм в Roblox:");
-            if (!nickname || nickname.trim() === "") {
-                tg.showAlert("❌ Никнейм не может быть пустым!");
-                return;
-            }
-            
-            let orderData = {
-                action: "withdraw",
-                amount: robux, 
-                nickname: nickname
-            };
-            
+            if (!nickname || nickname.trim() === "") { tg.showAlert("❌ Никнейм не может быть пустым!"); return; }
+            let orderData = { action: "withdraw", amount: robux, nickname: nickname };
             tg.sendData(JSON.stringify(orderData));
         }
 
@@ -164,27 +305,8 @@
             }, 2000); 
         }
 
-        tapBtn.addEventListener('click', (e) => {
-            taps++; updateScore();
-            tg.HapticFeedback.impactOccurred('medium');
-            tg.CloudStorage.setItem('taps_balance', taps.toString());
-
-            const plusOne = document.createElement('div');
-            plusOne.classList.add('floating-text'); plusOne.innerText = '+1';
-
-            let x, y;
-            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
-            else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
-
-            const randomX = (Math.random() - 0.5) * 60; 
-            plusOne.style.left = `${x + randomX - 15}px`; plusOne.style.top = `${y - 40}px`; 
-            gameContent.appendChild(plusOne); 
-            setTimeout(() => { plusOne.remove(); }, 800); 
-        });
-
         function inviteFriend() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            if (!userId) return tg.showAlert("ID error");
+            const userId = tg.initDataUnsafe?.user?.id; if (!userId) return tg.showAlert("ID error");
             const botUsername = "grutap_robot"; 
             const refLink = `https://t.me/${botUsername}?start=ref_${userId}`;
             const shareText = "Залетай в RobuxTap! 🚀";
