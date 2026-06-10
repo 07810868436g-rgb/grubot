@@ -1,7 +1,8 @@
 import asyncio
 import os
 import sqlite3
-import time # <-- ДОБАВИЛИ БИБЛИОТЕКУ ВРЕМЕНИ
+import time
+import json # <-- ДОБАВИЛИ ДЛЯ ЧТЕНИЯ ЗАЯВОК ВЫВОДА
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters.command import Command, CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -11,9 +12,12 @@ from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+# --- ТВОИ НАСТРОЙКИ ---
+YOUR_TELEGRAM_ID = 8685355990 # <--- ВСТАВЬ СЮДА СВОЙ ID ИЗ @userinfobot (ПРОСТО ЦИФРЫ)
 CHANNEL_RU = "@robuxtap_ru" 
 CHANNEL_SNG = "@robuxtap_sng"
-WEB_APP_URL = "https://grubot-jtv2ddpo2-07810868436g-5373s-projects.vercel.app" # <--- НЕ ЗАБУДЬ ВСТАВИТЬ СВОЮ ССЫЛКУ!
+WEB_APP_URL = "https://grubot-3j1ctbrrj-07810868436g-5373s-projects.vercel.app
+" # <--- ВСТАВЬ СВОЮ ССЫЛКУ VERCEL
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -33,10 +37,45 @@ async def check_subscription(user_id, channel_username):
     except:
         return False
 
+# --- ПРИЕМ ЗАЯВКИ НА ВЫВОД ИЗ МИНИ-АППА ---
+@dp.message(F.web_app_data)
+async def handle_web_app_data(message: types.Message):
+    try:
+        # Распаковываем данные от игры
+        data = json.loads(message.web_app_data.data)
+        
+        if data.get("action") == "withdraw":
+            amount = data.get("amount")
+            roblox_nick = data.get("nickname")
+            user = message.from_user
+            
+            # 1. Отвечаем игроку в чат
+            await message.answer(
+                f"✅ **Заявка на вывод успешно создана!**\n\n"
+                f"💰 **Сумма:** {amount} R$\n"
+                f"🎮 **Ник в Roblox:** {roblox_nick}\n\n"
+                f"⏳ Администрация проверит и зачислит робуксы в течение 24 часов. "
+                f"Убедись, что у тебя создан геймпас на эту сумму!"
+            )
+            
+            # 2. ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ ТЕБЕ (АДМИНИСТРАТОРУ)
+            admin_text = (
+                f"🚨 **НОВАЯ ЗАЯВКА НА ВЫВОД ROBUX!**\n\n"
+                f"👤 **Игрок:** {user.first_name} \n"
+                f"🆔 **ID Телеграм:** `{user.id}`\n"
+                f"📱 **Юзернейм:** @{user.username if user.username else 'нету'}\n"
+                f"💰 **Сумма к выводу:** {amount} R$\n"
+                f"🎮 **Ник в Roblox:** `{roblox_nick}`\n\n"
+                f"ℹ️ Переведи робуксы игроку и напиши ему в личку об успешной выплате."
+            )
+            await bot.send_message(chat_id=YOUR_TELEGRAM_ID, text=admin_text, parse_mode="Markdown")
+            
+    except Exception as e:
+        print(f"Ошибка при обработке вывода: {e}")
+
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
-    
     ref_id = None
     if command.args and command.args.startswith("ref_"):
         ref_id_str = command.args.split("_")[1]
@@ -48,10 +87,8 @@ async def cmd_start(message: types.Message, command: CommandObject):
         cursor.execute("INSERT INTO users (user_id, referrer_id) VALUES (?, ?)", (user_id, ref_id))
         conn.commit()
         if ref_id:
-            try:
-                await bot.send_message(ref_id, "🎉 Ура! По твоей ссылке зарегистрировался новый друг!")
-            except:
-                pass
+            try: await bot.send_message(ref_id, "🎉 Ура! По твоей ссылке зарегистрировался новый друг!")
+            except: pass
 
     is_sub_ru = await check_subscription(user_id, CHANNEL_RU)
     is_sub_sng = await check_subscription(user_id, CHANNEL_SNG)
@@ -59,9 +96,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
     if is_sub_ru or is_sub_sng:
         cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
         refs_count = cursor.fetchone()[0]
-        
-        # --- МАГИЯ ОБМАНА КЭША ЗДЕСЬ ---
-        # Добавляем &v=текущее_время в ссылку
         current_time = int(time.time())
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
         
@@ -84,11 +118,8 @@ async def process_check(callback: types.CallbackQuery):
     if is_sub_ru or is_sub_sng:
         cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
         refs_count = cursor.fetchone()[0]
-        
-        # --- И ЗДЕСЬ ТОЖЕ ---
         current_time = int(time.time())
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
-        
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 Играть в RobuxTap", web_app=WebAppInfo(url=custom_url)))
         await callback.message.edit_text("🎉 Отлично! Подписка подтверждена.\n\nЖми кнопку ниже, чтобы запустить игру!", reply_markup=game_builder.as_markup())
@@ -96,7 +127,7 @@ async def process_check(callback: types.CallbackQuery):
         await callback.answer("❌ Ты еще не подписался!", show_alert=True)
 
 async def main():
-    print("Бот успешно обновлен и запущен с анти-кэшем!")
+    print("Бот запущен. Модуль вывода средств готов к работе!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
