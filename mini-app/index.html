@@ -2,132 +2,120 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RobuxTap</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* КРУТОЙ ИГРОВОЙ ФОН (Глубокий сине-черный космос) */
+        /* КРУТОЙ ИГРОВОЙ ФОН */
         body { 
             background-color: #0b0f19; 
             background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0b0f19 60%);
             color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            overflow: hidden; /* Запрещаем случайный скролл страницы */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; padding: 0; user-select: none; 
+            display: flex; flex-direction: column; 
+            height: 100vh; overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; position: relative; }
         .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         .screen.active { display: flex; }
         
         /* БАЛАНС */
-        .score-container { 
-            font-size: 42px; 
-            font-weight: 900; 
-            margin-bottom: 50px; 
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        /* Маленький значок R$ рядом со счетом */
+        .score-container { font-size: 42px; font-weight: 900; margin-bottom: 50px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; }
         .currency-icon { color: #facc15; font-size: 36px; }
 
-        /* --- НОВАЯ КНОПКА (МОНЕТА РОБУКСА) --- */
+        /* МОНЕТА РОБУКСА */
         .tap-button { 
-            width: 240px; 
-            height: 240px; 
-            background-image: url('https://img.icons8.com/fluency/512/roblox.png'); /* Картинка Робукса */
-            background-size: cover;
-            background-position: center;
-            border-radius: 50%; 
+            width: 240px; height: 240px; 
+            background-image: url('https://img.icons8.com/fluency/512/roblox.png');
+            background-size: cover; background-position: center; border-radius: 50%; 
             cursor: pointer; 
-            box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); /* Крутое синее свечение */
+            box-shadow: 0 0 50px rgba(30, 58, 138, 0.6);
             transition: transform 0.05s; 
-            position: relative; /* Важно для циферок */
+            position: relative; z-index: 10;
         }
-        /* Вдавливание при клике */
         .tap-button:active { transform: scale(0.92); }
 
-        /* --- АНИМАЦИЯ ОТЛЕТАЮЩИХ ЦИФР (+1) --- */
+        /* АНИМАЦИЯ ОТЛЕТАЮЩИХ ЦИФР (+1) */
         .floating-text {
-            position: absolute; /* Отвязываем от остального текста */
-            color: #ffffff;
-            font-size: 32px;
+            position: absolute;
+            color: #facc15;
+            font-size: 38px;
             font-weight: 900;
-            pointer-events: none; /* Чтобы не мешали кликать по монете */
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.8), 0 2px 4px rgba(0,0,0,0.5);
             z-index: 1000;
-            /* Вызываем анимацию */
-            animation: floatUp 1s ease-out forwards;
+            animation: floatUp 0.8s ease-out forwards;
         }
 
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+            0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(-140px) scale(1.3) rotate(15deg); }
         }
 
         /* Остальные стили */
         .title { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .task-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); }
-        .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: background 0.3s; }
+        
         .bottom-menu { position: fixed; bottom: 0; left: 0; right: 0; background-color: #0f172a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e293b; z-index: 100; }
-        .menu-btn { background: none; border: none; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: bold; transition: color 0.3s;}
+        .menu-btn { background: none; border: none; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: bold; }
         .menu-icon { font-size: 24px; margin-bottom: 6px; }
         .menu-btn.active { color: #38bdf8; }
     </style>
 </head>
 <body>
 
-    <div class="content">
+    <div class="content" id="gameContent">
         <div id="main" class="screen active">
-            <div class="score-container">
-                <span class="currency-icon">R$</span>
-                <span id="score">0</span>
-            </div>
-            
+            <div class="score-container"><span class="currency-icon">R$</span><span id="score">0</span></div>
             <div class="tap-button" id="tapBtn"></div>
         </div>
 
         <div id="profile" class="screen">
-            <div class="title">Мой Профиль</div>
-            <div id="userName" style="font-size: 22px; margin-bottom: 15px; color: #94a3b8; font-weight: bold;">Загрузка...</div>
-            <div style="font-size: 18px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
-                Всего добыто: <br><b style="font-size: 24px; color: #facc15;"><span id="profileScore">0</span> R$</b>
-            </div>
-            <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
-                Приглашено друзей: <b><span id="friendsCount">0</span> / 10</b>
-            </div>
+            <div class="title">Профиль</div>
+            <div id="userName" style="font-size: 22px; margin-bottom: 15px; color: #94a3b8;">Загрузка...</div>
+            <div style="font-size: 18px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">Всего добыто: <br><b style="font-size: 24px; color: #facc15;"><span id="profileScore">0</span> R$</b></div>
+            <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">Друзей: <b><span id="friendsCount">0</span> / 10</b></div>
         </div>
 
         <div id="tasks" class="screen">
             <div class="title">Задания</div>
-            <p style="color: #94a3b8; margin-bottom: 20px;">Выполняй задания и получай щедрые бонусы!</p>
-            
+            <p style="color: #94a3b8; margin-bottom: 20px;">Выполняй задания и получай робуксы!</p>
+
             <div class="task-box">
-                <b style="font-size: 18px;">Подписаться на канал</b><br>
-                <span style="color: #facc15; font-weight: bold; font-size: 16px;">+500 R$</span>
+                <b style="font-size: 18px;">Спонсор #1</b><br>
+                <span style="color: #facc15; font-weight: bold; font-size: 16px;">+450 R$</span><br>
+                <button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button>
             </div>
-            
+
+            <div class="task-box">
+                <b style="font-size: 18px;">Спонсор #2</b><br>
+                <span style="color: #facc15; font-weight: bold; font-size: 16px;">+450 R$</span><br>
+                <button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button>
+            </div>
+
+            <div class="task-box">
+                <b style="font-size: 18px;">Спонсор #3</b><br>
+                <span style="color: #facc15; font-weight: bold; font-size: 16px;">+450 R$</span><br>
+                <button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button>
+            </div>
+
             <div class="task-box">
                 <b style="font-size: 18px;">Пригласить 10 друзей</b><br>
                 <span style="color: #facc15; font-weight: bold; font-size: 16px;">+1000 R$</span><br>
                 <div style="margin-top: 10px; font-size: 14px; color: #94a3b8;">
                     Твой прогресс: <b style="color: white;"><span id="taskFriendsCount">0</span>/10</b>
                 </div>
-                <button class="support-btn" onclick="inviteFriend()">Отправить ссылку другу</button>
+                <button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Отправить ссылку</button>
             </div>
         </div>
 
         <div id="support" class="screen">
-            <div class="title">Поддержка</div>
-            <p style="color: #94a3b8; line-height: 1.5;">Возникли проблемы, нашли баг или есть интересные предложения по игре?</p>
-            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn">Написать менеджеру</a>
+            <div class="title">Помощь</div>
+            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn">Менеджер</a>
         </div>
     </div>
 
@@ -142,89 +130,142 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Отключаем стандартный скролл (чтобы игра не "ездила" вверх-вниз при тапах)
-        document.body.addEventListener('touchmove', function(e) {
-            if (e.target.closest('.content') === null) { e.preventDefault(); }
-        }, { passive: false });
-
         const scoreElement = document.getElementById('score');
         const profileScoreElement = document.getElementById('profileScore');
         const tapBtn = document.getElementById('tapBtn');
         const userNameElement = document.getElementById('userName');
+        const gameContent = document.getElementById('gameContent'); 
 
         // Идентификация
         const user = tg.initDataUnsafe?.user;
         if (user) { userNameElement.innerText = `${user.first_name}`; }
 
-        // Чтение рефералов из ссылки
+        // Читаем рефералов из ссылки
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
         let taps = 0; 
         let bonus = 0; 
-        
-        if (refsCount >= 10) { bonus = 1000; }
+        if (refsCount >= 10) { bonus += 1000; } // Бонус за друзей
 
         document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
 
-        // Загрузка баланса
-        tg.CloudStorage.getItem('taps_balance', (err, value) => {
-            if (!err && value) { taps = parseInt(value); }
+        // Объект для хранения статуса спонсоров
+        let sponsorsClaimed = { 1: false, 2: false, 3: false };
+
+        // Запрашиваем сразу массив данных из облака
+        tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3'], (err, values) => {
+            if (!err && values) {
+                // Загружаем тапы
+                if (values.taps_balance) { taps = parseInt(values.taps_balance); }
+                
+                // Проверяем спонсора 1
+                if (values.sponsor_1 === 'true') {
+                    sponsorsClaimed[1] = true;
+                    bonus += 450;
+                    setButtonClaimed(1);
+                }
+                // Проверяем спонсора 2
+                if (values.sponsor_2 === 'true') {
+                    sponsorsClaimed[2] = true;
+                    bonus += 450;
+                    setButtonClaimed(2);
+                }
+                // Проверяем спонсора 3
+                if (values.sponsor_3 === 'true') {
+                    sponsorsClaimed[3] = true;
+                    bonus += 450;
+                    setButtonClaimed(3);
+                }
+            }
             updateScore();
         });
 
+        // Функция обновления текста на кнопке (если выполнено)
+        function setButtonClaimed(id) {
+            let btn = document.getElementById('btnSponsor' + id);
+            btn.innerText = "Выполнено ✅";
+            btn.style.background = "#475569"; // Серый цвет
+            btn.style.boxShadow = "none";
+        }
+
+        // Обновление цифр на экране
         function updateScore() {
             let totalScore = taps + bonus;
             scoreElement.innerText = totalScore;
             profileScoreElement.innerText = totalScore; 
         }
 
-        // --- МАГИЯ КЛИКА И АНИМАЦИИ ---
+        // --- ЛОГИКА ВЫПОЛНЕНИЯ СПОНСОРА ---
+        function claimSponsor(id, url) {
+            // Если уже выполнено — ничего не делаем
+            if (sponsorsClaimed[id]) return; 
+
+            // Открываем ссылку на канал
+            tg.openTelegramLink(url);
+
+            // Запускаем таймер на 2 секунды (имитация проверки)
+            setTimeout(() => {
+                if (!sponsorsClaimed[id]) { // Двойная проверка
+                    sponsorsClaimed[id] = true;
+                    bonus += 450;
+                    updateScore();
+                    
+                    // Меняем внешний вид кнопки
+                    setButtonClaimed(id);
+
+                    // Сохраняем в облако, чтобы после перезапуска бонус остался
+                    tg.CloudStorage.setItem('sponsor_' + id, 'true');
+                    
+                    // Легкая вибрация об успехе
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }, 2000); 
+        }
+
+        // --- КЛИК И АНИМАЦИЯ ---
         tapBtn.addEventListener('click', (e) => {
             taps++;
             updateScore();
-            tg.HapticFeedback.impactOccurred('medium'); // Сделали вибрацию чуть приятнее
+            tg.HapticFeedback.impactOccurred('medium');
             tg.CloudStorage.setItem('taps_balance', taps.toString());
 
-            // Создаем элемент +1
             const plusOne = document.createElement('div');
             plusOne.classList.add('floating-text');
             plusOne.innerText = '+1';
 
-            // Вычисляем позицию: берем центр кнопки и добавляем случайный разброс
-            const rect = tapBtn.getBoundingClientRect();
-            // Рандом от -40 до +40 пикселей по ширине и высоте
-            const randomX = (Math.random() - 0.5) * 80;
-            const randomY = (Math.random() - 0.5) * 80;
-            
-            // Задаем координаты (чтобы они появлялись вокруг пальца/центра)
-            plusOne.style.left = `${rect.left + rect.width / 2 + randomX - 15}px`;
-            plusOne.style.top = `${rect.top + rect.height / 2 + randomY - 20}px`;
+            let x, y;
+            if (e.clientX && e.clientY) {
+                x = e.clientX;
+                y = e.clientY;
+            } else {
+                const rect = tapBtn.getBoundingClientRect();
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            }
 
-            // Добавляем на экран
-            document.body.appendChild(plusOne);
+            const randomX = (Math.random() - 0.5) * 60; 
+            plusOne.style.left = `${x + randomX - 15}px`;
+            plusOne.style.top = `${y - 40}px`; 
 
-            // Удаляем через 1 секунду (когда анимация закончится)
-            setTimeout(() => {
-                plusOne.remove();
-            }, 1000);
+            gameContent.appendChild(plusOne); 
+
+            setTimeout(() => { plusOne.remove(); }, 800); 
         });
 
-        // Приглашение друга
+        // Приглашение
         function inviteFriend() {
             const userId = tg.initDataUnsafe?.user?.id;
-            if (!userId) return tg.showAlert("Не удалось получить ID.");
-            
+            if (!userId) return tg.showAlert("ID error");
             const botUsername = "grutap_robot"; 
             const refLink = `https://t.me/${botUsername}?start=ref_${userId}`;
-            const shareText = "Залетай в RobuxTap и фарми робуксы вместе со мной! 🚀";
+            const shareText = "Залетай в RobuxTap! 🚀";
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
-            
             tg.openTelegramLink(shareUrl);
         }
 
-        // Переключение экранов
+        // Навигация
         function showScreen(screenId, btnElement) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));

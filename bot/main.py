@@ -1,24 +1,23 @@
 import asyncio
 import os
 import sqlite3
+import time # <-- ДОБАВИЛИ БИБЛИОТЕКУ ВРЕМЕНИ
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters.command import Command, CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import WebAppInfo
 from dotenv import load_dotenv
 
-# Открываем сейф
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 CHANNEL_RU = "@robuxtap_ru" 
 CHANNEL_SNG = "@robuxtap_sng"
-WEB_APP_URL = "https://grubot-o9or3ihzw-07810868436g-5373s-projects.vercel.app" # <--- ВСТАВЬ СВОЮ ССЫЛКУ
+WEB_APP_URL = "https://grubot-jtv2ddpo2-07810868436g-5373s-projects.vercel.app" # <--- НЕ ЗАБУДЬ ВСТАВИТЬ СВОЮ ССЫЛКУ!
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Настройка Базы Данных
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -34,12 +33,10 @@ async def check_subscription(user_id, channel_username):
     except:
         return False
 
-# Обновленный /start (теперь бот сразу дает кнопку ИГРАТЬ, если уже подписан)
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
     
-    # Обработка рефералов
     ref_id = None
     if command.args and command.args.startswith("ref_"):
         ref_id_str = command.args.split("_")[1]
@@ -56,15 +53,17 @@ async def cmd_start(message: types.Message, command: CommandObject):
             except:
                 pass
 
-    # Проверяем подписку
     is_sub_ru = await check_subscription(user_id, CHANNEL_RU)
     is_sub_sng = await check_subscription(user_id, CHANNEL_SNG)
     
     if is_sub_ru or is_sub_sng:
-        # Считаем друзей и прячем это в ссылку!
         cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
         refs_count = cursor.fetchone()[0]
-        custom_url = f"{WEB_APP_URL}?refs={refs_count}"
+        
+        # --- МАГИЯ ОБМАНА КЭША ЗДЕСЬ ---
+        # Добавляем &v=текущее_время в ссылку
+        current_time = int(time.time())
+        custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
         
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text="🎮 Играть в RobuxTap", web_app=WebAppInfo(url=custom_url)))
@@ -76,7 +75,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
         builder.row(types.InlineKeyboardButton(text="✅ Я подписался (Проверить)", callback_data="check_sub"))
         await message.answer("Привет! Добро пожаловать в RobuxTap 🚀\n\nЧтобы начать играть, подпишись на один из наших каналов.", reply_markup=builder.as_markup())
 
-# Кнопка проверки
 @dp.callback_query(F.data == "check_sub")
 async def process_check(callback: types.CallbackQuery):
     user_id = callback.from_user.id
@@ -84,10 +82,12 @@ async def process_check(callback: types.CallbackQuery):
     is_sub_sng = await check_subscription(user_id, CHANNEL_SNG)
     
     if is_sub_ru or is_sub_sng:
-        # Точно так же считаем друзей и прячем в ссылку
         cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
         refs_count = cursor.fetchone()[0]
-        custom_url = f"{WEB_APP_URL}?refs={refs_count}"
+        
+        # --- И ЗДЕСЬ ТОЖЕ ---
+        current_time = int(time.time())
+        custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
         
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 Играть в RobuxTap", web_app=WebAppInfo(url=custom_url)))
@@ -96,7 +96,7 @@ async def process_check(callback: types.CallbackQuery):
         await callback.answer("❌ Ты еще не подписался!", show_alert=True)
 
 async def main():
-    print("Бот успешно обновлен и запущен!")
+    print("Бот успешно обновлен и запущен с анти-кэшем!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
