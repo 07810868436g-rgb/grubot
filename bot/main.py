@@ -14,7 +14,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # ТВОИ НАСТРОЙКИ (проверь, чтобы тут были твои ссылки!)
 CHANNEL_RU = "@robuxtap_ru" 
 CHANNEL_SNG = "@robuxtap_sng"
-WEB_APP_URL = "grubot-8y11ppvvn-07810868436g-5373s-projects.vercel.app" # <--- ВСТАВЬ СВОЮ ССЫЛКУ
+WEB_APP_URL = "https://grubot.vercel.app" # <--- ВСТАВЬ СВОЮ ССЫЛКУ
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()

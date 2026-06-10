@@ -109,34 +109,17 @@
             <div class="title">Задания</div>
             <p style="color: #aaa; margin-bottom: 20px;">Выполняй задания и получай бонусы!</p>
             
-            <<div class="task-box">
-    <b>Пригласить друга</b><br>
-    <span style="color: #00b050;">+1000 R$</span>
-    <br>
-    <button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Отправить ссылку</button>
-</div>
-            function inviteFriend() {
-    const userId = tg.initDataUnsafe?.user?.id;
-    if (!userId) {
-        tg.showAlert("Не удалось получить твой ID.");
-        return;
-    }
-    
-    // БЕЗ собачки @
-    const botUsername = "grutap_robot"; 
-    const refLink = `https://t.me/${botUsername}?start=ref_${userId}`;
-    
-    // Готовим красивый текст для пересылки
-    const shareText = "Залетай в RobuxTap и фарми робуксы вместе со мной! 🚀";
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
-    
-    // Эта команда откроет системное окно Телеграма для выбора чата/друга
-    tg.openTelegramLink(shareUrl);
-}
-    
-    // Эта команда откроет системное окно Телеграма для выбора чата/друга
-    tg.openTelegramLink(shareUrl);
-}
+            <div class="task-box">
+                <b>Подписаться на канал</b><br>
+                <span style="color: #00b050;">+500 R$</span>
+            </div>
+            
+            <div class="task-box">
+                <b>Пригласить друга</b><br>
+                <span style="color: #00b050;">+1000 R$</span><br>
+                <button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Отправить ссылку</button>
+            </div>
+        </div>
 
         <div id="support" class="screen">
             <div class="title">Поддержка</div>
@@ -196,7 +179,24 @@
             tg.CloudStorage.setItem('robux_balance', score.toString());
         });
 
-        // 4. Логика переключения экранов
+        // 4. Логика приглашения друга
+        function inviteFriend() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) {
+                tg.showAlert("Не удалось получить твой ID.");
+                return;
+            }
+            
+            const botUsername = "grutap_robot"; 
+            const refLink = `https://t.me/${botUsername}?start=ref_${userId}`;
+            
+            const shareText = "Залетай в RobuxTap и фарми робуксы вместе со мной! 🚀";
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+            
+            tg.openTelegramLink(shareUrl);
+        }
+
+        // 5. Логика переключения экранов
         function showScreen(screenId, btnElement) {
             // Скрываем все экраны
             document.querySelectorAll('.screen').forEach(screen => {
