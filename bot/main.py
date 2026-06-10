@@ -16,8 +16,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 YOUR_TELEGRAM_ID = 8685355990 # <--- ВСТАВЬ СЮДА СВОЙ ID ИЗ @userinfobot (ПРОСТО ЦИФРЫ)
 CHANNEL_RU = "@robuxtap_ru" 
 CHANNEL_SNG = "@robuxtap_sng"
-WEB_APP_URL = "https://grubot-3j1ctbrrj-07810868436g-5373s-projects.vercel.app
-" # <--- ВСТАВЬ СВОЮ ССЫЛКУ VERCEL
+WEB_APP_URL = "https://grubot-9yao5pdmw-07810868436g-5373s-projects.vercel.app" # <--- ВСТАВЬ СВОЮ ССЫЛКУ VERCEL
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()

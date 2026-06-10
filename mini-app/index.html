@@ -10,11 +10,11 @@
         .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; position: relative; }
         .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         .screen.active { display: flex; }
-        .score-container { font-size: 42px; font-weight: 900; margin-bottom: 50px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; }
-        .currency-icon { color: #facc15; font-size: 36px; }
+        .score-container { font-size: 42px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 40px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; }
         .tap-button:active { transform: scale(0.92); }
-        .floating-text { position: absolute; color: #facc15; font-size: 38px; font-weight: 900; pointer-events: none; text-shadow: 0 0 10px rgba(250, 204, 21, 0.8), 0 2px 4px rgba(0,0,0,0.5); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
+        .floating-text { position: absolute; color: white; font-size: 38px; font-weight: 900; pointer-events: none; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-140px) scale(1.3) rotate(15deg); } }
         .title { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .task-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); }
@@ -29,25 +29,33 @@
 
     <div class="content" id="gameContent">
         <div id="main" class="screen active">
-            <div class="score-container"><span class="currency-icon">R$</span><span id="score">0</span></div>
+            <div class="score-container">
+                <span id="score">0</span>
+                <span style="font-size: 20px; color: #94a3b8; padding-top: 12px;">Поинтов</span>
+            </div>
+            <div class="robux-estimate">≈ <span id="robuxScore">0</span> R$</div>
+            
             <div class="tap-button" id="tapBtn"></div>
         </div>
 
         <div id="profile" class="screen">
             <div class="title">Профиль</div>
             <div id="userName" style="font-size: 22px; margin-bottom: 15px; color: #94a3b8;">Загрузка...</div>
-            <div style="font-size: 18px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">Всего добыто: <br><b style="font-size: 24px; color: #facc15;"><span id="profileScore">0</span> R$</b></div>
+            <div style="font-size: 18px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
+                Всего добыто: <br><b style="font-size: 24px; color: white;"><span id="profileScore">0</span> Поинтов</b><br>
+                <span style="color: #facc15; font-size: 16px; margin-top: 5px; display: inline-block;">Доступно: <span id="profileRobux">0</span> R$</span>
+            </div>
             <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px;">Друзей: <b><span id="friendsCount">0</span> / 10</b></div>
             
-            <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%;" onclick="requestWithdraw()">Вывести Robux 💰</button>
+            <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; font-size: 18px;" onclick="requestWithdraw()">Вывести <span id="withdrawRobux">0</span> R$ 💰</button>
         </div>
 
         <div id="tasks" class="screen">
             <div class="title">Задания</div>
-            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #facc15;">+450 R$</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #facc15;">+450 R$</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #facc15;">+450 R$</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
-            <div class="task-box"><b>10 друзей</b><br><span style="color: #facc15;">+1000 R$</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
+            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
+            <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 Поинтов</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
         </div>
 
         <div id="support" class="screen">
@@ -68,14 +76,16 @@
         tg.expand();
         
         const scoreElement = document.getElementById('score');
+        const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
+        const profileRobuxElement = document.getElementById('profileRobux');
+        const withdrawRobuxElement = document.getElementById('withdrawRobux');
         const tapBtn = document.getElementById('tapBtn');
-        const userNameElement = document.getElementById('userName');
         const gameContent = document.getElementById('gameContent'); 
 
         // Идентификация
         const user = tg.initDataUnsafe?.user;
-        if (user) { userNameElement.innerText = `${user.first_name}`; }
+        if (user) { document.getElementById('userName').innerText = `${user.first_name}`; }
 
         // Рефералы
         const urlParams = new URLSearchParams(window.location.search);
@@ -103,37 +113,42 @@
             btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.style.boxShadow = "none";
         }
 
+        // --- ГЛАВНАЯ МАТЕМАТИКА ЭКОНОМИКИ (КУРС 1000 К 1) ---
         function updateScore() {
-            let totalScore = taps + bonus;
+            let totalScore = taps + bonus; 
+            let robux = Math.floor(totalScore / 1000); 
+
             scoreElement.innerText = totalScore;
             profileScoreElement.innerText = totalScore; 
+            
+            robuxScoreElement.innerText = robux;
+            profileRobuxElement.innerText = robux;
+            withdrawRobuxElement.innerText = robux;
         }
 
-        // --- ЛОГИКА КНОПКИ ВЫВОДА ---
+        // ЛОГИКА КНОПКИ ВЫВОДА
         function requestWithdraw() {
             let totalScore = taps + bonus;
+            let robux = Math.floor(totalScore / 1000);
             
-            // Задаем минималку для вывода, например 5000 R$
-            if (totalScore < 5000) {
-                tg.showAlert(`❌ Недостаточно средств для вывода.\nМинимальная сумма: 5000 R$.\nУ тебя сейчас: ${totalScore} R$.`);
+            // Минималка 10 R$ (10 000 поинтов)
+            if (robux < 10) {
+                tg.showAlert(`❌ Недостаточно средств.\nМинимум для вывода: 10 R$ (10 000 поинтов).\nУ тебя сейчас: ${robux} R$.`);
                 return;
             }
             
-            // Показываем стандартное окошко ввода прямо в игре
             let nickname = prompt("Введите ваш никнейм в Roblox:");
             if (!nickname || nickname.trim() === "") {
                 tg.showAlert("❌ Никнейм не может быть пустым!");
                 return;
             }
             
-            // Собираем данные в посылку для бота
             let orderData = {
                 action: "withdraw",
-                amount: totalScore,
+                amount: robux, 
                 nickname: nickname
             };
             
-            // Отправляем боту и закрываем игру
             tg.sendData(JSON.stringify(orderData));
         }
 
