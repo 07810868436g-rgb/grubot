@@ -22,12 +22,15 @@
 
         .score-container { font-size: 42px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; margin: 0 auto; }
+        
+        /* ДОБАВЛЕНА БЛОКИРОВКА ЗУМА И ПЕРЕТАСКИВАНИЯ КНОПКИ */
+        .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; }
         .tap-button:active { transform: scale(0.92); }
         
         .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: bold; color: #94a3b8; font-size: 14px; }
         .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7); border-radius: 6px; transition: width 0.1s linear; }
+        /* ИЗМЕНЕНА АНИМАЦИЯ ПОЛОСКИ ЭНЕРГИИ ДЛЯ ПЛАВНОСТИ */
+        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7); border-radius: 6px; transition: width 0.5s ease-out; }
         
         .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 16px; animation: pulse 1s infinite; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -215,6 +218,40 @@
         const gameContent = document.getElementById('gameContent'); 
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
+
+        // --- ДОБАВЛЕН ПУЛ ОБЪЕКТОВ ДЛЯ АНИМАЦИИ ТАПОВ ---
+        const floatingPool = [];
+        let poolIndex = 0;
+        const poolSize = 15;
+
+        for (let i = 0; i < poolSize; i++) {
+            const el = document.createElement('div');
+            el.classList.add('floating-text');
+            el.style.display = 'none';
+            gameContent.appendChild(el);
+            floatingPool.push(el);
+        }
+
+        function showFloatingText(x, y, amount, isRocket) {
+            const el = floatingPool[poolIndex];
+            poolIndex = (poolIndex + 1) % poolSize;
+            
+            el.style.display = 'block';
+            el.style.animation = 'none';
+            void el.offsetWidth; // Принудительный reflow
+            el.style.animation = 'floatUp 0.8s ease-out forwards';
+            
+            el.innerText = `+${amount}`;
+            el.style.color = isRocket ? '#f59e0b' : 'white';
+            el.style.textShadow = isRocket ? '0 0 10px #ef4444' : '0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5)';
+            
+            const randomX = (Math.random() - 0.5) * 60;
+            el.style.left = `${x + randomX - 15}px`;
+            el.style.top = `${y - 40}px`;
+            
+            setTimeout(() => { el.style.display = 'none'; }, 800);
+        }
+        // ----------------------------------------------
 
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `${tg.initDataUnsafe.user.first_name}`; }
 
@@ -458,6 +495,7 @@
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, energy); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
 
+        // --- ОБНОВЛЕННАЯ ЛОГИКА ТАПА (ИСПОЛЬЗУЕТ ПУЛ ОБЪЕКТОВ) ---
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
             
@@ -466,12 +504,16 @@
             if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
             updateScore(); tg.HapticFeedback.impactOccurred('medium');
 
-            const plusOne = document.createElement('div'); plusOne.classList.add('floating-text'); plusOne.innerText = `+${earnAmount}`;
-            if(isRocketActive) { plusOne.style.color = '#f59e0b'; plusOne.style.textShadow = '0 0 10px #ef4444'; }
-            let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
-            const randomX = (Math.random() - 0.5) * 60; plusOne.style.left = `${x + randomX - 15}px`; plusOne.style.top = `${y - 40}px`;
-            gameContent.appendChild(plusOne); setTimeout(() => { plusOne.remove(); }, 800);
+            let x, y; 
+            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
+            else { 
+                const rect = tapBtn.getBoundingClientRect(); 
+                x = rect.left + rect.width / 2; 
+                y = rect.top + rect.height / 2; 
+            }
+            showFloatingText(x, y, earnAmount, isRocketActive);
         });
+        // ---------------------------------------------------------
 
         function activateRocket() {
             if (rocketsLeft <= 0 || isRocketActive) return; rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
@@ -485,18 +527,40 @@
         
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
 
-        setInterval(() => {
+        // --- УМНОЕ СОХРАНЕНИЕ ДАННЫХ (БЕЗ СПАМА В CLOUD STORAGE) ---
+        function saveToCloudStorage() {
             if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('taps_balance', taps.toString()); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); 
-                tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
-                tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); tg.CloudStorage.setItem('daily_taps_date', todayStr);
+                tg.CloudStorage.setItem('taps_balance', taps.toString()); 
+                tg.CloudStorage.setItem('bonus_balance', bonus.toString()); 
+                tg.CloudStorage.setItem('saved_energy', energy.toString()); 
+                tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
+                tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); 
+                tg.CloudStorage.setItem('daily_taps_date', todayStr);
             }
+        }
+
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveToCloudStorage();
+        });
+        tg.onEvent('viewportChanged', (data) => {
+            if (!data.isStateStable) saveToCloudStorage();
+        });
+
+        let cloudSyncCounter = 0;
+        setInterval(() => {
+            cloudSyncCounter += 3;
+            if (cloudSyncCounter >= 30) {
+                saveToCloudStorage();
+                cloudSyncCounter = 0;
+            }
+
             if (unsyncedTaps > 0) {
                 let tapsToSend = unsyncedTaps; unsyncedTaps = 0; 
                 fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
                 }).then(res => { if (!res.ok) unsyncedTaps += tapsToSend; }).catch(err => { unsyncedTaps += tapsToSend; });
             }
         }, 3000); 
+        // ------------------------------------------------------------
 
         function requestWithdraw() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
@@ -543,4 +607,3 @@
     </script>
 </body>
 </html>
-
