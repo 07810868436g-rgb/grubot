@@ -59,7 +59,7 @@
     <div id="gameContent">
         <div id="main" class="screen active">
             <div id="rocketBadge" class="rocket-badge">🚀 РАКЕТА АКТИВНА! (x5 к тапу) <span id="rocketTimer">15</span>с</div>
-            <div class="score-container"><span id="score">0</span><span style="font-size: 20px; color: #94a3b8; padding-top: 12px;">Поинтов</span></div>
+            <div class="score-container"><span id="score">0</span><span style="font-size: 20px; color: #94a3b8; padding-top: 12px; font-weight: bold; margin-left: 5px;">$ROB</span></div>
             <div class="robux-estimate">≈ <span id="robuxScore">0</span> R$</div>
             
             <div class="tap-button" id="tapBtn"></div>
@@ -79,7 +79,7 @@
                 <div class="level-bar-bg"><div id="levelBar" class="level-bar-fill" style="width: 0%;"></div></div>
             </div>
 
-            <div style="font-size: 18px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; text-align: center;">Всего добыто: <br><b style="font-size: 24px; color: white;"><span id="profileScore">0</span> Поинтов</b><br><span style="color: #facc15; font-size: 16px; margin-top: 5px; display: inline-block;">Доступно: <span id="profileRobux">0</span> R$</span></div>
+            <div style="font-size: 18px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; text-align: center;">Всего добыто: <br><b style="font-size: 24px; color: white;"><span id="profileScore">0</span> $ROB</b><br><span style="color: #facc15; font-size: 16px; margin-top: 5px; display: inline-block;">Доступно: <span id="profileRobux">0</span> R$</span></div>
             
             <div class="task-box" style="margin-bottom: 25px; text-align: center;"><b style="font-size: 18px;">🚀 Сверхзвуковая Ракета</b><br><span style="color: #38bdf8; font-size: 14px;">15 секунд без траты энергии и x5 к тапу!</span><br><span style="font-size: 14px; color: #aaa; display:block; margin-top: 5px;">Доступно на сегодня: <b id="rocketCount">3/3</b></span><button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 15px; font-size: 18px; margin-top: 10px; box-shadow: none;" onclick="activateRocket()">Запустить Ракету 🚀</button></div>
             
@@ -92,8 +92,8 @@
                     <span style="background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 8px; font-size: 14px; font-weight: bold;">Ур. <span id="multitapLvlUI">1</span></span>
                 </div>
                 <span style="color: #94a3b8; font-size: 14px; display: block; margin-top: 5px;">Увеличивает добычу за 1 тап</span>
-                <span style="font-size: 14px; color: #38bdf8; font-weight: bold; display: block; margin-top: 5px;">Эффект: +<span id="multitapValueUI">1</span> за тап</span>
-                <button id="btnBuyMultitap" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; padding: 15px; font-size: 18px; margin-top: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);" onclick="buyMultitap()">Прокачать • <span id="multitapCostUI">2000</span> Pts</button>
+                <span style="font-size: 14px; color: #38bdf8; font-weight: bold; display: block; margin-top: 5px;">Эффект: +<span id="multitapValueUI">1</span> $ROB за тап</span>
+                <button id="btnBuyMultitap" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; padding: 15px; font-size: 18px; margin-top: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);" onclick="buyMultitap()">Прокачать • <span id="multitapCostUI">2000</span> $ROB</button>
             </div>
 
             <div class="task-box">
@@ -103,7 +103,7 @@
                 </div>
                 <span style="color: #94a3b8; font-size: 14px; display: block; margin-top: 5px;">Увеличивает лимит запаса энергии</span>
                 <span style="font-size: 14px; color: #38bdf8; font-weight: bold; display: block; margin-top: 5px;">Эффект: <span id="maxEnergyEffectUI">1000</span> макс.</span>
-                <button id="btnBuyEnergy" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; padding: 15px; font-size: 18px; margin-top: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);" onclick="buyMaxEnergy()">Прокачать • <span id="energyCostUI">2000</span> Pts</button>
+                <button id="btnBuyEnergy" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; padding: 15px; font-size: 18px; margin-top: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);" onclick="buyMaxEnergy()">Прокачать • <span id="energyCostUI">2000</span> $ROB</button>
             </div>
 
             <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 25px 0 25px 0;"></div>
@@ -132,16 +132,16 @@
                 </div>
             </div>
 
-            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, '@channel1_username', 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, '@channel2_username', 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, '@channel3_username', 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, '@channel1_username', 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, '@channel2_username', 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, '@channel3_username', 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
             
-            <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 Поинтов</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
+            <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
         </div>
 
         <div id="leaderboard" class="screen">
             <div class="title">🏆 Топ игроков</div>
-            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Лучшие добытчики поинтов</div>
+            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Лучшие добытчики валюты $ROB</div>
             <div id="leaderboardList" style="width: 100%; box-sizing: border-box;">
                 <div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>
             </div>
@@ -243,14 +243,14 @@
             let cost = getUpgradeCost(2000, multitapLevel);
             let totalScore = taps + bonus;
             if (totalScore >= cost) {
-                bonus -= cost; // Списываем из бонусов (чтобы taps не ушли в минус)
+                bonus -= cost; 
                 multitapLevel++;
                 updateShopVisuals();
                 updateScore();
                 if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString());
                 tg.HapticFeedback.notificationOccurred('success');
             } else {
-                tg.showAlert(`❌ Недостаточно поинтов. Нужно: ${cost.toLocaleString('ru-RU')}`);
+                tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`);
             }
         }
 
@@ -268,7 +268,7 @@
                 if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString());
                 tg.HapticFeedback.notificationOccurred('success');
             } else {
-                tg.showAlert(`❌ Недостаточно поинтов. Нужно: ${cost.toLocaleString('ru-RU')}`);
+                tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`);
             }
         }
 
@@ -303,9 +303,8 @@
             tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level'], (err, values) => {
                 if (!err && values) {
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
-                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; // Загружаем бонусный баланс
+                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
                     
-                    // Загружаем магазин
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     
@@ -364,8 +363,8 @@
             document.getElementById('dailyStreakText').innerText = dailyStreak;
             let btn = document.getElementById('btnDailyReward');
             if (lastClaimDate === todayStr) { btn.innerText = "Стрик засчитан ✅"; btn.style.background = "#475569"; btn.style.color = "white"; } 
-            else if (lastClaimDate === yesterdayStr) { let nextStreak = (dailyStreak % 7) + 1; btn.innerText = `Забрать +${getDailyRewardAmount(nextStreak)} Поинтов`; } 
-            else { if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; } btn.innerText = `Забрать +${getDailyRewardAmount(1)} Поинтов`; }
+            else if (lastClaimDate === yesterdayStr) { let nextStreak = (dailyStreak % 7) + 1; btn.innerText = `Забрать +${getDailyRewardAmount(nextStreak)} $ROB`; } 
+            else { if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; } btn.innerText = `Забрать +${getDailyRewardAmount(1)} $ROB`; }
         }
 
         function claimDaily() {
@@ -373,7 +372,7 @@
             if (lastClaimDate === yesterdayStr) { dailyStreak = (dailyStreak % 7) + 1; } else { dailyStreak = 1; }
             let reward = getDailyRewardAmount(dailyStreak); bonus += reward; updateScore(); lastClaimDate = todayStr;
             if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_streak', dailyStreak.toString()); tg.CloudStorage.setItem('last_claim_date', todayStr); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
-            checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Серия продлена! Получено +${reward} Поинтов!`);
+            checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Серия продлена! Получено +${reward} $ROB!`);
         }
 
         function updateDailyQuestVisual() {
@@ -385,7 +384,7 @@
             if (dailyQuestClaimed) {
                 btn.innerText = "Награда получена ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white";
             } else if (dailyTaps >= 5000) {
-                btn.innerText = "Забрать 10,000 Поинтов 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
+                btn.innerText = "Забрать 10,000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
             } else {
                 btn.innerText = "Выполни цель 🎯"; btn.style.background = "#475569"; btn.disabled = true;
             }
@@ -395,7 +394,7 @@
             if (dailyTaps >= 5000 && !dailyQuestClaimed) {
                 dailyQuestClaimed = true; bonus += 10000; updateScore(); updateDailyQuestVisual();
                 if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_quest_claimed', 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
-                tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎯 Вы выполнили дневную цель! Получено 10 000 Поинтов!`);
+                tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎯 Вы выполнили дневную цель! Получено 10 000 $ROB!`);
             }
         }
 
@@ -421,7 +420,6 @@
                 updateEnergyVisual(); 
             }
             
-            // МАГАЗИН: Расчет клика с учетом прокачки
             let baseEarn = multitapLevel;
             let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             
@@ -465,7 +463,7 @@
         setInterval(() => {
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('taps_balance', taps.toString());
-                tg.CloudStorage.setItem('bonus_balance', bonus.toString()); // Обязательно сохраняем бонусы, чтобы списывались покупки
+                tg.CloudStorage.setItem('bonus_balance', bonus.toString()); 
                 tg.CloudStorage.setItem('saved_energy', energy.toString());
                 tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
                 tg.CloudStorage.setItem('daily_taps', dailyTaps.toString());
@@ -485,7 +483,7 @@
 
         function requestWithdraw() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
-            if (robux < 10) { tg.showAlert(`❌ Недостаточно средств.\nМинимум для вывода: 10 R$ (10 000 поинтов).`); return; }
+            if (robux < 10) { tg.showAlert(`❌ Недостаточно средств.\nМинимум для вывода: 10 R$ (10 000 $ROB).`); return; }
             let nickname = prompt("Введите ваш никнейм в Roblox:"); if (!nickname || nickname.trim() === "") return;
             tg.sendData(JSON.stringify({ action: "withdraw", amount: robux, nickname: nickname }));
         }
@@ -526,7 +524,7 @@
                     const rank = index + 1;
                     let topClass = rank <= 3 ? `top-${rank}` : '';
                     let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                    const itemHTML = `<div class="leaderboard-item ${topClass}"><div class="leaderboard-rank">${rankDisplay}</div><div class="leaderboard-name">${player.name}</div><div class="leaderboard-score">${player.score.toLocaleString('ru-RU')} pts</div></div>`;
+                    const itemHTML = `<div class="leaderboard-item ${topClass}"><div class="leaderboard-rank">${rankDisplay}</div><div class="leaderboard-name">${player.name}</div><div class="leaderboard-score">${player.score.toLocaleString('ru-RU')} $ROB</div></div>`;
                     listContainer.insertAdjacentHTML('beforeend', itemHTML);
                 });
             }, 500); 
