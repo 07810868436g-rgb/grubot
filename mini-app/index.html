@@ -75,9 +75,10 @@
                 <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimDaily()">Загрузка...</button>
             </div>
 
-            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, '@channel1_username', 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, '@channel2_username', 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, '@channel3_username', 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
+            
             <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 Поинтов</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
         </div>
 
@@ -98,6 +99,9 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
+        // ТВОЙ БЭКЕНД URL (поменяй на свой реальный домен при деплое)
+        const BACKEND_URL = "https://your-api-domain.com/api"; 
+        
         const scoreElement = document.getElementById('score');
         const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
@@ -112,50 +116,69 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
-        let taps = 0; let bonus = 0; 
+        
+        // Переменные состояния
+        let taps = 0; 
+        let bonus = 0; 
+        let unsyncedTaps = 0; // Накопитель тапов для отправки на бэкенд пачкой
+        
         if (refsCount >= 10) { bonus += 1000; }
 
         document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
 
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
-        let energy = 1000; let maxEnergy = 1000; let isRocketActive = false; let rocketsLeft = 3;
+        let energy = 1000; 
+        let maxEnergy = 1000; 
+        let isRocketActive = false; 
+        let rocketsLeft = 3;
 
-        let dailyStreak = 0; let lastClaimDate = "";
+        let dailyStreak = 0; 
+        let lastClaimDate = "";
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        // БЕЗОПАСНАЯ ЗАГРУЗКА ИЗ ОБЛАКА
+        // БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ И ПРЕДОТВРАЩЕНИЕ NaN
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date'], (err, values) => {
                 if (!err && values) {
-                    if (values.taps_balance) taps = parseInt(values.taps_balance);
+                    // Используем parseInt(..., 10) и || (ИЛИ) для защиты от NaN
+                    if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
+                    
                     if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; bonus += 450; setButtonClaimed(1); }
                     if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; bonus += 450; setButtonClaimed(2); }
                     if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; bonus += 450; setButtonClaimed(3); }
-                    if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) setRocketButtonDisabled(); }
+                    
+                    // Защита от NaN для ракет:
+                    if (values.rockets_count !== undefined) {
+                        rocketsLeft = parseInt(values.rockets_count, 10);
+                        if (isNaN(rocketsLeft)) rocketsLeft = 3; // Жесткий фолбэк
+                    }
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; 
+                    if(rocketsLeft <= 0) setRocketButtonDisabled();
 
-                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy) : 1000;
-                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time) : 0;
+                    // Защита от NaN для энергии:
+                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : 1000;
+                    if (isNaN(savedEnergy)) savedEnergy = 1000;
+                    
+                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0;
+                    if (isNaN(lastLeave)) lastLeave = 0;
+
                     if (lastLeave > 0) {
                         let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
                         energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1));
                     } else { energy = savedEnergy; }
 
-                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak);
+                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0;
                     if (values.last_claim_date) lastClaimDate = values.last_claim_date;
                 }
                 finishLoading();
             });
         } else {
-            // Резервный запуск для обычного браузера
             finishLoading();
         }
 
-        function finishLoading() {
-            checkDailyStreakStatus(); updateScore(); updateEnergyVisual();
-        }
-
+        function finishLoading() { checkDailyStreakStatus(); updateScore(); updateEnergyVisual(); }
         function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
 
         function checkDailyStreakStatus() {
@@ -182,8 +205,14 @@
             robuxScoreElement.innerText = robux; profileRobuxElement.innerText = robux; withdrawRobuxElement.innerText = robux;
         }
 
-        function updateEnergyVisual() { energyText.innerText = energy; let percent = (energy / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
+        function updateEnergyVisual() { 
+            // Защита от отрицательных чисел в UI
+            energyText.innerText = Math.max(0, energy); 
+            let percent = (Math.max(0, energy) / maxEnergy) * 100; 
+            energyBar.style.width = `${percent}%`; 
+        }
 
+        // ОБРАБОТКА ТАПОВ С УЧЕТОМ БАТЧИНГА (Накопление для бэкенда)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { 
                 if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } 
@@ -193,6 +222,8 @@
             
             let earnAmount = isRocketActive ? 5 : 1; 
             taps += earnAmount; 
+            unsyncedTaps += earnAmount; // Сохраняем в память для отправки пачкой на сервер
+            
             updateScore();
             tg.HapticFeedback.impactOccurred('medium');
 
@@ -205,6 +236,9 @@
 
         function activateRocket() {
             if (rocketsLeft <= 0 || isRocketActive) return;
+            
+            // Здесь в идеале тоже должен быть запрос на бэкенд: fetch('/api/activate_rocket')
+            
             rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
             if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
             if(rocketsLeft <= 0) setRocketButtonDisabled();
@@ -215,6 +249,7 @@
         }
         function setRocketButtonDisabled() { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
         
+        // Восстановление энергии
         setInterval(() => { 
             if (energy < maxEnergy && !isRocketActive) { 
                 energy = Math.min(maxEnergy, energy + 1); 
@@ -222,13 +257,37 @@
             } 
         }, 1000);
 
+        // СОХРАНЕНИЕ ДАННЫХ И СИНХРОНИЗАЦИЯ С БЭКЕНДОМ
         setInterval(() => {
+            // Сохраняем в локальное облако (как резерв)
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('taps_balance', taps.toString());
                 tg.CloudStorage.setItem('saved_energy', energy.toString());
                 tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
             }
-        }, 5000);
+
+            // ОТПРАВЛЯЕМ БАТЧ КЛИКОВ НА СЕРВЕР (Защита от накрутки)
+            if (unsyncedTaps > 0) {
+                let tapsToSend = unsyncedTaps;
+                unsyncedTaps = 0; // Сбрасываем счетчик
+
+                fetch(`${BACKEND_URL}/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        initData: tg.initData, // Авторизация Telegram
+                        newTaps: tapsToSend
+                    })
+                }).then(res => {
+                    if (!res.ok) {
+                        unsyncedTaps += tapsToSend; // Если ошибка сети, возвращаем в очередь
+                    }
+                }).catch(err => {
+                    console.error("Ошибка синхронизации", err);
+                    unsyncedTaps += tapsToSend; // Возвращаем в очередь
+                });
+            }
+        }, 3000); // Синхронизируем каждые 3 секунды
 
         function requestWithdraw() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
@@ -236,12 +295,50 @@
             let nickname = prompt("Введите ваш никнейм в Roblox:"); if (!nickname || nickname.trim() === "") return;
             tg.sendData(JSON.stringify({ action: "withdraw", amount: robux, nickname: nickname }));
         }
-        function claimSponsor(id, url) { if (sponsorsClaimed[id]) return; tg.openTelegramLink(url); setTimeout(() => { if (!sponsorsClaimed[id]) { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); if (tg.CloudStorage) tg.CloudStorage.setItem('sponsor_' + id, 'true'); } }, 2000); }
+
+        // БЕЗОПАСНАЯ ПРОВЕРКА ПОДПИСКИ ЧЕРЕЗ БЭКЕНД
+        function claimSponsor(id, channelId, url) { 
+            if (sponsorsClaimed[id]) return; 
+            
+            let btn = document.getElementById('btnSponsor' + id);
+            
+            // 1. Сначала открываем ссылку
+            tg.openTelegramLink(url); 
+            
+            // 2. Даем пользователю 5 секунд, чтобы подписаться, и показываем загрузку
+            btn.innerText = "Проверяем...";
+            
+            setTimeout(() => { 
+                // 3. Отправляем запрос на твой сервер, чтобы сервер через API бота проверил наличие юзера в канале
+                fetch(`${BACKEND_URL}/check_subscription?channel_id=${channelId}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': tg.initData }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.is_subscribed) {
+                        // Сервер подтвердил подписку!
+                        sponsorsClaimed[id] = true; 
+                        bonus += 450; 
+                        updateScore(); 
+                        setButtonClaimed(id); 
+                        if (tg.CloudStorage) tg.CloudStorage.setItem('sponsor_' + id, 'true');
+                    } else {
+                        // Юзер попытался обмануть
+                        btn.innerText = "Вы не подписались ❌";
+                        setTimeout(() => { btn.innerText = "Подписаться"; }, 3000);
+                    }
+                })
+                .catch(err => {
+                    // Если бэкенд пока не готов, оставляем заглушку
+                    console.warn("Бэкенд не отвечает, используем старую логику...");
+                    sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id);
+                });
+            }, 5000); // 5 секунд на подписку
+        }
+
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); }
     </script>
 </body>
 </html>
-
-
-
