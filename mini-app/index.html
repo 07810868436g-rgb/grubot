@@ -23,7 +23,6 @@
         .score-container { font-size: 42px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         
-        /* БЛОКИРОВКА ЗУМА И ПЕРЕТАСКИВАНИЯ КНОПКИ */
         .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; }
         .tap-button:active { transform: scale(0.92); }
         
@@ -41,20 +40,17 @@
         .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: transform 0.1s; }
         .support-btn:active { transform: scale(0.95); }
 
-        /* УРОВНИ */
         .level-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; border: 1px solid rgba(56, 189, 248, 0.2); text-align: left; }
         .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; font-weight: bold; }
         .level-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; }
         .level-bar-fill { height: 100%; background: linear-gradient(90deg, #facc15, #f59e0b); border-radius: 5px; transition: width 0.4s ease-out; }
 
-        /* ОКНО АВТО-БОТА */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.9); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0f172a 80%); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); width: 85%; max-width: 350px; }
         .modal-title { font-size: 22px; font-weight: bold; color: #facc15; margin-bottom: 10px; }
         .modal-text { font-size: 16px; color: #94a3b8; margin-bottom: 20px; }
         .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
 
-        /* СКИНЫ */
         .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; box-sizing: border-box; }
         .skin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
         .skin-card.equipped { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(255,255,255,0.02)); }
@@ -65,7 +61,6 @@
         .btn-select { background: #475569; color: white; }
         .btn-equipped { background: transparent; color: #38bdf8; border: 1px solid #38bdf8; cursor: default; }
 
-        /* ТАБЫ ЛИДЕРБОРДА */
         .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 12px; font-size: 16px; font-weight: bold; border: none; color: white; background: #1e293b; cursor: pointer; transition: background 0.2s; }
         .tab-btn.active { background: #38bdf8; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); }
@@ -209,6 +204,7 @@
     </div>
 
     <script>
+        // --- 1. ИНИЦИАЛИЗАЦИЯ И ДОМ-ЭЛЕМЕНТЫ ---
         let tg = window.Telegram.WebApp;
         tg.expand();
         
@@ -224,7 +220,9 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // --- ПУЛ ОБЪЕКТОВ ДЛЯ АНИМАЦИИ ТАПОВ ---
+        // --- 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+        let currentLbTab = 'players'; // Исправлена ошибка: теперь переменная объявлена до её использования!
+        
         const floatingPool = [];
         let poolIndex = 0;
         const poolSize = 15;
@@ -237,28 +235,6 @@
             floatingPool.push(el);
         }
 
-        function showFloatingText(x, y, amount, isRocket) {
-            const el = floatingPool[poolIndex];
-            poolIndex = (poolIndex + 1) % poolSize;
-            
-            el.style.display = 'block';
-            el.style.animation = 'none';
-            void el.offsetWidth; // Принудительный reflow
-            el.style.animation = 'floatUp 0.8s ease-out forwards';
-            
-            el.innerText = `+${amount}`;
-            el.style.color = isRocket ? '#f59e0b' : 'white';
-            el.style.textShadow = isRocket ? '0 0 10px #ef4444' : '0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5)';
-            
-            const randomX = (Math.random() - 0.5) * 60;
-            el.style.left = `${x + randomX - 15}px`;
-            el.style.top = `${y - 40}px`;
-            
-            setTimeout(() => { el.style.display = 'none'; }, 800);
-        }
-
-        if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `${tg.initDataUnsafe.user.first_name}`; }
-
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
@@ -268,9 +244,6 @@
         let earnedOffline = 0; 
         
         if (refsCount >= 10) { bonus += 1000; }
-
-        document.getElementById('friendsCount').innerText = refsCount;
-        document.getElementById('taskFriendsCount').innerText = refsCount;
 
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
         let isRocketActive = false; 
@@ -282,7 +255,10 @@
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        // НАСТРОЙКИ СИСТЕМЫ ЛИГ
+        let ownedSkins = ['default'];
+        let currentSkin = 'default';
+
+        // --- 3. КОНФИГУРАЦИИ ---
         const LEAGUES_CONFIG = [
             { id: 1, name: 'Дерево (Noob)', minScore: 0, color: '#a3a3a3' },
             { id: 2, name: 'Бронза (Guest)', minScore: 10000, color: '#cd7f32' },
@@ -292,17 +268,6 @@
             { id: 6, name: 'Элита (Admin)', minScore: 100000000, color: '#ef4444' }
         ];
 
-        function getCurrentUserLeague() {
-            let total = taps + bonus;
-            let current = LEAGUES_CONFIG[0];
-            for (let i = 0; i < LEAGUES_CONFIG.length; i++) {
-                if (total >= LEAGUES_CONFIG[i].minScore) {
-                    current = LEAGUES_CONFIG[i];
-                }
-            }
-            return current;
-        }
-
         const SKINS = [
             { id: 'default', name: 'Базовый', cost: 0, img: 'https://img.icons8.com/fluency/512/roblox.png' },
             { id: 'coin', name: 'Монета 3D', cost: 50000, img: 'https://img.icons8.com/3d-fluency/512/coin.png' },
@@ -310,13 +275,40 @@
             { id: 'crown', name: 'Корона', cost: 1000000, img: 'https://img.icons8.com/3d-fluency/512/crown.png' }
         ];
 
-        let ownedSkins = ['default'];
-        let currentSkin = 'default';
-
         const LEVELS = [
             { level: 1, required: 0 }, { level: 2, required: 5000 }, { level: 3, required: 25000 }, { level: 4, required: 100000 },
             { level: 5, required: 500000 }, { level: 6, required: 1000000 }, { level: 7, required: 5000000 }, { level: 8, required: 10000000 }
         ];
+
+        // --- 4. ВСЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ---
+        if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `${tg.initDataUnsafe.user.first_name}`; }
+        document.getElementById('friendsCount').innerText = refsCount;
+        document.getElementById('taskFriendsCount').innerText = refsCount;
+
+        function showFloatingText(x, y, amount, isRocket) {
+            const el = floatingPool[poolIndex];
+            poolIndex = (poolIndex + 1) % poolSize;
+            el.style.display = 'block';
+            el.style.animation = 'none';
+            void el.offsetWidth; 
+            el.style.animation = 'floatUp 0.8s ease-out forwards';
+            el.innerText = `+${amount}`;
+            el.style.color = isRocket ? '#f59e0b' : 'white';
+            el.style.textShadow = isRocket ? '0 0 10px #ef4444' : '0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5)';
+            const randomX = (Math.random() - 0.5) * 60;
+            el.style.left = `${x + randomX - 15}px`;
+            el.style.top = `${y - 40}px`;
+            setTimeout(() => { el.style.display = 'none'; }, 800);
+        }
+
+        function getCurrentUserLeague() {
+            let total = taps + bonus;
+            let current = LEAGUES_CONFIG[0];
+            for (let i = 0; i < LEAGUES_CONFIG.length; i++) {
+                if (total >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; }
+            }
+            return current;
+        }
 
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
 
@@ -332,41 +324,23 @@
         function renderSkins() {
             const container = document.getElementById('skinsContainer');
             container.innerHTML = '';
-            
             SKINS.forEach(skin => {
                 const isOwned = ownedSkins.includes(skin.id);
                 const isEquipped = currentSkin === skin.id;
-                
-                let btnHTML = '';
-                let cardClass = 'skin-card';
-                
-                if (isEquipped) {
-                    cardClass += ' equipped';
-                    btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`;
-                } else if (isOwned) {
-                    btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`;
-                } else {
-                    btnHTML = `<button class="skin-btn btn-buy" onclick="buySkin('${skin.id}')">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`;
-                }
-
-                const cardHTML = `
-                    <div class="${cardClass}">
-                        <img src="${skin.img}" class="skin-img" alt="${skin.name}">
-                        <div class="skin-name">${skin.name}</div>
-                        ${btnHTML}
-                    </div>
-                `;
+                let btnHTML = ''; let cardClass = 'skin-card';
+                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
+                else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; } 
+                else { btnHTML = `<button class="skin-btn btn-buy" onclick="buySkin('${skin.id}')">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                const cardHTML = `<div class="${cardClass}"><img src="${skin.img}" class="skin-img" alt="${skin.name}"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`;
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
-
             const activeSkinObj = SKINS.find(s => s.id === currentSkin) || SKINS[0];
             tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
         function selectSkin(skinId) {
             if (ownedSkins.includes(skinId)) {
-                currentSkin = skinId;
-                renderSkins();
+                currentSkin = skinId; renderSkins();
                 if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkin);
                 tg.HapticFeedback.selectionChanged();
             }
@@ -375,24 +349,12 @@
         function buySkin(skinId) {
             const skinObj = SKINS.find(s => s.id === skinId);
             if (!skinObj || ownedSkins.includes(skinId)) return;
-
             let totalScore = taps + bonus;
             if (totalScore >= skinObj.cost) {
-                bonus -= skinObj.cost;
-                ownedSkins.push(skinId);
-                currentSkin = skinId;
-                updateScore();
-                renderSkins();
-                
-                if (tg.CloudStorage) {
-                    tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedSkins));
-                    tg.CloudStorage.setItem('current_skin', currentSkin);
-                }
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert(`🎉 Вы успешно купили скин: ${skinObj.name}!`);
-            } else {
-                tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`);
-            }
+                bonus -= skinObj.cost; ownedSkins.push(skinId); currentSkin = skinId; updateScore(); renderSkins();
+                if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedSkins)); tg.CloudStorage.setItem('current_skin', currentSkin); }
+                tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Вы успешно купили скин: ${skinObj.name}!`);
+            } else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`); }
         }
 
         function buyMultitap() {
@@ -418,60 +380,16 @@
             for (let i = 0; i < LEVELS.length; i++) { if (totalScore >= LEVELS[i].required) { currentLevelObj = LEVELS[i]; nextLevelObj = LEVELS[i + 1] || LEVELS[i]; } }
             document.getElementById('currentLevel').innerText = currentLevelObj.level;
             
-            if (currentLevelObj === nextLevelObj) {
-                document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`;
-            } else {
+            if (currentLevelObj === nextLevelObj) { document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`; } 
+            else {
                 document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required;
                 let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required;
                 document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`;
             }
-
-            // Обновляем плашку Лиги в разделе ТОП
             let league = getCurrentUserLeague();
             const leagueUi = document.getElementById('userLeagueName');
-            leagueUi.innerText = league.name;
-            leagueUi.style.color = league.color;
-            leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
+            leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
         }
-
-        if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin'], (err, values) => {
-                if (!err && values) {
-                    if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
-                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
-                    
-                    if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
-                    if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
-                    if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
-                    
-                    if (values.owned_skins) { try { ownedSkins = JSON.parse(values.owned_skins); } catch(e){} }
-                    if (values.current_skin) currentSkin = values.current_skin;
-
-                    maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy;
-
-                    if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; setButtonClaimed(1); }
-                    if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; setButtonClaimed(2); }
-                    if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; setButtonClaimed(3); }
-                    
-                    if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count, 10); if (isNaN(rocketsLeft)) rocketsLeft = 3; }
-                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) setRocketButtonDisabled();
-
-                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
-                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0; if (isNaN(lastLeave)) lastLeave = 0;
-
-                    if (lastLeave > 0) {
-                        let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
-                        energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); 
-                        if (autoBotLevel > 0) { let maxBotSeconds = 3 * 60 * 60; let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds); earnedOffline = actualBotSeconds * autoBotLevel; }
-                    } else { energy = savedEnergy; }
-
-                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
-                    if (values.daily_taps_date === todayStr) { if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0; if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true; } 
-                    else { dailyTaps = 0; dailyQuestClaimed = false; }
-                }
-                finishLoading();
-            });
-        } else { finishLoading(); }
 
         function finishLoading() { 
             updateShopVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins();
@@ -480,7 +398,6 @@
         }
 
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; bonus += earnedOffline; earnedOffline = 0; updateScore(); tg.HapticFeedback.notificationOccurred('success'); if (tg.CloudStorage) tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
-        
         function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
 
         function checkDailyStreakStatus() {
@@ -515,6 +432,45 @@
 
         function setButtonClaimed(id) { let btn = document.getElementById('btnSponsor' + id); btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.style.boxShadow = "none"; }
 
+        function switchLeaderboardTab(tab) {
+            currentLbTab = tab;
+            document.getElementById('tabPlayers').classList.toggle('active', tab === 'players');
+            document.getElementById('tabPlayers').style.background = tab === 'players' ? '#38bdf8' : '#1e293b';
+            document.getElementById('tabSquads').classList.toggle('active', tab === 'squads');
+            document.getElementById('tabSquads').style.background = tab === 'squads' ? '#38bdf8' : '#1e293b';
+            document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none';
+            loadLeaderboard();
+        }
+
+        function loadLeaderboard() {
+            const listContainer = document.getElementById('leaderboardList'); 
+            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Ожидание данных...</div>';
+            
+            setTimeout(() => {
+                listContainer.innerHTML = ''; 
+                if (currentLbTab === 'players') {
+                    let userLeague = getCurrentUserLeague(); let totalScore = taps + bonus;
+                    const mockPlayers = [ { name: "Антон [Pro]", score: userLeague.minScore + 55000 }, { name: "Света", score: userLeague.minScore + 15000 }, { name: tg.initDataUnsafe?.user?.first_name ? `${tg.initDataUnsafe.user.first_name} (Вы)` : "Вы", score: totalScore, isMe: true }, { name: "TapMonster", score: userLeague.minScore + 2000 } ];
+                    mockPlayers.sort((a, b) => b.score - a.score); 
+                    
+                    mockPlayers.forEach((player, index) => {
+                        const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                        let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);';
+                        listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: ${userLeague.color}; font-size: 16px; text-shadow: 0 0 5px ${userLeague.color}80;">${player.score.toLocaleString('ru-RU')}</div></div>`);
+                    });
+                    listContainer.insertAdjacentHTML('beforeend', `<div style="margin-top: 15px; font-size: 14px; color: #94a3b8; padding: 10px; border-top: 1px dashed rgba(255,255,255,0.2);">Ваше место в лиге: <b>#84</b> (покажем точное позже)</div>`);
+                } else {
+                    const mockSquads = [ { name: "Roblox HQ", score: 950000000, link: "https://t.me/telegram" }, { name: "CryptoKings", score: 820000000, link: "https://t.me/telegram" }, { name: "Doge Семья", score: 500000000, link: "https://t.me/telegram" }, { name: "Tap Legends", score: 450000000, link: "https://t.me/telegram" }, { name: "Киберкотлеты", score: 320000000, link: "https://t.me/telegram" }, { name: "Hamster Fan", score: 250000000 }, { name: "Not Squad", score: 180000000 }, { name: "Pixel Team", score: 150000000 }, { name: "Альфа Чат", score: 90000000 }, { name: "Бета Тестеры", score: 45000000 } ];
+                    mockSquads.forEach((squad, index) => {
+                        const rank = index + 1; let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.5'; let borderStyle = isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent';
+                        let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; let titleColor = isClickable ? '#facc15' : '#94a3b8';
+                        let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('${squad.link}')">Вступить</button>` : `<div style="font-size: 12px; color: #64748b; font-weight: bold; text-align: right;">Мертвая<br>зона</div>`;
+                        listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.05); opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; color: ${titleColor};">${squad.name}<br><span style="font-size: 13px; color: #38bdf8;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
+                    });
+                }
+            }, 300); 
+        }
+
         function updateScore() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
             scoreElement.innerText = totalScore.toLocaleString('ru-RU'); profileScoreElement.innerText = totalScore.toLocaleString('ru-RU'); 
@@ -522,30 +478,11 @@
             updateLevelVisuals(totalScore); 
             
             if (document.getElementById('leaderboard').classList.contains('active')) {
-                // Тихо обновляем лидерборд, если он открыт, чтобы лига была актуальной
                 if(currentLbTab === 'players') loadLeaderboard();
             }
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, energy); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-
-        tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
-            
-            let baseEarn = multitapLevel; let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
-            taps += earnAmount; unsyncedTaps += earnAmount; 
-            if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
-            updateScore(); tg.HapticFeedback.impactOccurred('medium');
-
-            let x, y; 
-            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
-            else { 
-                const rect = tapBtn.getBoundingClientRect(); 
-                x = rect.left + rect.width / 2; 
-                y = rect.top + rect.height / 2; 
-            }
-            showFloatingText(x, y, earnAmount, isRocketActive);
-        });
 
         function activateRocket() {
             if (rocketsLeft <= 0 || isRocketActive) return; rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
@@ -555,10 +492,9 @@
             let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
             let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
         }
+        
         function setRocketButtonDisabled() { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
         
-        setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
-
         function saveToCloudStorage() {
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('taps_balance', taps.toString()); 
@@ -570,29 +506,6 @@
             }
         }
 
-        window.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') saveToCloudStorage();
-        });
-        tg.onEvent('viewportChanged', (data) => {
-            if (!data.isStateStable) saveToCloudStorage();
-        });
-
-        let cloudSyncCounter = 0;
-        setInterval(() => {
-            cloudSyncCounter += 3;
-            if (cloudSyncCounter >= 30) {
-                saveToCloudStorage();
-                cloudSyncCounter = 0;
-            }
-
-            if (unsyncedTaps > 0) {
-                let tapsToSend = unsyncedTaps; unsyncedTaps = 0; 
-                fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
-                }).then(res => { if (!res.ok) unsyncedTaps += tapsToSend; }).catch(err => { unsyncedTaps += tapsToSend; });
-            }
-        }, 3000); 
-
-        // ПАСХАЛКА ВМЕСТО РЕАЛЬНОГО ВЫВОДА
         function requestWithdrawEasterEgg() {
             tg.HapticFeedback.notificationOccurred('warning');
             tg.showAlert("🤫 Секретный инсайд: Прямой вывод $ROB пока заблокирован, но разработчики уже готовят масштабное обновление и листинг! Копи монеты и прокачивайся, они тебе скоро очень понадобятся... 🚀");
@@ -604,94 +517,86 @@
                 fetch(`${BACKEND_URL}/check_subscription?channel_id=${channelId}`, { method: 'GET', headers: { 'Authorization': tg.initData } })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.is_subscribed) {
-                        sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); 
-                        if (tg.CloudStorage) { tg.CloudStorage.setItem('sponsor_' + id, 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
+                    if (data.is_subscribed) { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); if (tg.CloudStorage) { tg.CloudStorage.setItem('sponsor_' + id, 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
                     } else { btn.innerText = "Вы не подписались ❌"; setTimeout(() => { btn.innerText = "Подписаться"; }, 3000); }
-                })
-                .catch(err => { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); });
+                }).catch(err => { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); });
             }, 5000); 
         }
 
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
-        // --- ЛОГИКА НОВОГО ЛИДЕРБОРДА (ТАБЫ, ЛИГИ И СКВАДЫ) ---
-        let currentLbTab = 'players';
-
-        function switchLeaderboardTab(tab) {
-            currentLbTab = tab;
-            document.getElementById('tabPlayers').classList.toggle('active', tab === 'players');
-            document.getElementById('tabPlayers').style.background = tab === 'players' ? '#38bdf8' : '#1e293b';
-            document.getElementById('tabSquads').classList.toggle('active', tab === 'squads');
-            document.getElementById('tabSquads').style.background = tab === 'squads' ? '#38bdf8' : '#1e293b';
-            
-            document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none';
-            loadLeaderboard();
+        function showScreen(screenId, btnElement) { 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); 
+            document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); 
+            if (screenId === 'leaderboard') { loadLeaderboard(); }
         }
 
-        function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList'); 
-            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Ожидание данных...</div>';
-            
-            setTimeout(() => {
-                listContainer.innerHTML = ''; 
-                
-                if (currentLbTab === 'players') {
-                    // Генерируем моковых игроков для текущей лиги пользователя
-                    let userLeague = getCurrentUserLeague();
-                    let totalScore = taps + bonus;
-                    
-                    const mockPlayers = [ 
-                        { name: "Антон [Pro]", score: userLeague.minScore + 55000 }, 
-                        { name: "Света", score: userLeague.minScore + 15000 }, 
-                        { name: tg.initDataUnsafe?.user?.first_name ? `${tg.initDataUnsafe.user.first_name} (Вы)` : "Вы", score: totalScore, isMe: true }, 
-                        { name: "TapMonster", score: userLeague.minScore + 2000 } 
-                    ];
-                    mockPlayers.sort((a, b) => b.score - a.score); 
-                    
-                    mockPlayers.forEach((player, index) => {
-                        const rank = index + 1; 
-                        let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                        let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);';
-                        
-                        listContainer.insertAdjacentHTML('beforeend', `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}">
-                                <div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div>
-                                <div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${player.name}</div>
-                                <div style="font-weight: bold; color: ${userLeague.color}; font-size: 16px; text-shadow: 0 0 5px ${userLeague.color}80;">${player.score.toLocaleString('ru-RU')}</div>
-                            </div>`);
-                    });
-                    
-                    // Якорь (ваше место)
-                    listContainer.insertAdjacentHTML('beforeend', `<div style="margin-top: 15px; font-size: 14px; color: #94a3b8; padding: 10px; border-top: 1px dashed rgba(255,255,255,0.2);">Ваше место в лиге: <b>#84</b> (покажем точное позже)</div>`);
-                    
-                } else {
-                    // Моковые данные Сквадов (Топ-10)
-                    const mockSquads = [
-                        { name: "Roblox HQ", score: 950000000, link: "https://t.me/telegram" },
-                        { name: "CryptoKings", score: 820000000, link: "https://t.me/telegram" },
-                        { name: "Doge Семья", score: 500000000, link: "https://t.me/telegram" },
-                        { name: "Tap Legends", score: 450000000, link: "https://t.me/telegram" },
-                        { name: "Киберкотлеты", score: 320000000, link: "https://t.me/telegram" },
-                        // Мертвая зона (Топ 6-10)
-                        { name: "Hamster Fan", score: 250000000 },
-                        { name: "Not Squad", score: 180000000 },
-                        { name: "Pixel Team", score: 150000000 },
-                        { name: "Альфа Чат", score: 90000000 },
-                        { name: "Бета Тестеры", score: 45000000 }
-                    ];
+        // --- 5. ЗАПУСК И ОБРАБОТЧИКИ СОБЫТИЙ ---
+        if (tg.CloudStorage) {
+            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin'], (err, values) => {
+                if (!err && values) {
+                    if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
+                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
+                    if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
+                    if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
+                    if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
+                    if (values.owned_skins) { try { ownedSkins = JSON.parse(values.owned_skins); } catch(e){} }
+                    if (values.current_skin) currentSkin = values.current_skin;
 
-                    mockSquads.forEach((squad, index) => {
-                        const rank = index + 1; 
-                        let isClickable = rank <= 5;
-                        let opacity = isClickable ? '1' : '0.5';
-                        let borderStyle = isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent';
-                        let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                        let titleColor = isClickable ? '#facc15' : '#94a3b8';
-                        
-                        let actionHtml = isClickable 
-                            ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('${squad.link}')">Вступить</button>`
-                            : `<div style="font-size: 12px; color: #64748b; font-weight: bold; text-align: right;">Мертвая<br>зона</div>`;
+                    maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy;
 
-                        listContainer.insertAdjacentHTML('beforeend', `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px
+                    if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; setButtonClaimed(1); }
+                    if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; setButtonClaimed(2); }
+                    if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; setButtonClaimed(3); }
+                    
+                    if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count, 10); if (isNaN(rocketsLeft)) rocketsLeft = 3; }
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) setRocketButtonDisabled();
+
+                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
+                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0; if (isNaN(lastLeave)) lastLeave = 0;
+
+                    if (lastLeave > 0) {
+                        let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
+                        energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); 
+                        if (autoBotLevel > 0) { let maxBotSeconds = 3 * 60 * 60; let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds); earnedOffline = actualBotSeconds * autoBotLevel; }
+                    } else { energy = savedEnergy; }
+
+                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
+                    if (values.daily_taps_date === todayStr) { if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0; if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true; } 
+                    else { dailyTaps = 0; dailyQuestClaimed = false; }
+                }
+                finishLoading();
+            });
+        } else { finishLoading(); }
+
+        tapBtn.addEventListener('click', (e) => {
+            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
+            let baseEarn = multitapLevel; let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
+            taps += earnAmount; unsyncedTaps += earnAmount; 
+            if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
+            updateScore(); tg.HapticFeedback.impactOccurred('medium');
+
+            let x, y; 
+            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
+            showFloatingText(x, y, earnAmount, isRocketActive);
+        });
+
+        setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
+
+        window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveToCloudStorage(); });
+        tg.onEvent('viewportChanged', (data) => { if (!data.isStateStable) saveToCloudStorage(); });
+
+        let cloudSyncCounter = 0;
+        setInterval(() => {
+            cloudSyncCounter += 3;
+            if (cloudSyncCounter >= 30) { saveToCloudStorage(); cloudSyncCounter = 0; }
+            if (unsyncedTaps > 0) {
+                let tapsToSend = unsyncedTaps; unsyncedTaps = 0; 
+                fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
+                }).then(res => { if (!res.ok) unsyncedTaps += tapsToSend; }).catch(err => { unsyncedTaps += tapsToSend; });
+            }
+        }, 3000); 
+    </script>
+</body>
+</html>
