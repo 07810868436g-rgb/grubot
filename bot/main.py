@@ -16,7 +16,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 YOUR_TELEGRAM_ID = 8685355990  # <--- ТВОЙ ID
 CHANNEL_RU = "@robuxtap_ru" 
 CHANNEL_SNG = "@robuxtap_sng"
-WEB_APP_URL = "https://grubot-iq1sgb92d-07810868436g-5373s-projects.vercel.app" # <--- ТВОЯ ССЫЛКА НА ИГРУ
+WEB_APP_URL = "https://grubot-hn41lhw8f-07810868436g-5373s-projects.vercel.app" # <--- ТВОЯ ССЫЛКА НА ИГРУ
 
 # --- НАСТРОЙКИ БАННЕРОВ (ССЫЛКИ НА КАРТИНКИ) ---
 BANNER_WELCOME = "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000&auto=format&fit=crop" # Картинка для проверки подписки
