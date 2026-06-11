@@ -19,7 +19,7 @@
 
         /* НИЖНЕЕ МЕНЮ */
         .bottom-menu { position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background-color: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .menu-btn { background: none; border: none; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: bold; }
+        .menu-btn { background: none; border: none; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 20%; font-weight: bold; } /* Ширина 20% т.к. кнопок теперь 5 */
         .menu-icon { font-size: 24px; margin-bottom: 4px; }
         .menu-btn.active { color: #38bdf8; }
 
@@ -41,6 +41,21 @@
         .title { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .task-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); }
         .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+
+        /* --- СИСТЕМА УРОВНЕЙ И ЛИДЕРБОРД --- */
+        .level-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; border: 1px solid rgba(56, 189, 248, 0.2); text-align: left; }
+        .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; font-weight: bold; }
+        .level-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; }
+        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #facc15, #f59e0b); border-radius: 5px; transition: width 0.4s ease-out; }
+
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-item.top-1 { background: linear-gradient(90deg, rgba(250, 204, 21, 0.15), rgba(0,0,0,0)); border-color: rgba(250, 204, 21, 0.4); }
+        .leaderboard-item.top-2 { background: linear-gradient(90deg, rgba(148, 163, 184, 0.15), rgba(0,0,0,0)); }
+        .leaderboard-item.top-3 { background: linear-gradient(90deg, rgba(180, 83, 9, 0.15), rgba(0,0,0,0)); }
+        .leaderboard-rank { font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center; }
+        .leaderboard-item.top-1 .leaderboard-rank { color: #facc15; }
+        .leaderboard-name { flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; }
+        .leaderboard-score { font-weight: bold; color: #38bdf8; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -59,6 +74,15 @@
         <div id="profile" class="screen">
             <div class="title">Профиль и Бусты</div>
             <div id="userName" style="font-size: 22px; margin-bottom: 15px; color: #94a3b8;">Загрузка...</div>
+            
+            <div class="level-container">
+                <div class="level-header">
+                    <span style="color: #facc15;">Уровень <span id="currentLevel">1</span></span>
+                    <span style="color: #94a3b8; font-size: 14px;"><span id="levelProgress">0</span> / <span id="nextLevelGoal">5000</span></span>
+                </div>
+                <div class="level-bar-bg"><div id="levelBar" class="level-bar-fill" style="width: 0%;"></div></div>
+            </div>
+
             <div style="font-size: 18px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">Всего добыто: <br><b style="font-size: 24px; color: white;"><span id="profileScore">0</span> Поинтов</b><br><span style="color: #facc15; font-size: 16px; margin-top: 5px; display: inline-block;">Доступно: <span id="profileRobux">0</span> R$</span></div>
             <div class="task-box" style="margin-bottom: 20px;"><b style="font-size: 18px;">🚀 Сверхзвуковая Ракета</b><br><span style="color: #38bdf8; font-size: 14px;">15 секунд без траты энергии и x5 к тапу!</span><br><span style="font-size: 14px; color: #aaa; display:block; margin-top: 5px;">Доступно на сегодня: <b id="rocketCount">3/3</b></span><button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; margin-top: 10px; box-shadow: none;" onclick="activateRocket()">Запустить Ракету 🚀</button></div>
             <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px;">Друзей: <b><span id="friendsCount">0</span> / 10</b></div>
@@ -82,6 +106,15 @@
             <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 Поинтов</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
         </div>
 
+        <div id="leaderboard" class="screen">
+            <div class="title">🏆 Топ игроков</div>
+            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Лучшие добытчики поинтов</div>
+            
+            <div id="leaderboardList" style="width: 100%; box-sizing: border-box;">
+                <div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>
+            </div>
+        </div>
+
         <div id="support" class="screen">
             <div class="title">Помощь</div>
             <a href="https://t.me/queen_originaI" target="_blank" class="support-btn">Менеджер</a>
@@ -92,6 +125,7 @@
         <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span> Игра</button>
         <button class="menu-btn" onclick="showScreen('profile', this)"><span class="menu-icon">👤</span> Профиль</button>
         <button class="menu-btn" onclick="showScreen('tasks', this)"><span class="menu-icon">📋</span> Задания</button>
+        <button class="menu-btn" onclick="showScreen('leaderboard', this)"><span class="menu-icon">🏆</span> Топ</button>
         <button class="menu-btn" onclick="showScreen('support', this)"><span class="menu-icon">💬</span> Помощь</button>
     </div>
 
@@ -99,7 +133,6 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        // ТВОЙ БЭКЕНД URL (поменяй на свой реальный домен при деплое)
         const BACKEND_URL = "https://your-api-domain.com/api"; 
         
         const scoreElement = document.getElementById('score');
@@ -117,10 +150,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
-        // Переменные состояния
         let taps = 0; 
         let bonus = 0; 
-        let unsyncedTaps = 0; // Накопитель тапов для отправки на бэкенд пачкой
+        let unsyncedTaps = 0; 
         
         if (refsCount >= 10) { bonus += 1000; }
 
@@ -138,26 +170,63 @@
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        // БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ И ПРЕДОТВРАЩЕНИЕ NaN
+        // НАСТРОЙКИ УРОВНЕЙ
+        const LEVELS = [
+            { level: 1, required: 0 },
+            { level: 2, required: 5000 },
+            { level: 3, required: 25000 },
+            { level: 4, required: 100000 },
+            { level: 5, required: 500000 },
+            { level: 6, required: 1000000 },
+            { level: 7, required: 5000000 },
+            { level: 8, required: 10000000 }
+        ];
+
+        function updateLevelVisuals(totalScore) {
+            let currentLevelObj = LEVELS[0];
+            let nextLevelObj = LEVELS[1];
+
+            for (let i = 0; i < LEVELS.length; i++) {
+                if (totalScore >= LEVELS[i].required) {
+                    currentLevelObj = LEVELS[i];
+                    nextLevelObj = LEVELS[i + 1] || LEVELS[i]; 
+                }
+            }
+
+            document.getElementById('currentLevel').innerText = currentLevelObj.level;
+            
+            if (currentLevelObj === nextLevelObj) {
+                document.getElementById('levelProgress').innerText = "MAX";
+                document.getElementById('nextLevelGoal').innerText = "MAX";
+                document.getElementById('levelBar').style.width = `100%`;
+            } else {
+                document.getElementById('levelProgress').innerText = totalScore;
+                document.getElementById('nextLevelGoal').innerText = nextLevelObj.required;
+                
+                let progressToNext = totalScore - currentLevelObj.required;
+                let pointsNeeded = nextLevelObj.required - currentLevelObj.required;
+                let percent = (progressToNext / pointsNeeded) * 100;
+                
+                document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            }
+        }
+
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date'], (err, values) => {
                 if (!err && values) {
-                    // Используем parseInt(..., 10) и || (ИЛИ) для защиты от NaN
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
                     
                     if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; bonus += 450; setButtonClaimed(1); }
                     if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; bonus += 450; setButtonClaimed(2); }
                     if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; bonus += 450; setButtonClaimed(3); }
                     
-                    // Защита от NaN для ракет:
                     if (values.rockets_count !== undefined) {
                         rocketsLeft = parseInt(values.rockets_count, 10);
-                        if (isNaN(rocketsLeft)) rocketsLeft = 3; // Жесткий фолбэк
+                        if (isNaN(rocketsLeft)) rocketsLeft = 3; 
                     }
                     document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; 
                     if(rocketsLeft <= 0) setRocketButtonDisabled();
 
-                    // Защита от NaN для энергии:
                     let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : 1000;
                     if (isNaN(savedEnergy)) savedEnergy = 1000;
                     
@@ -203,16 +272,15 @@
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
             scoreElement.innerText = totalScore; profileScoreElement.innerText = totalScore; 
             robuxScoreElement.innerText = robux; profileRobuxElement.innerText = robux; withdrawRobuxElement.innerText = robux;
+            updateLevelVisuals(totalScore); // Обновляем полосу уровня
         }
 
         function updateEnergyVisual() { 
-            // Защита от отрицательных чисел в UI
             energyText.innerText = Math.max(0, energy); 
             let percent = (Math.max(0, energy) / maxEnergy) * 100; 
             energyBar.style.width = `${percent}%`; 
         }
 
-        // ОБРАБОТКА ТАПОВ С УЧЕТОМ БАТЧИНГА (Накопление для бэкенда)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { 
                 if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } 
@@ -222,7 +290,7 @@
             
             let earnAmount = isRocketActive ? 5 : 1; 
             taps += earnAmount; 
-            unsyncedTaps += earnAmount; // Сохраняем в память для отправки пачкой на сервер
+            unsyncedTaps += earnAmount; 
             
             updateScore();
             tg.HapticFeedback.impactOccurred('medium');
@@ -236,9 +304,6 @@
 
         function activateRocket() {
             if (rocketsLeft <= 0 || isRocketActive) return;
-            
-            // Здесь в идеале тоже должен быть запрос на бэкенд: fetch('/api/activate_rocket')
-            
             rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
             if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
             if(rocketsLeft <= 0) setRocketButtonDisabled();
@@ -249,7 +314,6 @@
         }
         function setRocketButtonDisabled() { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
         
-        // Восстановление энергии
         setInterval(() => { 
             if (energy < maxEnergy && !isRocketActive) { 
                 energy = Math.min(maxEnergy, energy + 1); 
@@ -257,37 +321,27 @@
             } 
         }, 1000);
 
-        // СОХРАНЕНИЕ ДАННЫХ И СИНХРОНИЗАЦИЯ С БЭКЕНДОМ
         setInterval(() => {
-            // Сохраняем в локальное облако (как резерв)
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('taps_balance', taps.toString());
                 tg.CloudStorage.setItem('saved_energy', energy.toString());
                 tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
             }
 
-            // ОТПРАВЛЯЕМ БАТЧ КЛИКОВ НА СЕРВЕР (Защита от накрутки)
             if (unsyncedTaps > 0) {
                 let tapsToSend = unsyncedTaps;
-                unsyncedTaps = 0; // Сбрасываем счетчик
-
+                unsyncedTaps = 0; 
                 fetch(`${BACKEND_URL}/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        initData: tg.initData, // Авторизация Telegram
-                        newTaps: tapsToSend
-                    })
+                    body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
                 }).then(res => {
-                    if (!res.ok) {
-                        unsyncedTaps += tapsToSend; // Если ошибка сети, возвращаем в очередь
-                    }
+                    if (!res.ok) unsyncedTaps += tapsToSend; 
                 }).catch(err => {
-                    console.error("Ошибка синхронизации", err);
-                    unsyncedTaps += tapsToSend; // Возвращаем в очередь
+                    unsyncedTaps += tapsToSend; 
                 });
             }
-        }, 3000); // Синхронизируем каждые 3 секунды
+        }, 3000); 
 
         function requestWithdraw() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
@@ -296,20 +350,13 @@
             tg.sendData(JSON.stringify({ action: "withdraw", amount: robux, nickname: nickname }));
         }
 
-        // БЕЗОПАСНАЯ ПРОВЕРКА ПОДПИСКИ ЧЕРЕЗ БЭКЕНД
         function claimSponsor(id, channelId, url) { 
             if (sponsorsClaimed[id]) return; 
-            
             let btn = document.getElementById('btnSponsor' + id);
-            
-            // 1. Сначала открываем ссылку
             tg.openTelegramLink(url); 
-            
-            // 2. Даем пользователю 5 секунд, чтобы подписаться, и показываем загрузку
             btn.innerText = "Проверяем...";
             
             setTimeout(() => { 
-                // 3. Отправляем запрос на твой сервер, чтобы сервер через API бота проверил наличие юзера в канале
                 fetch(`${BACKEND_URL}/check_subscription?channel_id=${channelId}`, {
                     method: 'GET',
                     headers: { 'Authorization': tg.initData }
@@ -317,28 +364,61 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.is_subscribed) {
-                        // Сервер подтвердил подписку!
-                        sponsorsClaimed[id] = true; 
-                        bonus += 450; 
-                        updateScore(); 
-                        setButtonClaimed(id); 
+                        sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); 
                         if (tg.CloudStorage) tg.CloudStorage.setItem('sponsor_' + id, 'true');
                     } else {
-                        // Юзер попытался обмануть
-                        btn.innerText = "Вы не подписались ❌";
-                        setTimeout(() => { btn.innerText = "Подписаться"; }, 3000);
+                        btn.innerText = "Вы не подписались ❌"; setTimeout(() => { btn.innerText = "Подписаться"; }, 3000);
                     }
                 })
                 .catch(err => {
-                    // Если бэкенд пока не готов, оставляем заглушку
-                    console.warn("Бэкенд не отвечает, используем старую логику...");
                     sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id);
                 });
-            }, 5000); // 5 секунд на подписку
+            }, 5000); 
         }
 
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
-        function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); }
+        
+        function loadLeaderboard() {
+            const listContainer = document.getElementById('leaderboardList');
+            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка...</div>';
+
+            setTimeout(() => {
+                const mockData = [
+                    { name: "Антон [Pro]", score: 2540000 },
+                    { name: "RobloxKing", score: 1800500 },
+                    { name: "Света", score: 950000 },
+                    { name: tg.initDataUnsafe?.user?.first_name ? `${tg.initDataUnsafe.user.first_name} (Вы)` : "Вы", score: taps + bonus },
+                    { name: "TapMonster", score: 45000 }
+                ];
+                
+                mockData.sort((a, b) => b.score - a.score);
+                listContainer.innerHTML = ''; 
+                
+                mockData.forEach((player, index) => {
+                    const rank = index + 1;
+                    let topClass = rank <= 3 ? `top-${rank}` : '';
+                    let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                    
+                    const itemHTML = `
+                        <div class="leaderboard-item ${topClass}">
+                            <div class="leaderboard-rank">${rankDisplay}</div>
+                            <div class="leaderboard-name">${player.name}</div>
+                            <div class="leaderboard-score">${player.score.toLocaleString('ru-RU')} pts</div>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
+                });
+            }, 500); 
+        }
+
+        function showScreen(screenId, btnElement) { 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); 
+            document.getElementById(screenId).classList.add('active'); 
+            btnElement.classList.add('active'); 
+            
+            if (screenId === 'leaderboard') { loadLeaderboard(); }
+        }
     </script>
 </body>
 </html>
