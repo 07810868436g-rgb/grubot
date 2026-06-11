@@ -59,6 +59,17 @@
         .modal-title { font-size: 22px; font-weight: bold; color: #facc15; margin-bottom: 10px; }
         .modal-text { font-size: 16px; color: #94a3b8; margin-bottom: 20px; }
         .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
+
+        /* СКИНЫ */
+        .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; box-sizing: border-box; }
+        .skin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
+        .skin-card.equipped { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(255,255,255,0.02)); }
+        .skin-img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+        .skin-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: white; }
+        .skin-btn { width: 100%; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: auto; }
+        .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
+        .btn-select { background: #475569; color: white; }
+        .btn-equipped { background: transparent; color: #38bdf8; border: 1px solid #38bdf8; cursor: default; }
     </style>
 </head>
 <body>
@@ -137,6 +148,8 @@
             
             <div style="font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; text-align: center;">Друзей: <b><span id="friendsCount">0</span> / 10</b></div>
             <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; font-size: 18px;" onclick="requestWithdraw()">Вывести <span id="withdrawRobux">0</span> R$ 💰</button>
+
+            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn" style="background: #1e293b; color: #cbd5e1; width: 100%; margin-top: 25px; box-shadow: none;">💬 Связь с менеджером</a>
         </div>
 
         <div id="tasks" class="screen">
@@ -144,14 +157,11 @@
             
             <div class="task-box" style="border: 1px solid rgba(234, 179, 8, 0.3); background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.1) 0%, rgba(255,255,255,0.02) 80%); text-align: center;">
                 <b style="font-size: 18px; color: #facc15;">📆 Ежедневные цели</b><br>
-                
                 <div style="margin-top: 10px; text-align: left;">
                     <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней</span>
                     <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 8px 15px; font-size: 14px; margin-top: 5px; width: 100%;" onclick="claimDaily()">Загрузка...</button>
                 </div>
-                
                 <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-                
                 <div style="text-align: left;">
                     <span style="font-size: 14px; color: #94a3b8;">Сделать 5000 тапов: <b id="dailyTapsText" style="color: #38bdf8;">0</b> / 5000</span>
                     <div class="level-bar-bg" style="margin-top: 5px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
@@ -162,8 +172,15 @@
             <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, '@channel1_username', 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
             <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, '@channel2_username', 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
             <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, '@channel3_username', 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
-            
             <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
+        </div>
+
+        <div id="skins" class="screen">
+            <div class="title">Скины</div>
+            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Кастомизируй свою кнопку!</div>
+            
+            <div id="skinsContainer" class="skins-grid">
+                </div>
         </div>
 
         <div id="leaderboard" class="screen">
@@ -173,19 +190,14 @@
                 <div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>
             </div>
         </div>
-
-        <div id="support" class="screen">
-            <div class="title">Помощь</div>
-            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn">Менеджер</a>
-        </div>
     </div>
 
     <div class="bottom-menu">
         <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span> Игра</button>
         <button class="menu-btn" onclick="showScreen('profile', this)"><span class="menu-icon">👤</span> Профиль</button>
         <button class="menu-btn" onclick="showScreen('tasks', this)"><span class="menu-icon">📋</span> Задания</button>
+        <button class="menu-btn" onclick="showScreen('skins', this)"><span class="menu-icon">🎨</span> Скины</button>
         <button class="menu-btn" onclick="showScreen('leaderboard', this)"><span class="menu-icon">🏆</span> Топ</button>
-        <button class="menu-btn" onclick="showScreen('support', this)"><span class="menu-icon">💬</span> Помощь</button>
     </div>
 
     <script>
@@ -212,7 +224,7 @@
         let taps = 0; 
         let bonus = 0; 
         let unsyncedTaps = 0; 
-        let earnedOffline = 0; // Для всплывающего окна
+        let earnedOffline = 0; 
         
         if (refsCount >= 10) { bonus += 1000; }
 
@@ -223,93 +235,123 @@
         let isRocketActive = false; 
         let rocketsLeft = 3;
 
-        // ПЕРЕМЕННЫЕ ЭКОНОМИКИ
-        let multitapLevel = 1;
-        let maxEnergyLevel = 1;
-        let autoBotLevel = 0; // Изначально бота нет
-        let energy = 1000; 
-        let maxEnergy = 1000; 
-
-        // ПЕРЕМЕННЫЕ ЕЖЕДНЕВНЫХ ЗАДАНИЙ
-        let dailyStreak = 0; 
-        let lastClaimDate = "";
-        let dailyTaps = 0;
-        let dailyQuestClaimed = false;
+        let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
+        let dailyStreak = 0; let lastClaimDate = ""; let dailyTaps = 0; let dailyQuestClaimed = false;
 
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        const LEVELS = [
-            { level: 1, required: 0 },
-            { level: 2, required: 5000 },
-            { level: 3, required: 25000 },
-            { level: 4, required: 100000 },
-            { level: 5, required: 500000 },
-            { level: 6, required: 1000000 },
-            { level: 7, required: 5000000 },
-            { level: 8, required: 10000000 }
+        // НАСТРОЙКИ СКИНОВ
+        const SKINS = [
+            { id: 'default', name: 'Базовый', cost: 0, img: 'https://img.icons8.com/fluency/512/roblox.png' },
+            { id: 'coin', name: 'Монета 3D', cost: 50000, img: 'https://img.icons8.com/3d-fluency/512/coin.png' },
+            { id: 'diamond', name: 'Алмаз', cost: 250000, img: 'https://img.icons8.com/3d-fluency/512/diamond.png' },
+            { id: 'crown', name: 'Корона', cost: 1000000, img: 'https://img.icons8.com/3d-fluency/512/crown.png' }
         ];
 
-        function getUpgradeCost(baseCost, currentLevel) {
-            return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1));
-        }
+        let ownedSkins = ['default'];
+        let currentSkin = 'default';
+
+        const LEVELS = [
+            { level: 1, required: 0 }, { level: 2, required: 5000 }, { level: 3, required: 25000 }, { level: 4, required: 100000 },
+            { level: 5, required: 500000 }, { level: 6, required: 1000000 }, { level: 7, required: 5000000 }, { level: 8, required: 10000000 }
+        ];
+
+        function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
 
         function updateShopVisuals() {
-            document.getElementById('multitapLvlUI').innerText = multitapLevel;
-            document.getElementById('multitapValueUI').innerText = multitapLevel;
-            document.getElementById('multitapCostUI').innerText = getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU');
-
-            document.getElementById('energyLvlUI').innerText = maxEnergyLevel;
-            document.getElementById('maxEnergyEffectUI').innerText = maxEnergy;
-            document.getElementById('energyCostUI').innerText = getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU');
-
-            // Авто-бот UI
-            document.getElementById('botLvlUI').innerText = autoBotLevel;
-            document.getElementById('botEffectUI').innerText = autoBotLevel; // 1 уровень = 1 монета в секунду
-            
+            document.getElementById('multitapLvlUI').innerText = multitapLevel; document.getElementById('multitapValueUI').innerText = multitapLevel; document.getElementById('multitapCostUI').innerText = getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU');
+            document.getElementById('energyLvlUI').innerText = maxEnergyLevel; document.getElementById('maxEnergyEffectUI').innerText = maxEnergy; document.getElementById('energyCostUI').innerText = getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU');
+            document.getElementById('botLvlUI').innerText = autoBotLevel; document.getElementById('botEffectUI').innerText = autoBotLevel; 
             let botBtn = document.getElementById('btnBuyBot');
-            if (autoBotLevel === 0) {
-                botBtn.innerHTML = `Купить бота • <span id="botCostUI">5 000</span> $ROB`;
+            if (autoBotLevel === 0) { botBtn.innerHTML = `Купить бота • <span id="botCostUI">5 000</span> $ROB`; } 
+            else { botBtn.innerHTML = `Прокачать • <span id="botCostUI">${getUpgradeCost(5000, autoBotLevel + 1).toLocaleString('ru-RU')}</span> $ROB`; }
+        }
+
+        // ЛОГИКА СКИНОВ
+        function renderSkins() {
+            const container = document.getElementById('skinsContainer');
+            container.innerHTML = '';
+            
+            SKINS.forEach(skin => {
+                const isOwned = ownedSkins.includes(skin.id);
+                const isEquipped = currentSkin === skin.id;
+                
+                let btnHTML = '';
+                let cardClass = 'skin-card';
+                
+                if (isEquipped) {
+                    cardClass += ' equipped';
+                    btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`;
+                } else if (isOwned) {
+                    btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`;
+                } else {
+                    btnHTML = `<button class="skin-btn btn-buy" onclick="buySkin('${skin.id}')">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`;
+                }
+
+                const cardHTML = `
+                    <div class="${cardClass}">
+                        <img src="${skin.img}" class="skin-img" alt="${skin.name}">
+                        <div class="skin-name">${skin.name}</div>
+                        ${btnHTML}
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            // Обновляем главную кнопку
+            const activeSkinObj = SKINS.find(s => s.id === currentSkin) || SKINS[0];
+            tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
+        }
+
+        function selectSkin(skinId) {
+            if (ownedSkins.includes(skinId)) {
+                currentSkin = skinId;
+                renderSkins();
+                if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkin);
+                tg.HapticFeedback.selectionChanged();
+            }
+        }
+
+        function buySkin(skinId) {
+            const skinObj = SKINS.find(s => s.id === skinId);
+            if (!skinObj || ownedSkins.includes(skinId)) return;
+
+            let totalScore = taps + bonus;
+            if (totalScore >= skinObj.cost) {
+                bonus -= skinObj.cost;
+                ownedSkins.push(skinId);
+                currentSkin = skinId;
+                updateScore();
+                renderSkins();
+                
+                if (tg.CloudStorage) {
+                    tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedSkins));
+                    tg.CloudStorage.setItem('current_skin', currentSkin);
+                }
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert(`🎉 Вы успешно купили скин: ${skinObj.name}!`);
             } else {
-                botBtn.innerHTML = `Прокачать • <span id="botCostUI">${getUpgradeCost(5000, autoBotLevel + 1).toLocaleString('ru-RU')}</span> $ROB`;
+                tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`);
             }
         }
 
         function buyMultitap() {
-            let cost = getUpgradeCost(2000, multitapLevel);
-            let totalScore = taps + bonus;
-            if (totalScore >= cost) {
-                bonus -= cost; 
-                multitapLevel++; updateShopVisuals(); updateScore();
-                if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString());
-                tg.HapticFeedback.notificationOccurred('success');
-            } else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
+            let cost = getUpgradeCost(2000, multitapLevel); let totalScore = taps + bonus;
+            if (totalScore >= cost) { bonus -= cost; multitapLevel++; updateShopVisuals(); updateScore(); if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
+            else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
         }
 
         function buyMaxEnergy() {
-            let cost = getUpgradeCost(2000, maxEnergyLevel);
-            let totalScore = taps + bonus;
-            if (totalScore >= cost) {
-                bonus -= cost;
-                maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
-                document.getElementById('maxEnergyUI').innerText = maxEnergy;
-                updateShopVisuals(); updateScore(); updateEnergyVisual();
-                if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString());
-                tg.HapticFeedback.notificationOccurred('success');
-            } else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
+            let cost = getUpgradeCost(2000, maxEnergyLevel); let totalScore = taps + bonus;
+            if (totalScore >= cost) { bonus -= cost; maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; updateShopVisuals(); updateScore(); updateEnergyVisual(); if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
+            else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
         }
 
         function buyAutoBot() {
-            let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1);
-            let totalScore = taps + bonus;
-            if (totalScore >= cost) {
-                bonus -= cost;
-                autoBotLevel++; 
-                updateShopVisuals(); updateScore();
-                if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString());
-                tg.HapticFeedback.notificationOccurred('success');
-                if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен! Теперь он будет добывать $ROB, пока вы спите (максимум 3 часа подряд).");
-            } else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
+            let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); let totalScore = taps + bonus;
+            if (totalScore >= cost) { bonus -= cost; autoBotLevel++; updateShopVisuals(); updateScore(); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен! Теперь он будет добывать $ROB, пока вы спите (максимум 3 часа подряд)."); } 
+            else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${cost.toLocaleString('ru-RU')}`); }
         }
 
         function updateLevelVisuals(totalScore) {
@@ -327,7 +369,7 @@
         }
 
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level'], (err, values) => {
+            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin'], (err, values) => {
                 if (!err && values) {
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
                     if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
@@ -336,101 +378,61 @@
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
                     
-                    maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
-                    document.getElementById('maxEnergyUI').innerText = maxEnergy;
+                    if (values.owned_skins) { try { ownedSkins = JSON.parse(values.owned_skins); } catch(e){} }
+                    if (values.current_skin) currentSkin = values.current_skin;
+
+                    maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy;
 
                     if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; setButtonClaimed(1); }
                     if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; setButtonClaimed(2); }
                     if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; setButtonClaimed(3); }
                     
-                    if (values.rockets_count !== undefined) {
-                        rocketsLeft = parseInt(values.rockets_count, 10);
-                        if (isNaN(rocketsLeft)) rocketsLeft = 3; 
-                    }
-                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; 
-                    if(rocketsLeft <= 0) setRocketButtonDisabled();
+                    if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count, 10); if (isNaN(rocketsLeft)) rocketsLeft = 3; }
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) setRocketButtonDisabled();
 
-                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy;
-                    if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
-                    
-                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0;
-                    if (isNaN(lastLeave)) lastLeave = 0;
+                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
+                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0; if (isNaN(lastLeave)) lastLeave = 0;
 
-                    // РАСЧЕТ ОФФЛАЙН ДОХОДА И ЭНЕРГИИ
                     if (lastLeave > 0) {
                         let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
-                        energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); // Энергия по +1 в сек
-                        
-                        // Логика Авто-бота
-                        if (autoBotLevel > 0) {
-                            let maxBotSeconds = 3 * 60 * 60; // 3 часа = 10800 секунд
-                            let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds);
-                            earnedOffline = actualBotSeconds * autoBotLevel; // 1 уровень = 1 $ROB в сек
-                        }
+                        energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); 
+                        if (autoBotLevel > 0) { let maxBotSeconds = 3 * 60 * 60; let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds); earnedOffline = actualBotSeconds * autoBotLevel; }
                     } else { energy = savedEnergy; }
 
-                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0;
-                    if (values.last_claim_date) lastClaimDate = values.last_claim_date;
-
-                    if (values.daily_taps_date === todayStr) {
-                        if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0;
-                        if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true;
-                    } else { dailyTaps = 0; dailyQuestClaimed = false; }
+                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
+                    if (values.daily_taps_date === todayStr) { if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0; if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true; } 
+                    else { dailyTaps = 0; dailyQuestClaimed = false; }
                 }
                 finishLoading();
             });
-        } else {
-            finishLoading();
-        }
+        } else { finishLoading(); }
 
         function finishLoading() { 
-            updateShopVisuals();
-            checkDailyStreakStatus(); 
-            updateEnergyVisual(); 
-            updateDailyQuestVisual(); 
-            
-            // Если бот что-то добыл - показываем поп-ап
-            if (earnedOffline > 0) {
-                document.getElementById('offlineRewardAmount').innerText = earnedOffline.toLocaleString('ru-RU');
-                document.getElementById('offlineModal').style.display = 'flex';
-                // Бонус пока не начисляем, начислим при нажатии кнопки "Забрать"
-            } else {
-                updateScore(); // Обновляем скор сразу
-            }
+            updateShopVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins();
+            if (earnedOffline > 0) { document.getElementById('offlineRewardAmount').innerText = earnedOffline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; } 
+            else { updateScore(); }
         }
 
-        // Функция закрытия окна и начисления денег
-        function closeOfflineModal() {
-            document.getElementById('offlineModal').style.display = 'none';
-            bonus += earnedOffline;
-            earnedOffline = 0; // Сбрасываем, чтобы не начислить дважды
-            updateScore();
-            tg.HapticFeedback.notificationOccurred('success');
-            // Принудительно сохраняем баланс
-            if (tg.CloudStorage) tg.CloudStorage.setItem('bonus_balance', bonus.toString());
-        }
+        function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; bonus += earnedOffline; earnedOffline = 0; updateScore(); tg.HapticFeedback.notificationOccurred('success'); if (tg.CloudStorage) tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
         
         function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
 
         function checkDailyStreakStatus() {
-            document.getElementById('dailyStreakText').innerText = dailyStreak;
-            let btn = document.getElementById('btnDailyReward');
+            document.getElementById('dailyStreakText').innerText = dailyStreak; let btn = document.getElementById('btnDailyReward');
             if (lastClaimDate === todayStr) { btn.innerText = "Стрик засчитан ✅"; btn.style.background = "#475569"; btn.style.color = "white"; } 
             else if (lastClaimDate === yesterdayStr) { let nextStreak = (dailyStreak % 7) + 1; btn.innerText = `Забрать +${getDailyRewardAmount(nextStreak)} $ROB`; } 
             else { if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; } btn.innerText = `Забрать +${getDailyRewardAmount(1)} $ROB`; }
         }
 
         function claimDaily() {
-            if (lastClaimDate === todayStr) return;
-            if (lastClaimDate === yesterdayStr) { dailyStreak = (dailyStreak % 7) + 1; } else { dailyStreak = 1; }
+            if (lastClaimDate === todayStr) return; if (lastClaimDate === yesterdayStr) { dailyStreak = (dailyStreak % 7) + 1; } else { dailyStreak = 1; }
             let reward = getDailyRewardAmount(dailyStreak); bonus += reward; updateScore(); lastClaimDate = todayStr;
             if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_streak', dailyStreak.toString()); tg.CloudStorage.setItem('last_claim_date', todayStr); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
             checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Серия продлена! Получено +${reward} $ROB!`);
         }
 
         function updateDailyQuestVisual() {
-            document.getElementById('dailyTapsText').innerText = dailyTaps;
-            document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (dailyTaps / 5000) * 100)}%`;
+            document.getElementById('dailyTapsText').innerText = dailyTaps; document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (dailyTaps / 5000) * 100)}%`;
             let btn = document.getElementById('btnDailyQuest');
             if (dailyQuestClaimed) { btn.innerText = "Награда получена ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white"; } 
             else if (dailyTaps >= 5000) { btn.innerText = "Забрать 10,000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white"; } 
@@ -454,17 +456,10 @@
             updateLevelVisuals(totalScore); 
         }
 
-        function updateEnergyVisual() { 
-            energyText.innerText = Math.max(0, energy); 
-            let percent = (Math.max(0, energy) / maxEnergy) * 100; 
-            energyBar.style.width = `${percent}%`; 
-        }
+        function updateEnergyVisual() { energyText.innerText = Math.max(0, energy); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
 
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { 
-                if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } 
-                energy--; updateEnergyVisual(); 
-            }
+            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
             
             let baseEarn = multitapLevel; let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             taps += earnAmount; unsyncedTaps += earnAmount; 
@@ -479,12 +474,10 @@
         });
 
         function activateRocket() {
-            if (rocketsLeft <= 0 || isRocketActive) return;
-            rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+            if (rocketsLeft <= 0 || isRocketActive) return; rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
             if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
             if(rocketsLeft <= 0) setRocketButtonDisabled();
-            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block';
-            showScreen('main', document.querySelector('.menu-btn'));
+            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
             let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
             let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
         }
@@ -494,14 +487,10 @@
 
         setInterval(() => {
             if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('taps_balance', taps.toString());
-                tg.CloudStorage.setItem('bonus_balance', bonus.toString()); 
-                tg.CloudStorage.setItem('saved_energy', energy.toString());
-                tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
-                tg.CloudStorage.setItem('daily_taps', dailyTaps.toString());
-                tg.CloudStorage.setItem('daily_taps_date', todayStr);
+                tg.CloudStorage.setItem('taps_balance', taps.toString()); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); 
+                tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
+                tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); tg.CloudStorage.setItem('daily_taps_date', todayStr);
             }
-
             if (unsyncedTaps > 0) {
                 let tapsToSend = unsyncedTaps; unsyncedTaps = 0; 
                 fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
@@ -517,9 +506,7 @@
         }
 
         function claimSponsor(id, channelId, url) { 
-            if (sponsorsClaimed[id]) return; 
-            let btn = document.getElementById('btnSponsor' + id);
-            tg.openTelegramLink(url); btn.innerText = "Проверяем...";
+            if (sponsorsClaimed[id]) return; let btn = document.getElementById('btnSponsor' + id); tg.openTelegramLink(url); btn.innerText = "Проверяем...";
             setTimeout(() => { 
                 fetch(`${BACKEND_URL}/check_subscription?channel_id=${channelId}`, { method: 'GET', headers: { 'Authorization': tg.initData } })
                 .then(res => res.json())
@@ -536,8 +523,7 @@
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList');
-            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка...</div>';
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка...</div>';
             setTimeout(() => {
                 const mockData = [ { name: "Антон [Pro]", score: 2540000 }, { name: "RobloxKing", score: 1800500 }, { name: "Света", score: 950000 }, { name: tg.initDataUnsafe?.user?.first_name ? `${tg.initDataUnsafe.user.first_name} (Вы)` : "Вы", score: taps + bonus }, { name: "TapMonster", score: 45000 } ];
                 mockData.sort((a, b) => b.score - a.score); listContainer.innerHTML = ''; 
