@@ -52,14 +52,12 @@
 
         <div id="tasks" class="screen">
             <div class="title">Задания</div>
-            
             <div class="task-box" style="border: 1px solid rgba(234, 179, 8, 0.3); background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.1) 0%, rgba(255,255,255,0.02) 80%);">
                 <b style="font-size: 18px; color: #facc15;">📆 Ежедневная награда</b><br>
                 <span style="font-size: 14px; color: #94a3b8;">Заходи каждый день и получай до 5000 поинтов!</span><br>
                 <span style="font-size: 14px; color: #38bdf8; display: block; margin-top: 5px;">Текущая серия: <b id="dailyStreakText">0</b> дней</span>
                 <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimDaily()">Загрузка...</button>
             </div>
-
             <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
             <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
             <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 Поинтов</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
@@ -106,92 +104,47 @@
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
         let energy = 1000; let maxEnergy = 1000; let isRocketActive = false; let rocketsLeft = 3;
 
-        // ПЕРЕМЕННЫЕ ДЛЯ ЕЖЕДНЕВНЫХ НАГРАД
-        let dailyStreak = 0;
-        let lastClaimDate = "";
-        const now = new Date();
-        const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
+        let dailyStreak = 0; let lastClaimDate = "";
+        const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        // ЗАГРУЗКА ВСЕХ ДАННЫХ ИЗ ОБЛАКА
         tg.CloudStorage.getItems(['taps_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date'], (err, values) => {
             if (!err && values) {
-                if (values.taps_balance) { taps = parseInt(values.taps_balance); }
+                if (values.taps_balance) taps = parseInt(values.taps_balance);
                 if (values.sponsor_1 === 'true') { sponsorsClaimed[1] = true; bonus += 450; setButtonClaimed(1); }
                 if (values.sponsor_2 === 'true') { sponsorsClaimed[2] = true; bonus += 450; setButtonClaimed(2); }
                 if (values.sponsor_3 === 'true') { sponsorsClaimed[3] = true; bonus += 450; setButtonClaimed(3); }
-                if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) { setRocketButtonDisabled(); } }
+                if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if(rocketsLeft <= 0) setRocketButtonDisabled(); }
 
-                // Офлайн энергия
                 let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy) : 1000;
                 let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time) : 0;
                 if (lastLeave > 0) {
                     let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
-                    energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 3));
+                    energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); // Офлайн восстановление +1 в сек
                 } else { energy = savedEnergy; }
 
-                // ЗАГРУЗКА ЕЖЕДНЕВНОГО БОНУСА
                 if (values.daily_streak) dailyStreak = parseInt(values.daily_streak);
                 if (values.last_claim_date) lastClaimDate = values.last_claim_date;
             }
-            
-            // Проверка стрика на сегодняшнюю дату
-            checkDailyStreakStatus();
-            updateScore();
-            updateEnergyVisual();
+            checkDailyStreakStatus(); updateScore(); updateEnergyVisual();
         });
 
-        // МАТЕМАТИКА НАГРАД
-        function getDailyRewardAmount(streak) {
-            const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 };
-            return rewards[streak] || 100;
-        }
+        function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
 
-        // ПРОВЕРКА СТАТУСА СЕРИИ ПРИ ЗАХОДЕ
         function checkDailyStreakStatus() {
             document.getElementById('dailyStreakText').innerText = dailyStreak;
             let btn = document.getElementById('btnDailyReward');
-
-            if (lastClaimDate === todayStr) {
-                // Сегодня уже забирал
-                btn.innerText = "Забрано ✅"; btn.style.background = "#475569"; btn.style.color = "white";
-            } else if (lastClaimDate === yesterdayStr) {
-                // Заходил вчера — серия продолжается, показываем награду за следующий день
-                let nextStreak = (dailyStreak % 7) + 1;
-                btn.innerText = `Получить +${getDailyRewardAmount(nextStreak)} Поинтов`;
-            } else {
-                // Пропустил день или зашел первый раз — сброс серии
-                if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; }
-                btn.innerText = `Получить +${getDailyRewardAmount(1)} Поинтов`;
-            }
+            if (lastClaimDate === todayStr) { btn.innerText = "Забрано ✅"; btn.style.background = "#475569"; btn.style.color = "white"; } 
+            else if (lastClaimDate === yesterdayStr) { let nextStreak = (dailyStreak % 7) + 1; btn.innerText = `Получить +${getDailyRewardAmount(nextStreak)} Поинтов`; } 
+            else { if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; } btn.innerText = `Получить +${getDailyRewardAmount(1)} Поинтов`; }
         }
 
-        // НАЖАТИЕ НА КНОПКУ ЗАБРАТЬ БОНУС
         function claimDaily() {
-            if (lastClaimDate === todayStr) return; // Уже забирал сегодня
-
-            if (lastClaimDate === yesterdayStr) {
-                dailyStreak = (dailyStreak % 7) + 1; // Увеличиваем серию от 1 до 7
-            } else {
-                dailyStreak = 1; // Сброс на день 1
-            }
-
-            let reward = getDailyRewardAmount(dailyStreak);
-            bonus += reward;
-            updateScore();
-
-            lastClaimDate = todayStr;
-            
-            // Сохраняем данные в облако
-            tg.CloudStorage.setItem('daily_streak', dailyStreak.toString());
-            tg.CloudStorage.setItem('last_claim_date', todayStr);
-
-            // Перерисовываем кнопку
-            checkDailyStreakStatus();
-            
-            tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert(`🎉 Мега-Бонус! Ты получил +${reward} Поинтов за Ежедневный вход! Возвращайся завтра.`);
+            if (lastClaimDate === todayStr) return;
+            if (lastClaimDate === yesterdayStr) { dailyStreak = (dailyStreak % 7) + 1; } else { dailyStreak = 1; }
+            let reward = getDailyRewardAmount(dailyStreak); bonus += reward; updateScore(); lastClaimDate = todayStr;
+            tg.CloudStorage.setItem('daily_streak', dailyStreak.toString()); tg.CloudStorage.setItem('last_claim_date', todayStr);
+            checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Мега-Бонус! Получено +${reward} Поинтов!`);
         }
 
         function setButtonClaimed(id) { let btn = document.getElementById('btnSponsor' + id); btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.style.boxShadow = "none"; }
@@ -202,12 +155,20 @@
             robuxScoreElement.innerText = robux; profileRobuxElement.innerText = robux; withdrawRobuxElement.innerText = robux;
         }
 
+        function updateEnergyVisual() { energyText.innerText = energy; let percent = (energy / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
+
+        // --- ЛОГИКА ТАПОВ (БЕЗ СОХРАНЕНИЯ В ОБЛАКО!) ---
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
-            let earnAmount = isRocketActive ? 5 : 1; taps += earnAmount; updateScore();
+            if (!isRocketActive) { 
+                if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } 
+                energy--; // Отнимаем энергию только в оперативке
+                updateEnergyVisual(); 
+            }
+            
+            let earnAmount = isRocketActive ? 5 : 1; 
+            taps += earnAmount; 
+            updateScore();
             tg.HapticFeedback.impactOccurred('medium');
-            tg.CloudStorage.setItem('taps_balance', taps.toString());
-            saveCurrentEnergyState();
 
             const plusOne = document.createElement('div'); plusOne.classList.add('floating-text'); plusOne.innerText = `+${earnAmount}`;
             if(isRocketActive) { plusOne.style.color = '#f59e0b'; plusOne.style.textShadow = '0 0 10px #ef4444'; }
@@ -216,8 +177,6 @@
             gameContent.appendChild(plusOne); setTimeout(() => { plusOne.remove(); }, 800);
         });
 
-        function updateEnergyVisual() { energyText.innerText = energy; let percent = (energy / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-        
         function activateRocket() {
             if (rocketsLeft <= 0 || isRocketActive) return;
             rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
@@ -229,8 +188,21 @@
             let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
         }
         function setRocketButtonDisabled() { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-        setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 3); updateEnergyVisual(); saveCurrentEnergyState(); } }, 1000);
-        function saveCurrentEnergyState() { tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString()); }
+        
+        // --- ПАССИВНОЕ ВОССТАНОВЛЕНИЕ (МЕДЛЕННЕЕ: +1 в сек) ---
+        setInterval(() => { 
+            if (energy < maxEnergy && !isRocketActive) { 
+                energy = Math.min(maxEnergy, energy + 1); 
+                updateEnergyVisual(); 
+            } 
+        }, 1000);
+
+        // --- УМНОЕ АВТОСОХРАНЕНИЕ В ФОНЕ (РАЗ В 5 СЕК) ---
+        setInterval(() => {
+            tg.CloudStorage.setItem('taps_balance', taps.toString());
+            tg.CloudStorage.setItem('saved_energy', energy.toString());
+            tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString());
+        }, 5000);
 
         function requestWithdraw() {
             let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
