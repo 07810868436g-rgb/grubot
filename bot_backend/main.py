@@ -165,7 +165,35 @@ async def process_check(callback: types.CallbackQuery):
 
 async def main():
     print("Бот запущен. Баннеры и кеш-бастер работают!")
+    
+    # 1. СНАЧАЛА настраиваем и запускаем HTTP-сервер
+    app = web.Application()
+    import aiohttp_cors
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+    
+    route = app.router.add_post('/api/create-invoice', create_invoice_api)
+    cors.add(route)
+    
+    runner = web.AppRunner(app)
+    await runner.setup()
+    
+    # Render передает свой порт
+    port = int(os.environ.get("PORT", 8000))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    print(f"🌐 HTTP API Сервер запущен на порту {port}")
+    
+    # 2. И ТОЛЬКО ПОТОМ запускаем бота (бесконечный цикл)
     await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main()
 
 if __name__ == "__main__":
     asyncio.run(main())
