@@ -39,6 +39,7 @@
         .task-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
         .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: transform 0.1s; }
         .support-btn:active { transform: scale(0.95); }
+        .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.7; }
 
         .level-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; border: 1px solid rgba(56, 189, 248, 0.2); text-align: left; }
         .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; font-weight: bold; }
@@ -53,16 +54,24 @@
         .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
 
-        /* ИНПУТЫ */
+        /* ИНПУТЫ И ГАЧА */
         .squad-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 16px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
         .squad-input:focus { border-color: #38bdf8; outline: none; }
+        
+        .generator-box { background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.2) 0%, rgba(255,255,255,0.02) 80%); border: 1px solid rgba(168, 85, 247, 0.5); padding: 20px; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(168, 85, 247, 0.1); }
 
         .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; box-sizing: border-box; }
-        .skin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
+        .skin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; position: relative; overflow: hidden; }
+        
+        /* Цвета редкости */
+        .rarity-common { border-color: #94a3b8; }
+        .rarity-rare { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .rarity-legendary { border-color: #facc15; box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); animation: goldPulse 2s infinite; }
+        
         .skin-card.equipped { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(255,255,255,0.02)); }
-        .skin-img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        .skin-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: white; }
-        .skin-btn { width: 100%; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: auto; }
+        .skin-img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index: 2; }
+        .skin-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: white; z-index: 2; text-align: center; }
+        .skin-btn { width: 100%; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
         .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-select { background: #475569; color: white; }
         .btn-equipped { background: transparent; color: #38bdf8; border: 1px solid #38bdf8; cursor: default; }
@@ -198,8 +207,15 @@
         </div>
 
         <div id="skins" class="screen">
-            <div class="title">Скины</div>
-            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">Кастомизируй свою кнопку!</div>
+            <div class="generator-box">
+                <div style="font-size: 24px; font-weight: bold; color: #a855f7; margin-bottom: 5px;">✨ Нейро-Кузница</div>
+                <div style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Сгенерируй уникальный скин ИИ. Чем выше редкость, тем сильнее бонус к клику!</div>
+                <button id="btnGenerateSkin" class="support-btn" style="background: linear-gradient(90deg, #a855f7, #7e22ce); color: white; width: 100%; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" onclick="generateAISkin()">Создать Скин (50 ⭐️)</button>
+            </div>
+
+            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 10px 0 25px 0;"></div>
+            
+            <div class="title" style="font-size: 22px;">Ваша Коллекция</div>
             <div id="skinsContainer" class="skins-grid"></div>
         </div>
 
@@ -253,7 +269,7 @@
 
         // --- 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let currentLbTab = 'players';
-        let currentMySquad = ''; // Хранит название сквада, в котором состоит игрок
+        let currentMySquad = ''; 
         
         const floatingPool = [];
         let poolIndex = 0;
@@ -287,13 +303,14 @@
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 
-        let ownedSkins = ['default'];
-        let currentSkin = 'default';
+        // --- ИЗМЕНЕНИЯ: НОВАЯ СТРУКТУРА ИНВЕНТАРЯ ---
+        let ownedBaseSkinIds = ['default'];
+        let ownedAISkins = []; // Хранит объекты сгенерированных скинов
+        let currentSkinId = 'default';
 
-        // --- Обработка входа по ссылке сквада ---
         let startParam = tg.initDataUnsafe?.start_param;
         if (startParam && startParam.startsWith('squad_')) {
-            currentMySquad = startParam.substring(6); // Отрезаем 'squad_'
+            currentMySquad = startParam.substring(6); 
             if (tg.CloudStorage) tg.CloudStorage.setItem('current_squad', currentMySquad);
         }
 
@@ -307,11 +324,12 @@
             { id: 6, name: 'Элита (Admin)', minScore: 100000000, color: '#ef4444' }
         ];
 
+        // Добавлено поле bonus для базовых скинов (они не дают бонуса)
         const SKINS = [
-            { id: 'default', name: 'Базовый', cost: 0, img: 'https://img.icons8.com/fluency/512/roblox.png' },
-            { id: 'coin', name: 'Монета 3D', cost: 50000, img: 'https://img.icons8.com/3d-fluency/512/coin.png' },
-            { id: 'diamond', name: 'Кубок', cost: 250000, img: 'https://img.icons8.com/3d-fluency/512/trophy.png' },
-            { id: 'crown', name: 'Корона', cost: 1000000, img: 'https://img.icons8.com/3d-fluency/512/crown.png' }
+            { id: 'default', name: 'Базовый', cost: 0, img: 'https://img.icons8.com/fluency/512/roblox.png', bonus: 0 },
+            { id: 'coin', name: 'Монета 3D', cost: 50000, img: 'https://img.icons8.com/3d-fluency/512/coin.png', bonus: 0 },
+            { id: 'diamond', name: 'Кубок', cost: 250000, img: 'https://img.icons8.com/3d-fluency/512/trophy.png', bonus: 0 },
+            { id: 'crown', name: 'Корона', cost: 1000000, img: 'https://img.icons8.com/3d-fluency/512/crown.png', bonus: 0 }
         ];
 
         const LEVELS = [
@@ -360,38 +378,105 @@
             else { botBtn.innerHTML = `Прокачать • <span id="botCostUI">${getUpgradeCost(5000, autoBotLevel + 1).toLocaleString('ru-RU')}</span> $ROB`; }
         }
 
+        // --- ИЗМЕНЕНИЯ: ОБНОВЛЕННЫЙ РЕНДЕР ИНВЕНТАРЯ ---
         function renderSkins() {
             const container = document.getElementById('skinsContainer');
             container.innerHTML = '';
+            
+            // 1. Рисуем базовые (покупные) скины
             SKINS.forEach(skin => {
-                const isOwned = ownedSkins.includes(skin.id);
-                const isEquipped = currentSkin === skin.id;
+                const isOwned = ownedBaseSkinIds.includes(skin.id);
+                const isEquipped = currentSkinId === skin.id;
                 let btnHTML = ''; let cardClass = 'skin-card';
+                
                 if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
                 else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; } 
                 else { btnHTML = `<button class="skin-btn btn-buy" onclick="buySkin('${skin.id}')">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                
                 const cardHTML = `<div class="${cardClass}"><img src="${skin.img}" class="skin-img" alt="${skin.name}"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`;
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
-            const activeSkinObj = SKINS.find(s => s.id === currentSkin) || SKINS[0];
+
+            // 2. Рисуем сгенерированные ИИ скины с рамками
+            ownedAISkins.forEach(skin => {
+                const isEquipped = currentSkinId === skin.id;
+                let cardClass = `skin-card rarity-${skin.rarity}`;
+                let btnHTML = '';
+                
+                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
+                else { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; }
+                
+                const cardHTML = `
+                <div class="${cardClass}">
+                    <img src="${skin.img}" class="skin-img" alt="${skin.name}">
+                    <div class="skin-name" style="color: ${skin.color}">${skin.name}<br><span style="font-size:11px; color:#fff;">(+${skin.bonus} к тапу)</span></div>
+                    ${btnHTML}
+                </div>`;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            // Обновляем главную кнопку
+            const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || ownedAISkins.find(s => s.id === currentSkinId) || SKINS[0];
             tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
+        // --- ИЗМЕНЕНИЯ: ГАЧА ФУНКЦИОНАЛ ---
+        function generateAISkin() {
+            // В будущем здесь будет вызов tg.openInvoice() для оплаты в Stars
+            let btn = document.getElementById('btnGenerateSkin');
+            btn.innerText = "⏳ Нейросеть рисует...";
+            btn.disabled = true;
+
+            // Имитация задержки ответа сервера (2.5 сек)
+            setTimeout(() => {
+                let roll = Math.random() * 100;
+                let rarity, bonus, name, color;
+
+                if (roll > 95) { rarity = 'legendary'; bonus = 3; name = 'Легендарный'; color = '#facc15'; }
+                else if (roll > 75) { rarity = 'rare'; bonus = 2; name = 'Редкий'; color = '#a855f7'; }
+                else { rarity = 'common'; bonus = 1; name = 'Обычный'; color = '#94a3b8'; }
+
+                let newSkin = {
+                    id: 'ai_' + Date.now(),
+                    name: name + ' Скин',
+                    img: 'https://img.icons8.com/fluency/512/bot.png', // Заглушка, сюда придет URL картинки с твоего облака
+                    bonus: bonus,
+                    rarity: rarity,
+                    color: color
+                };
+
+                ownedAISkins.push(newSkin);
+                currentSkinId = newSkin.id; // Сразу надеваем
+                renderSkins();
+
+                if (tg.CloudStorage) {
+                    tg.CloudStorage.setItem('owned_ai_skins', JSON.stringify(ownedAISkins));
+                    tg.CloudStorage.setItem('current_skin', currentSkinId);
+                }
+
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert(`✨ Магия сработала! Вы получили ${name} скин!\nБонус: +${bonus} к тапу.`);
+
+                btn.innerText = "Создать Скин (50 ⭐️)";
+                btn.disabled = false;
+            }, 2500); 
+        }
+
         function selectSkin(skinId) {
-            if (ownedSkins.includes(skinId)) {
-                currentSkin = skinId; renderSkins();
-                if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkin);
+            if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) {
+                currentSkinId = skinId; renderSkins();
+                if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId);
                 tg.HapticFeedback.selectionChanged();
             }
         }
 
         function buySkin(skinId) {
             const skinObj = SKINS.find(s => s.id === skinId);
-            if (!skinObj || ownedSkins.includes(skinId)) return;
+            if (!skinObj || ownedBaseSkinIds.includes(skinId)) return;
             let totalScore = taps + bonus;
             if (totalScore >= skinObj.cost) {
-                bonus -= skinObj.cost; ownedSkins.push(skinId); currentSkin = skinId; updateScore(); renderSkins();
-                if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedSkins)); tg.CloudStorage.setItem('current_skin', currentSkin); }
+                bonus -= skinObj.cost; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateScore(); renderSkins();
+                if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); }
                 tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Вы успешно купили скин: ${skinObj.name}!`);
             } else { tg.showAlert(`❌ Недостаточно $ROB. Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`); }
         }
@@ -429,7 +514,6 @@
             const leagueUi = document.getElementById('userLeagueName');
             leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
 
-            // Отображаем сквад в профиле
             if (currentMySquad !== '') {
                 document.getElementById('mySquadInfo').style.display = 'block';
                 document.getElementById('mySquadNameText').innerText = '@' + currentMySquad;
@@ -580,26 +664,19 @@
             if (screenId === 'leaderboard') { loadLeaderboard(); }
         }
 
-        // --- ЛОГИКА СОЗДАНИЯ СКВАДА ---
         function showCreateSquadModal() {
             document.getElementById('squadModal').style.display = 'flex';
             document.getElementById('squadLinkResult').style.display = 'none';
             document.getElementById('squadInput').value = '';
         }
 
-        function closeSquadModal() {
-            document.getElementById('squadModal').style.display = 'none';
-        }
+        function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
 
         function generateSquadLink() {
             let val = document.getElementById('squadInput').value.trim();
             if(!val) return;
-            // Убираем лишние символы, если человек вставил ссылку целиком или с собачкой
             val = val.replace('https://t.me/', '').replace('@', '');
-            
-            // Генерируем ссылку (используется юзернейм grutap_robot как в реферальной системе)
             let link = `https://t.me/grutap_robot?start=squad_${val}`;
-            
             document.getElementById('squadLinkResult').style.display = 'block';
             document.getElementById('generatedSquadLink').innerText = link;
             tg.HapticFeedback.notificationOccurred('success');
@@ -608,30 +685,25 @@
         function copySquadLink() {
             let link = document.getElementById('generatedSquadLink').innerText;
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(link).then(() => {
-                    tg.showAlert("✅ Ссылка скопирована! Сделай крутой пост в своем канале и зови подписчиков.");
-                    closeSquadModal();
-                }).catch(e => {
-                    tg.showAlert("🔗 Твоя ссылка: " + link);
-                });
-            } else {
-                tg.showAlert("🔗 Твоя ссылка: " + link);
-            }
+                navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована! Сделай крутой пост в своем канале и зови подписчиков."); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Твоя ссылка: " + link); });
+            } else { tg.showAlert("🔗 Твоя ссылка: " + link); }
         }
 
         // --- 5. ЗАПУСК И ОБРАБОТЧИКИ СОБЫТИЙ ---
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_squad'], (err, values) => {
+            // Подгружаем два массива: старый owned_skins и новый owned_ai_skins
+            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad'], (err, values) => {
                 if (!err && values) {
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
                     if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
-                    if (values.owned_skins) { try { ownedSkins = JSON.parse(values.owned_skins); } catch(e){} }
-                    if (values.current_skin) currentSkin = values.current_skin;
                     
-                    // Если игрок уже был в скваде (и не перешел по новой ссылке)
+                    if (values.owned_skins) { try { ownedBaseSkinIds = JSON.parse(values.owned_skins); } catch(e){} }
+                    if (values.owned_ai_skins) { try { ownedAISkins = JSON.parse(values.owned_ai_skins); } catch(e){} }
+                    if (values.current_skin) currentSkinId = values.current_skin;
+                    
                     if (values.current_squad && currentMySquad === '') { currentMySquad = values.current_squad; }
 
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy;
@@ -660,9 +732,20 @@
             });
         } else { finishLoading(); }
 
+        // --- ИЗМЕНЕНИЯ: НОВАЯ ФОРМУЛА ТАПА ---
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
-            let baseEarn = multitapLevel; let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
+            
+            // Находим активный скин (среди ИИ-скинов или базовых) и его бонус
+            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || ownedAISkins.find(s => s.id === currentSkinId) || SKINS[0];
+            let skinBonus = activeSkinObj.bonus || 0;
+
+            // Аддитивная формула: База (Мультитап) + Бонус от скина
+            let baseEarn = multitapLevel + skinBonus; 
+            
+            // Ракета умножает итоговую базу на 5
+            let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
+            
             taps += earnAmount; unsyncedTaps += earnAmount; 
             if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
             updateScore(); tg.HapticFeedback.impactOccurred('medium');
