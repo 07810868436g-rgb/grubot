@@ -420,47 +420,18 @@
             tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
-        // --- ИЗМЕНЕНИЯ: ГАЧА ФУНКЦИОНАЛ ---
-        function generateAISkin() {
-            // В будущем здесь будет вызов tg.openInvoice() для оплаты в Stars
-            let btn = document.getElementById('btnGenerateSkin');
-            btn.innerText = "⏳ Нейросеть рисует...";
-            btn.disabled = true;
-
-            // Имитация задержки ответа сервера (2.5 сек)
-            setTimeout(() => {
-                let roll = Math.random() * 100;
-                let rarity, bonus, name, color;
-
-                if (roll > 95) { rarity = 'legendary'; bonus = 3; name = 'Легендарный'; color = '#facc15'; }
-                else if (roll > 75) { rarity = 'rare'; bonus = 2; name = 'Редкий'; color = '#a855f7'; }
-                else { rarity = 'common'; bonus = 1; name = 'Обычный'; color = '#94a3b8'; }
-
-                let newSkin = {
-                    id: 'ai_' + Date.now(),
-                    name: name + ' Скин',
-                    img: 'https://img.icons8.com/fluency/512/bot.png', // Заглушка, сюда придет URL картинки с твоего облака
-                    bonus: bonus,
-                    rarity: rarity,
-                    color: color
-                };
-
-                ownedAISkins.push(newSkin);
-                currentSkinId = newSkin.id; // Сразу надеваем
-                renderSkins();
-
-                if (tg.CloudStorage) {
-                    tg.CloudStorage.setItem('owned_ai_skins', JSON.stringify(ownedAISkins));
-                    tg.CloudStorage.setItem('current_skin', currentSkinId);
-                }
-
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert(`✨ Магия сработала! Вы получили ${name} скин!\nБонус: +${bonus} к тапу.`);
-
-                btn.innerText = "Создать Скин (50 ⭐️)";
-                btn.disabled = false;
-            }, 2500); 
-        }
+        // --- ВРЕМЕННАЯ ЗАГЛУШКА ДЛЯ НЕЙРО-КУЗНИЦЫ (ТИЗЕР) ---
+function generateAISkin() {
+    // Вызываем вибрацию (предупреждение)
+    tg.HapticFeedback.notificationOccurred('warning');
+    
+    // Показываем красивое всплывающее окно
+    tg.showAlert(
+        '🛠 Нейро-кузница в разработке!\n\n' +
+        'Совсем скоро ты сможешь создавать уникальные ИИ-скины за Telegram Stars. ' +
+        'Копи поинты и жди грандиозное обновление! 🚀'
+    );
+}
 
         function selectSkin(skinId) {
             if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) {
