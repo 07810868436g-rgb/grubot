@@ -55,17 +55,20 @@
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
 
         /* ==========================================
-           НОВЫЕ СТИЛИ: СТУДИЯ И ШТОРКА (TYCOON) 
+           СТИЛИ СТУДИИ (TYCOON) И ФОН
            ========================================== */
+        .studio-container { position: relative; width: 100%; height: 250px; background: #0b0f19; border-radius: 16px; overflow: hidden; border: 2px solid #38bdf8; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
-        .studio-container { position: relative; width: 100%; height: 220px; background: #1e293b; border-radius: 16px; overflow: hidden; border: 2px solid #38bdf8; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .studio-bg { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; 
+            /* ФОН КОМНАТЫ С GITHUB */
+            background: url('https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_ex27ggex27ggex27.png') center/cover no-repeat; 
+            opacity: 1; z-index: 0; 
+        }
         
-        /* ЗАГЛУШКА: Замени URL ниже на базовый фон пустой комнаты */
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; background: url('https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_ex27ggex27ggex27.png') center/cover; opacity: 0.5; z-index: 0; }
-        
-        /* Слои-картинки предметов (PNG с прозрачным фоном) */
-        .studio-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
-        .layer-desk { z-index: 1; }
+        /* Слои-картинки предметов */
+        .studio-layer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); height: 100px; object-fit: contain; display: none; }
+        .layer-desk { z-index: 1; height: 120px; }
         .layer-chair { z-index: 2; }
         .layer-audio { z-index: 3; }
         .layer-bed { z-index: 4; }
@@ -105,7 +108,6 @@
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-gray { background: #475569; color: #cbd5e1; cursor: not-allowed; }
 
-        /* ИНПУТЫ И ГАЧА (Остальное без изменений) */
         .squad-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 16px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
         .squad-input:focus { border-color: #38bdf8; outline: none; }
         
@@ -374,7 +376,7 @@
 
         let ownedBaseSkinIds = ['default']; let ownedAISkins = []; let currentSkinId = 'default';
 
-        // --- НОВАЯ ЭКОНОМИКА ТАЙКУНА (СТУДИЯ) ---
+        // --- ЭКОНОМИКА ТАЙКУНА (СТУДИЯ) И ССЫЛКИ ---
         let studioLevels = { desk: 0, chair: 0, audio: 0, bed: 0, decor: 0 };
         let activeShopCategory = 'desk';
         
@@ -387,32 +389,32 @@
         ];
 
         const STUDIO_ITEMS = {
-    desk: [
-        { id: 'desk1', level: 1, name: 'Ноутбук на коробке', cost: 900, income: 1, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_9i2ct29i2ct29i2c-removebg-preview.png' },
-        { id: 'desk2', level: 2, name: 'Простой стол и ПК', cost: 2400, income: 2, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk2.png' },
-        { id: 'desk3', level: 3, name: 'Геймерский сет', cost: 9000, income: 5, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk3.png' }
-    ],
-    chair: [
-        { id: 'chair1', level: 1, name: 'Табуретка', cost: 16000, income: 8, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair1.png' },
-        { id: 'chair2', level: 2, name: 'Офисное кресло', cost: 35000, income: 14, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair2.png' },
-        { id: 'chair3', level: 3, name: 'Кибер-кресло', cost: 65000, income: 20, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair3.png' }
-    ],
-    audio: [
-        { id: 'audio1', level: 1, name: 'Наушники-затычки', cost: 100000, income: 25, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio1.png' },
-        { id: 'audio2', level: 2, name: 'Накладные наушники', cost: 180000, income: 35, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio2.png' },
-        { id: 'audio3', level: 3, name: 'Студийный микрофон', cost: 300000, income: 50, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio3.png' }
-    ],
-    bed: [
-        { id: 'bed1', level: 1, name: 'Матрас на полу', cost: 500000, income: 70, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed1.png' },
-        { id: 'bed2', level: 2, name: 'Обычная кровать', cost: 850000, income: 100, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed2.png' },
-        { id: 'bed3', level: 3, name: 'Неоновая кровать', cost: 1500000, income: 150, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed3.png' }
-    ],
-    decor: [
-        { id: 'decor1', level: 1, name: 'Старый постер', cost: 2500000, income: 200, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor1.png' },
-        { id: 'decor2', level: 2, name: 'RGB-подсветка', cost: 5000000, income: 300, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor2.png' },
-        { id: 'decor3', level: 3, name: 'Картина Скруджа', cost: 0, income: 400, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor3.png', reqStreak: 7 }
-    ]
-};
+            desk: [
+                { id: 'desk1', level: 1, name: 'Ноутбук на коробке', cost: 900, income: 1, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_9i2ct29i2ct29i2c-removebg-preview.png' },
+                { id: 'desk2', level: 2, name: 'Простой стол и ПК', cost: 2400, income: 2, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk2.png' },
+                { id: 'desk3', level: 3, name: 'Геймерский сет', cost: 9000, income: 5, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk3.png' }
+            ],
+            chair: [
+                { id: 'chair1', level: 1, name: 'Табуретка', cost: 16000, income: 8, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair1.png' },
+                { id: 'chair2', level: 2, name: 'Офисное кресло', cost: 35000, income: 14, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair2.png' },
+                { id: 'chair3', level: 3, name: 'Кибер-кресло', cost: 65000, income: 20, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair3.png' }
+            ],
+            audio: [
+                { id: 'audio1', level: 1, name: 'Наушники-затычки', cost: 100000, income: 25, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio1.png' },
+                { id: 'audio2', level: 2, name: 'Накладные наушники', cost: 180000, income: 35, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio2.png' },
+                { id: 'audio3', level: 3, name: 'Студийный микрофон', cost: 300000, income: 50, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio3.png' }
+            ],
+            bed: [
+                { id: 'bed1', level: 1, name: 'Матрас на полу', cost: 500000, income: 70, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed1.png' },
+                { id: 'bed2', level: 2, name: 'Обычная кровать', cost: 850000, income: 100, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed2.png' },
+                { id: 'bed3', level: 3, name: 'Неоновая кровать', cost: 1500000, income: 150, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed3.png' }
+            ],
+            decor: [
+                { id: 'decor1', level: 1, name: 'Старый постер', cost: 2500000, income: 200, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor1.png' },
+                { id: 'decor2', level: 2, name: 'RGB-подсветка', cost: 5000000, income: 300, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor2.png' },
+                { id: 'decor3', level: 3, name: 'Картина Скруджа', cost: 0, income: 400, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor3.png', reqStreak: 7 }
+            ]
+        };
 
         let startParam = tg.initDataUnsafe?.start_param;
         if (startParam && startParam.startsWith('squad_')) {
@@ -464,7 +466,6 @@
 
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
 
-        // --- ФУНКЦИИ СТУДИИ (TYCOON) ---
         function calcStudioIncome() {
             let totalIncome = 0;
             for (let cat in studioLevels) {
@@ -478,7 +479,6 @@
         }
 
         function updateStudioVisuals() {
-            // Обновляем картинки слоев
             for (let cat in studioLevels) {
                 let lvl = studioLevels[cat];
                 let layerImg = document.getElementById(`layer-${cat}`);
@@ -488,25 +488,22 @@
                         layerImg.src = item.img;
                         layerImg.style.display = 'block';
                     } else {
-                        layerImg.style.display = 'none'; // Если картинки нет, прячем
+                        layerImg.style.display = 'none';
                     }
                 } else {
                     layerImg.style.display = 'none';
                 }
             }
-            // Обновляем текст дохода
             document.getElementById('studioIncomeTotal').innerText = calcStudioIncome().toLocaleString('ru-RU');
         }
 
         function openStudioShop() {
             document.getElementById('shopSheetOverlay').style.display = 'block';
-            // Небольшая задержка для плавности анимации CSS
             setTimeout(() => {
                 document.getElementById('shopSheetOverlay').style.opacity = '1';
                 document.getElementById('shopSheet').classList.add('open');
             }, 10);
-            renderShopTabs();
-            renderShopItems();
+            renderShopTabs(); renderShopItems();
         }
 
         function closeStudioShop() {
@@ -516,8 +513,7 @@
         }
 
         function renderShopTabs() {
-            const container = document.getElementById('shopTabsContainer');
-            container.innerHTML = '';
+            const container = document.getElementById('shopTabsContainer'); container.innerHTML = '';
             STUDIO_CATEGORIES.forEach(cat => {
                 let btn = document.createElement('div');
                 btn.className = `shop-tab ${activeShopCategory === cat.id ? 'active' : ''}`;
@@ -528,13 +524,11 @@
         }
 
         function renderShopItems() {
-            const container = document.getElementById('shopItemsContainer');
-            container.innerHTML = '';
+            const container = document.getElementById('shopItemsContainer'); container.innerHTML = '';
             let currentLvl = studioLevels[activeShopCategory];
             
             STUDIO_ITEMS[activeShopCategory].forEach(item => {
                 let isBought = currentLvl >= item.level;
-                let isNext = currentLvl + 1 === item.level;
                 let isLocked = item.level > currentLvl + 1;
                 
                 let btnHtml = '';
@@ -573,22 +567,17 @@
             let totalScore = taps + bonus;
             if (item.reqStreak) {
                 if (dailyStreak < item.reqStreak) return;
-                // Бесплатно
             } else {
                 if (totalScore < item.cost) { tg.showAlert(`❌ Недостаточно $ROB! Нужно: ${item.cost.toLocaleString('ru-RU')}`); return; }
                 bonus -= item.cost;
             }
             
             studioLevels[activeShopCategory] = item.level;
-            updateScore();
-            updateStudioVisuals();
-            renderShopItems();
-            
+            updateScore(); updateStudioVisuals(); renderShopItems();
             if (tg.CloudStorage) tg.CloudStorage.setItem('studio_levels', JSON.stringify(studioLevels));
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // --- МОДАЛКА ТЕХНИЧЕСКИХ БУСТОВ ---
         let currentTechAction = '';
         function updateTechGridVisuals() {
             document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`;
@@ -598,30 +587,25 @@
 
         function openTechModal(type) {
             currentTechAction = type;
-            const title = document.getElementById('techModalTitle');
-            const desc = document.getElementById('techModalDesc');
-            const icon = document.getElementById('techModalIcon');
-            const current = document.getElementById('techModalCurrent');
-            const next = document.getElementById('techModalNext');
-            const btn = document.getElementById('techModalBuyBtn');
+            const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc');
+            const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent');
+            const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
 
             if (type === 'multitap') {
                 icon.innerText = "👆"; title.innerText = "Мультитап"; desc.innerText = "Увеличивает добычу за 1 тап.";
                 current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`;
                 btn.innerText = `Прокачать • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`;
             } else if (type === 'energy') {
-                icon.innerText = "🔋"; title.innerText = "Энергоемкость"; desc.innerText = "Увеличивает максимальный запас энергии.";
+                icon.innerText = "🔋"; title.innerText = "Энергоемкость"; desc.innerText = "Увеличивает запас энергии.";
                 current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`;
                 btn.innerText = `Прокачать • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`;
             } else if (type === 'bot') {
-                icon.innerText = "🤖"; title.innerText = "Авто-Бот"; desc.innerText = "Собирает пассивный доход Студии, пока вы офлайн (макс 3 часа).";
+                icon.innerText = "🤖"; title.innerText = "Авто-Бот"; desc.innerText = "Студия приносит доход пока вы офлайн (макс 3 часа).";
                 current.innerText = `База: +${autoBotLevel}/сек`; next.innerText = `База: +${autoBotLevel + 1}/сек`;
                 let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1);
                 btn.innerText = `${autoBotLevel === 0 ? 'Купить бота' : 'Прокачать'} • ${cost.toLocaleString('ru-RU')} $ROB`;
             }
-            
-            btn.onclick = () => { buyTechBoost(type); };
-            document.getElementById('techModal').style.display = 'flex';
+            btn.onclick = () => { buyTechBoost(type); }; document.getElementById('techModal').style.display = 'flex';
         }
 
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
@@ -636,12 +620,11 @@
                 if (totalScore >= cost) { bonus -= cost; maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); updateEnergyVisual(); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
             } else if (type === 'bot') {
                 cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1);
-                if (totalScore >= cost) { bonus -= cost; autoBotLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен! Теперь Студия приносит доход даже офлайн!"); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
+                if (totalScore >= cost) { bonus -= cost; autoBotLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен!"); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
             }
             updateTechGridVisuals(); updateScore(); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
         }
 
-        // --- СКИНЫ И ПРОЧЕЕ ---
         function renderSkins() {
             const container = document.getElementById('skinsContainer'); container.innerHTML = '';
             SKINS.forEach(skin => {
@@ -661,8 +644,7 @@
             tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
-        function generateAISkin() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert('🛠 Нейро-кузница в разработке!\n\nСовсем скоро ты сможешь создавать уникальные ИИ-скины. Копи поинты и жди грандиозное обновление! 🚀'); }
-        
+        function generateAISkin() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert('🛠 Нейро-кузница в разработке!\n\nСовсем скоро ты сможешь создавать уникальные ИИ-скины.'); }
         function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
         function buySkin(skinId) { const skinObj = SKINS.find(s => s.id === skinId); if (!skinObj || ownedBaseSkinIds.includes(skinId)) return; let totalScore = taps + bonus; if (totalScore >= skinObj.cost) { bonus -= skinObj.cost; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Вы купили: ${skinObj.name}!`); } else { tg.showAlert(`❌ Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`); } }
 
@@ -699,7 +681,7 @@
             let reward = getDailyRewardAmount(dailyStreak); bonus += reward; updateScore(); lastClaimDate = todayStr;
             if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_streak', dailyStreak.toString()); tg.CloudStorage.setItem('last_claim_date', todayStr); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
             checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Серия продлена! Получено +${reward} $ROB!`);
-            renderShopItems(); // Если открылся Скрудж
+            renderShopItems(); 
         }
 
         function updateDailyQuestVisual() {
@@ -746,57 +728,45 @@
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
 
+        // --- ФУНКЦИЯ РАКЕТЫ ---
         function activateRocket() {
-    console.log("DEBUG: Кнопка нажата. Ракет:", rocketsLeft, "Активна:", isRocketActive);
+            if (rocketsLeft <= 0) {
+                tg.showAlert("❌ Ракеты закончились!");
+                return;
+            }
+            if (isRocketActive) {
+                tg.showAlert("🚀 Ракета уже летит!");
+                return;
+            }
 
-    // 1. Проверка условий
-    if (rocketsLeft <= 0) {
-        tg.showAlert("❌ Ракеты закончились!");
-        return;
-    }
-    if (isRocketActive) {
-        tg.showAlert("🚀 Ракета уже летит!");
-        return;
-    }
+            rocketsLeft--; 
+            document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+            if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
 
-    // 2. Списываем ракету
-    rocketsLeft--; 
-    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-    
-    // Сохраняем в облако
-    if (tg.CloudStorage) {
-        tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
-    }
+            if (rocketsLeft <= 0) {
+                let btn = document.getElementById('btnActivateRocket');
+                btn.innerText = "Закончились ❌";
+                btn.style.background = "#475569";
+            }
 
-    // 3. Блокируем кнопку, если они закончились
-    if (rocketsLeft <= 0) {
-        let btn = document.getElementById('btnActivateRocket');
-        btn.innerText = "Закончились ❌";
-        btn.style.background = "#475569";
-    }
+            isRocketActive = true; 
+            document.getElementById('rocketBadge').style.display = 'block';
+            showScreen('main', document.querySelector('.menu-btn'));
 
-    // 4. Запускаем эффект
-    isRocketActive = true; 
-    document.getElementById('rocketBadge').style.display = 'block';
-    
-    // Переход на главный экран
-    showScreen('main', document.querySelector('.menu-btn'));
-
-    let timeLeft = 15; 
-    document.getElementById('rocketTimer').innerText = timeLeft;
-    
-    let countdown = setInterval(() => { 
-        timeLeft--; 
-        document.getElementById('rocketTimer').innerText = timeLeft; 
-        
-        if (timeLeft <= 0) { 
-            clearInterval(countdown); 
-            isRocketActive = false; 
-            document.getElementById('rocketBadge').style.display = 'none'; 
-            console.log("DEBUG: Ракета приземлилась");
-        } 
-    }, 1000);
-}
+            let timeLeft = 15; 
+            document.getElementById('rocketTimer').innerText = timeLeft;
+            
+            let countdown = setInterval(() => { 
+                timeLeft--; 
+                document.getElementById('rocketTimer').innerText = timeLeft; 
+                
+                if (timeLeft <= 0) { 
+                    clearInterval(countdown); 
+                    isRocketActive = false; 
+                    document.getElementById('rocketBadge').style.display = 'none'; 
+                } 
+            }, 1000);
+        }
 
         function saveToCloudStorage() {
             if (tg.CloudStorage) {
@@ -832,8 +802,39 @@
 
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
 
-                    if (values.rockets_count !== undefined) { rocketsLeft = parseInt(values.rockets_count, 10); if (isNaN(rocketsLeft)) rocketsLeft = 3; }
+                    // --- ЛОГИКА ЕЖЕДНЕВНОГО СБРОСА (Тапы и Ракеты) ---
+                    if (values.daily_taps_date === todayStr) {
+                        // Тот же день
+                        if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0;
+                        if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true;
+                        
+                        if (values.rockets_count !== undefined) {
+                            rocketsLeft = parseInt(values.rockets_count, 10);
+                            if (isNaN(rocketsLeft)) rocketsLeft = 3;
+                        } else { rocketsLeft = 3; }
+                    } else {
+                        // НОВЫЙ ДЕНЬ
+                        dailyTaps = 0;
+                        dailyQuestClaimed = false;
+                        
+                        rocketsLeft = 3; // Обнуляем ракеты
+                        if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', '3');
+                    }
                     
+                    // Обновляем визуал кнопки ракеты при загрузке
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    let rocketBtn = document.getElementById('btnActivateRocket');
+                    if (rocketBtn) {
+                        if (rocketsLeft <= 0) {
+                            rocketBtn.innerText = "Закончились ❌";
+                            rocketBtn.style.background = "#475569";
+                        } else {
+                            rocketBtn.innerText = "Запустить Ракету 🚀";
+                            rocketBtn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)";
+                        }
+                    }
+                    // ------------------------------------------------
+
                     let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
                     let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0; if (isNaN(lastLeave)) lastLeave = 0;
 
@@ -841,17 +842,15 @@
                         let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
                         energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); 
                         
-                        // ЛОГИКА ОФЛАЙН ЗАРАБОТКА (Студия + Бот)
                         if (autoBotLevel > 0) { 
-                            let maxBotSeconds = 3 * 60 * 60; // 3 часа лимит
+                            let maxBotSeconds = 3 * 60 * 60; 
                             let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds); 
-                            let incomePerSec = autoBotLevel + calcStudioIncome(); // Эффект бота + Мебель
+                            let incomePerSec = autoBotLevel + calcStudioIncome(); 
                             earnedOffline = actualBotSeconds * incomePerSec; 
                         }
                     } else { energy = savedEnergy; }
 
                     if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
-                    if (values.daily_taps_date === todayStr) { if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0; if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true; } else { dailyTaps = 0; dailyQuestClaimed = false; }
                 }
                 finishLoading();
             });
@@ -873,14 +872,13 @@
             showFloatingText(x, y, earnAmount, isRocketActive);
         });
 
-        // ЕЖЕСЕКУНДНЫЙ ЦИКЛ (Энергия + Пассивный доход Студии)
         setInterval(() => { 
             if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } 
             
             let studioIncome = calcStudioIncome();
             if (studioIncome > 0) {
                 bonus += studioIncome;
-                unsyncedTaps += studioIncome; // Отправляем на бэкенд вместе с тапами
+                unsyncedTaps += studioIncome;
                 updateScore();
             }
         }, 1000);
@@ -901,4 +899,3 @@
     </script>
 </body>
 </html>
-
