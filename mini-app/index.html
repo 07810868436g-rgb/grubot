@@ -821,6 +821,11 @@
                         if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', '3');
                     }
                     
+                    // --- ВРЕМЕННЫЙ ЧИТ-КОД РАЗРАБОТЧИКА ---
+                    rocketsLeft = 3; 
+                    if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', '3');
+                    // -------------------------------------
+
                     // Обновляем визуал кнопки ракеты при загрузке
                     document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
                     let rocketBtn = document.getElementById('btnActivateRocket');
