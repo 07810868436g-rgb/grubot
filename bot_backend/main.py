@@ -7,7 +7,7 @@ from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters.command import Command, CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import WebAppInfo
+from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,8 +20,8 @@ CHANNEL_SNG = "@robuxtap_sng"
 WEB_APP_URL = "https://grubot.vercel.app/" # <--- ТВОЯ ССЫЛКА НА ИГРУ
 
 # --- НАСТРОЙКИ БАННЕРОВ (ССЫЛКИ НА КАРТИНКИ) ---
-BANNER_WELCOME = "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000&auto=format&fit=crop" # Картинка для проверки подписки
-BANNER_GAME = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop"    # Картинка для кнопки "Играть"
+BANNER_WELCOME = "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000&auto=format&fit=crop"
+BANNER_GAME = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop"    
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -35,6 +35,49 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                 )''')
 conn.commit()
 
+# ==========================================
+# БЛОК: HTTP API ДЛЯ МИНИ-АППА
+# ==========================================
+async def create_invoice_api(request):
+    try:
+        # Создаем цену (50 Telegram Stars)
+        prices = [LabeledPrice(label="Нейро-Скин", amount=50)]
+        
+        # Генерируем ссылку на оплату через API Телеграма
+        invoice_link = await bot.create_invoice_link(
+            title="✨ Генерация ИИ-Скина",
+            description="Оплата создания уникального скина в Нейро-кузнице",
+            payload="skin_generation_50",
+            provider_token="", # ОБЯЗАТЕЛЬНО ПУСТОЙ для Telegram Stars!
+            currency="XTR",
+            prices=prices
+        )
+        
+        return web.json_response({"invoice_url": invoice_link})
+    except Exception as e:
+        print(f"Ошибка создания инвойса: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+# ==========================================
+# БЛОК: ОБРАБОТЧИКИ ПЛАТЕЖЕЙ STARS
+# ==========================================
+@dp.pre_checkout_query()
+async def process_pre_checkout(pre_checkout_query: PreCheckoutQuery):
+    # Подтверждаем Телеграму, что мы готовы принять платеж
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+@dp.message(F.successful_payment)
+async def process_successful_payment(message: types.Message):
+    payment_info = message.successful_payment
+    user = message.from_user
+    
+    if payment_info.invoice_payload == "skin_generation_50":
+        print(f"💰 Игрок {user.first_name} купил генерацию за {payment_info.total_amount} Stars!")
+        await message.answer(f"✅ Оплата {payment_info.total_amount} ⭐️ успешно получена! Твоя генерация скина уже началась в игре.")
+
+# ==========================================
+# ОСТАЛЬНАЯ ЛОГИКА БОТА
+# ==========================================
 async def check_subscription(user_id, channel_username):
     try:
         member = await bot.get_chat_member(chat_id=channel_username, user_id=user_id)
@@ -43,7 +86,6 @@ async def check_subscription(user_id, channel_username):
         print(f"Ошибка проверки подписки: {e}")
         return False
 
-# --- ПРИЕМ ЗАЯВКИ НА ВЫВОД ИЗ МИНИ-АППА ---
 @dp.message(F.web_app_data)
 async def handle_web_app_data(message: types.Message):
     try:
@@ -82,7 +124,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
     first_name = message.from_user.first_name
 
-    # Обработка реферальной системы
     ref_id = None
     if command.args and command.args.startswith("ref_"):
         ref_id_str = command.args.split("_")[1]
@@ -107,7 +148,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
         refs_count = cursor.fetchone()[0]
         current_time = int(time.time())
         
-        # ДИНАМИЧЕСКАЯ ССЫЛКА ДЛЯ СБРОСА КЕША
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
         
         builder = InlineKeyboardBuilder()
@@ -147,7 +187,6 @@ async def process_check(callback: types.CallbackQuery):
         refs_count = cursor.fetchone()[0]
         current_time = int(time.time())
         
-        # ДИНАМИЧЕСКАЯ ССЫЛКА ДЛЯ СБРОСА КЕША
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={current_time}"
         
         game_builder = InlineKeyboardBuilder()
