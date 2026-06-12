@@ -747,13 +747,56 @@
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
 
         function activateRocket() {
-            if (rocketsLeft <= 0 || isRocketActive) return; rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-            if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
-            if(rocketsLeft <= 0) { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
-            let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-            let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
-        }
+    console.log("DEBUG: Кнопка нажата. Ракет:", rocketsLeft, "Активна:", isRocketActive);
+
+    // 1. Проверка условий
+    if (rocketsLeft <= 0) {
+        tg.showAlert("❌ Ракеты закончились!");
+        return;
+    }
+    if (isRocketActive) {
+        tg.showAlert("🚀 Ракета уже летит!");
+        return;
+    }
+
+    // 2. Списываем ракету
+    rocketsLeft--; 
+    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+    
+    // Сохраняем в облако
+    if (tg.CloudStorage) {
+        tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
+    }
+
+    // 3. Блокируем кнопку, если они закончились
+    if (rocketsLeft <= 0) {
+        let btn = document.getElementById('btnActivateRocket');
+        btn.innerText = "Закончились ❌";
+        btn.style.background = "#475569";
+    }
+
+    // 4. Запускаем эффект
+    isRocketActive = true; 
+    document.getElementById('rocketBadge').style.display = 'block';
+    
+    // Переход на главный экран
+    showScreen('main', document.querySelector('.menu-btn'));
+
+    let timeLeft = 15; 
+    document.getElementById('rocketTimer').innerText = timeLeft;
+    
+    let countdown = setInterval(() => { 
+        timeLeft--; 
+        document.getElementById('rocketTimer').innerText = timeLeft; 
+        
+        if (timeLeft <= 0) { 
+            clearInterval(countdown); 
+            isRocketActive = false; 
+            document.getElementById('rocketBadge').style.display = 'none'; 
+            console.log("DEBUG: Ракета приземлилась");
+        } 
+    }, 1000);
+}
 
         function saveToCloudStorage() {
             if (tg.CloudStorage) {
