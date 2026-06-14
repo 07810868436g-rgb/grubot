@@ -19,7 +19,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # ==========================================
 # ⚠️ БЛОК ДЛЯ ТВОИХ ДАННЫХ (ЗАПОЛНИ ЭТИ СТРОКИ)
 # ==========================================
-YOUR_TELEGRAM_ID =  # Твой ID (для уведомлений о выводе)
+YOUR_TELEGRAM_ID = 8685355990  # Твой ID (для уведомлений о выводе)
 CHANNEL_RU = "@robuxtap_ru"    # Твой основной канал
 CHANNEL_SNG = "@robuxtap_sng"  # Твой второй канал
 WEB_APP_URL = "https://grubot.vercel.app/"  # Ссылка на твой фронтенд (Mini App) в Vercel
