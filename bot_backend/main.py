@@ -95,7 +95,7 @@ async def sync_api(request):
         if not user_db:
              return web.json_response({"error": "User not found in DB"}, status=404)
         
-        # Разбираем данные из базы (по порядку столбцов в CREATE TABLE)
+        # Разбираем данные из базы
         current_balance = user_db[2]
         multitap_level = user_db[3]
         
@@ -103,15 +103,12 @@ async def sync_api(request):
         MAX_CLICKS_PER_SEC = 15 # Максимально возможная скорость человека
         elapsed_sec = elapsed_time_ms / 1000.0
         if elapsed_sec <= 0:
-            elapsed_sec = 3.0 # Страховка от багов времени
+            elapsed_sec = 3.0 # Страховка
             
         max_possible_clicks = int(MAX_CLICKS_PER_SEC * elapsed_sec)
-        
-        # Если игрок прислал 1000 кликов за 3 секунды, мы засчитаем только 45 (15 * 3)
         valid_clicks = min(clicks_claimed, max_possible_clicks)
         
         # 4. ФИНАНСЫ: Рассчитываем заработок
-        # Умножаем честные клики на силу тапа
         earned_coins = valid_clicks * multitap_level
         new_balance = current_balance + earned_coins
         
@@ -125,7 +122,6 @@ async def sync_api(request):
         
         print(f"💰 Игрок {user_data.get('first_name')} заработал {earned_coins} $ROB (Баланс: {new_balance})")
         
-        # 6. Отдаем клиенту его НАСТОЯЩИЙ баланс
         return web.json_response({
             "status": "success", 
             "new_taps_balance": new_balance
@@ -134,6 +130,24 @@ async def sync_api(request):
     except Exception as e:
         print(f"Ошибка в /sync: {e}")
         return web.json_response({"error": "Server error"}, status=500)
+
+
+async def create_invoice_api(request):
+    """Генерирует ссылку для оплаты скинов через Telegram Stars"""
+    try:
+        prices = [LabeledPrice(label="Нейро-Скин", amount=50)]
+        invoice_link = await bot.create_invoice_link(
+            title="✨ Генерация ИИ-Скина",
+            description="Оплата создания уникального скина в Нейро-кузнице",
+            payload="skin_generation_50",
+            provider_token="", # ОБЯЗАТЕЛЬНО ПУСТОЙ для Telegram Stars!
+            currency="XTR",
+            prices=prices
+        )
+        return web.json_response({"invoice_url": invoice_link})
+    except Exception as e:
+        print(f"Ошибка создания инвойса: {e}")
+        return web.json_response({"error": str(e)}, status=500)
 
 # ==========================================
 # ОБРАБОТЧИКИ ПЛАТЕЖЕЙ STARS
