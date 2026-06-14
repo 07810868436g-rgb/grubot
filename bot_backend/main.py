@@ -78,24 +78,40 @@ def validate_telegram_data(init_data: str, bot_token: str):
 # ЭКОНОМИКА: ФОРМУЛЫ И ЦЕНЫ
 # ==========================================
 def get_upgrade_cost(base_cost, current_level):
-    """Формула цены для тех. бустов (Мультитап, Энергия, Бот)"""
     if base_cost == 5000 and current_level == 0:
         return 5000
     power = current_level - 1 if current_level > 0 else 0
     return base_cost * (2 ** power)
 
-# Цены на скины (как в твоем JS)
 SKIN_COSTS = {
     'coin': 50000,
     'diamond': 250000,
     'crown': 1000000
 }
 
+# КАТАЛОГ СТУДИИ (Для проверки цен сервером)
+STUDIO_CATALOG = {
+    'desk1': {'cost': 900, 'col': 'studio_desk', 'lvl': 1},
+    'desk2': {'cost': 2400, 'col': 'studio_desk', 'lvl': 2},
+    'desk3': {'cost': 9000, 'col': 'studio_desk', 'lvl': 3},
+    'chair1': {'cost': 16000, 'col': 'studio_chair', 'lvl': 1},
+    'chair2': {'cost': 35000, 'col': 'studio_chair', 'lvl': 2},
+    'chair3': {'cost': 65000, 'col': 'studio_chair', 'lvl': 3},
+    'audio1': {'cost': 100000, 'col': 'studio_audio', 'lvl': 1},
+    'audio2': {'cost': 180000, 'col': 'studio_audio', 'lvl': 2},
+    'audio3': {'cost': 300000, 'col': 'studio_audio', 'lvl': 3},
+    'bed1': {'cost': 500000, 'col': 'studio_bed', 'lvl': 1},
+    'bed2': {'cost': 850000, 'col': 'studio_bed', 'lvl': 2},
+    'bed3': {'cost': 1500000, 'col': 'studio_bed', 'lvl': 3},
+    'decor1': {'cost': 2500000, 'col': 'studio_decor', 'lvl': 1},
+    'decor2': {'cost': 5000000, 'col': 'studio_decor', 'lvl': 2},
+    'decor3': {'cost': 0, 'col': 'studio_decor', 'lvl': 3}
+}
+
 # ==========================================
 # HTTP API ДЛЯ МИНИ-АППА
 # ==========================================
 async def sync_api(request):
-    """Принимает клики, считает пассивный доход и офлайн-бота"""
     try:
         data = await request.json()
         init_data = data.get("initData")
@@ -114,14 +130,12 @@ async def sync_api(request):
         
         if not user_db: return web.json_response({"error": "User not found in DB"}, status=404)
         
-        # Индексы: 2=taps, 3=bonus, 4=multitap, 5=bot, 14=last_sync
         taps_balance = user_db[2]
         bonus_balance = user_db[3]
         multitap_level = user_db[4]
         bot_level = user_db[5]
         last_sync_time = user_db[14]
         
-        # 1. Античит
         MAX_CLICKS_PER_SEC = 15
         elapsed_sec = elapsed_time_ms / 1000.0 if elapsed_time_ms > 0 else 3.0
         valid_clicks = min(clicks_claimed, int(MAX_CLICKS_PER_SEC * elapsed_sec))
@@ -129,7 +143,6 @@ async def sync_api(request):
         earned_from_taps = valid_clicks * multitap_level
         new_taps_balance = taps_balance + earned_from_taps
         
-        # 2. Пассивный доход
         earned_passive = 0
         is_offline_reward = False
         
@@ -139,13 +152,12 @@ async def sync_api(request):
                 earned_passive = int(time_away_sec * studio_income_per_sec)
             else:
                 if bot_level > 0:
-                    active_offline_sec = min(time_away_sec, 10800) # Макс 3 часа
+                    active_offline_sec = min(time_away_sec, 10800)
                     earned_passive = int(active_offline_sec * (studio_income_per_sec + bot_level))
                     is_offline_reward = True
         
         new_bonus_balance = bonus_balance + earned_passive
         
-        # 3. Сохранение
         cursor.execute('''UPDATE users 
                           SET taps_balance = ?, bonus_balance = ?, last_sync_time = ? 
                           WHERE user_id = ?''', 
@@ -163,11 +175,10 @@ async def sync_api(request):
 
 
 async def buy_api(request):
-    """Единый маршрут для всех покупок (Бусты, Студия, Скины)"""
     try:
         data = await request.json()
         init_data = data.get("initData")
-        buy_type = data.get("type") # 'tech' или 'skin'
+        buy_type = data.get("type") 
         item_id = data.get("item_id") 
         
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
@@ -178,7 +189,6 @@ async def buy_api(request):
         user_db = cursor.fetchone()
         if not user_db: return web.json_response({"error": "User not found"}, status=404)
         
-        # Превращаем кортеж из БД в удобный словарь по названиям колонок
         cols = [desc[0] for desc in cursor.description]
         user_dict = dict(zip(cols, user_db))
         
@@ -214,16 +224,29 @@ async def buy_api(request):
             
             owned_skins.append(item_id)
             column_to_update = "owned_skins"
-            new_level = json.dumps(owned_skins) # Сохраняем как строку JSON
+            new_level = json.dumps(owned_skins)
             
+        # ЛОГИКА СТУДИИ (НОВОЕ!)
+        elif buy_type == "studio":
+            item_info = STUDIO_CATALOG.get(item_id)
+            if not item_info:
+                return web.json_response({"error": "Предмет не найден"}, status=400)
+            
+            cost = item_info['cost']
+            column_to_update = item_info['col']
+            new_level = item_info['lvl']
+            
+            if user_dict[column_to_update] >= new_level:
+                return web.json_response({"error": "Этот уровень уже куплен"}, status=400)
+
         else:
             return web.json_response({"error": "Неизвестный тип покупки"}, status=400)
 
         # ПРОВЕРКА БАЛАНСА
-        if cost == 0 or total_balance < cost:
-            return web.json_response({"error": "Недостаточно средств или неверный предмет"}, status=400)
+        if cost > 0 and total_balance < cost:
+            return web.json_response({"error": "Недостаточно средств"}, status=400)
             
-        # СПИСАНИЕ СРЕДСТВ (Сначала тратим бонусные $ROB, потом обычные)
+        # СПИСАНИЕ СРЕДСТВ
         if bonus_bal >= cost:
             new_bonus_bal = bonus_bal - cost
             new_taps_bal = taps_bal
@@ -232,7 +255,6 @@ async def buy_api(request):
             new_bonus_bal = 0
             new_taps_bal = taps_bal - remainder
             
-        # ЗАПИСЬ В БАЗУ ДАННЫХ
         cursor.execute(f'''UPDATE users 
                           SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? 
                           WHERE user_id = ?''', 
@@ -366,7 +388,6 @@ async def main():
         "*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*")
     })
     
-    # Регистрация маршрутов
     route_sync = app.router.add_post('/api/sync', sync_api)
     route_buy = app.router.add_post('/api/buy', buy_api)
     route_invoice = app.router.add_post('/api/create-invoice', create_invoice_api)

@@ -560,22 +560,49 @@
             });
         }
 
+        // =====================================
+        // ОБНОВЛЕННАЯ ПОКУПКА СТУДИИ (ЧЕРЕЗ СЕРВЕР)
+        // =====================================
         function buyStudioItem(itemId) {
             let item = STUDIO_ITEMS[activeShopCategory].find(i => i.id === itemId);
             if (!item) return;
             
-            let totalScore = taps + bonus;
-            if (item.reqStreak) {
-                if (dailyStreak < item.reqStreak) return;
-            } else {
-                if (totalScore < item.cost) { tg.showAlert(`❌ Недостаточно $ROB! Нужно: ${item.cost.toLocaleString('ru-RU')}`); return; }
-                bonus -= item.cost;
+            // Локальная проверка стрика для бесплатного предмета
+            if (item.reqStreak && dailyStreak < item.reqStreak) {
+                tg.showAlert(`❌ Нужно ${item.reqStreak} дней захода подряд!`);
+                return;
             }
-            
-            studioLevels[activeShopCategory] = item.level;
-            updateScore(); updateStudioVisuals(); renderShopItems();
-            if (tg.CloudStorage) tg.CloudStorage.setItem('studio_levels', JSON.stringify(studioLevels));
-            tg.HapticFeedback.notificationOccurred('success');
+
+            fetch(`${BACKEND_URL}/buy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    initData: tg.initData,
+                    type: "studio",
+                    item_id: itemId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    taps = data.new_taps_balance;
+                    bonus = data.new_bonus_balance;
+                    
+                    studioLevels[activeShopCategory] = item.level;
+                    updateScore(); 
+                    updateStudioVisuals(); 
+                    renderShopItems();
+                    
+                    if (tg.CloudStorage) tg.CloudStorage.setItem('studio_levels', JSON.stringify(studioLevels));
+                    tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                }
+            })
+            .catch(err => {
+                console.error("Ошибка покупки студии:", err);
+                tg.showAlert("❌ Ошибка соединения с сервером.");
+            });
         }
 
         let currentTechAction = '';
@@ -611,7 +638,7 @@
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         // =====================================
-        // ОБНОВЛЕННАЯ ПОКУПКА БУСТОВ (ЧЕРЕЗ СЕРВЕР)
+        // ПОКУПКА БУСТОВ (ЧЕРЕЗ СЕРВЕР)
         // =====================================
         function buyTechBoost(type) {
             const btn = document.getElementById('techModalBuyBtn');
@@ -693,7 +720,7 @@
         function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
         
         // =====================================
-        // ОБНОВЛЕННАЯ ПОКУПКА СКИНОВ (ЧЕРЕЗ СЕРВЕР)
+        // ПОКУПКА СКИНОВ (ЧЕРЕЗ СЕРВЕР)
         // =====================================
         function buySkin(skinId) { 
             const skinObj = SKINS.find(s => s.id === skinId); 
