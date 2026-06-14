@@ -40,6 +40,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                     user_id INTEGER PRIMARY KEY,
                     referrer_id INTEGER,
                     taps_balance INTEGER DEFAULT 0,
+                    bonus_balance INTEGER DEFAULT 0,
                     multitap_level INTEGER DEFAULT 1,
                     bot_level INTEGER DEFAULT 0,
                     last_sync_time REAL DEFAULT 0
@@ -74,63 +75,82 @@ def validate_telegram_data(init_data: str, bot_token: str):
 # HTTP API ДЛЯ МИНИ-АППА
 # ==========================================
 async def sync_api(request):
-    """Принимает клики от игры, проверяет на читы и обновляет баланс"""
+    """Принимает клики, считает пассивный доход и офлайн-бота"""
     try:
         data = await request.json()
         init_data = data.get("initData")
         clicks_claimed = data.get("clicks", 0)
         elapsed_time_ms = data.get("elapsed_time_ms", 3000)
         
-        # 1. ТАМОЖНЯ: Проверяем подлинность запроса
+        # Студийный доход берем с клиента (в будущем лучше брать из БД)
+        studio_income_per_sec = data.get("studioIncome", 0) 
+        
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data:
-            return web.json_response({"error": "Unauthorized. Bad signature."}, status=401)
+            return web.json_response({"error": "Unauthorized"}, status=401)
             
         user_id = user_data.get("id")
+        current_time = time.time()
         
-        # 2. ДОСТАЕМ ИГРОКА ИЗ БАЗЫ
         cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
         user_db = cursor.fetchone()
         
         if not user_db:
              return web.json_response({"error": "User not found in DB"}, status=404)
         
-        # Разбираем данные из базы
-        current_balance = user_db[2]
-        multitap_level = user_db[3]
+        # Разбираем данные
+        taps_balance = user_db[2]
+        bonus_balance = user_db[3]
+        multitap_level = user_db[4]
+        bot_level = user_db[5]
+        last_sync_time = user_db[6]
         
-        # 3. АНТИЧИТ: Проверка на автокликер
-        MAX_CLICKS_PER_SEC = 15 # Максимально возможная скорость человека
-        elapsed_sec = elapsed_time_ms / 1000.0
-        if elapsed_sec <= 0:
-            elapsed_sec = 3.0 # Страховка
-            
+        # --- 1. АНТИЧИТ И КЛИКИ ---
+        MAX_CLICKS_PER_SEC = 15
+        elapsed_sec = elapsed_time_ms / 1000.0 if elapsed_time_ms > 0 else 3.0
         max_possible_clicks = int(MAX_CLICKS_PER_SEC * elapsed_sec)
         valid_clicks = min(clicks_claimed, max_possible_clicks)
         
-        # 4. ФИНАНСЫ: Рассчитываем заработок
-        earned_coins = valid_clicks * multitap_level
-        new_balance = current_balance + earned_coins
+        earned_from_taps = valid_clicks * multitap_level
+        new_taps_balance = taps_balance + earned_from_taps
         
-        # 5. СОХРАНЕНИЕ: Записываем в базу
-        current_time = time.time()
+        # --- 2. ПАССИВНЫЙ ДОХОД И ОФЛАЙН-БОТ ---
+        earned_passive = 0
+        is_offline_reward = False
+        
+        if last_sync_time > 0:
+            time_away_sec = current_time - last_sync_time
+            
+            if time_away_sec < 60:
+                # Игрок онлайн (отправляет запросы каждые 3 секунды)
+                earned_passive = int(time_away_sec * studio_income_per_sec)
+            else:
+                # Игрок был офлайн долгое время
+                if bot_level > 0:
+                    # Бот работает максимум 3 часа (10800 секунд)
+                    active_offline_sec = min(time_away_sec, 10800)
+                    earned_passive = int(active_offline_sec * (studio_income_per_sec + bot_level))
+                    is_offline_reward = True
+        
+        new_bonus_balance = bonus_balance + earned_passive
+        
+        # --- 3. СОХРАНЕНИЕ ---
         cursor.execute('''UPDATE users 
-                          SET taps_balance = ?, last_sync_time = ? 
+                          SET taps_balance = ?, bonus_balance = ?, last_sync_time = ? 
                           WHERE user_id = ?''', 
-                       (new_balance, current_time, user_id))
+                       (new_taps_balance, new_bonus_balance, current_time, user_id))
         conn.commit()
-        
-        print(f"💰 Игрок {user_data.get('first_name')} заработал {earned_coins} $ROB (Баланс: {new_balance})")
         
         return web.json_response({
             "status": "success", 
-            "new_taps_balance": new_balance
+            "new_taps_balance": new_taps_balance,
+            "new_bonus_balance": new_bonus_balance,
+            "earned_offline": earned_passive if is_offline_reward else 0
         })
 
     except Exception as e:
         print(f"Ошибка в /sync: {e}")
         return web.json_response({"error": "Server error"}, status=500)
-
 
 async def create_invoice_api(request):
     """Генерирует ссылку для оплаты скинов через Telegram Stars"""

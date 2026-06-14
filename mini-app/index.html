@@ -61,7 +61,6 @@
         
         .studio-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; 
-            /* ФОН КОМНАТЫ С GITHUB */
             background: url('https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_ex27ggex27ggex27.png') center/cover no-repeat; 
             opacity: 1; z-index: 0; 
         }
@@ -360,7 +359,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
-        let taps = 0; let bonus = 0; let unsyncedTaps = 0; let earnedOffline = 0; 
+        // НОВЫЕ СЧЕТЧИКИ БЕЗОПАСНОСТИ
+        let taps = 0; let bonus = 0; let earnedOffline = 0; 
+        let unsyncedClicks = 0; 
+        let lastSyncTime = Date.now();
+        
         if (refsCount >= 10) { bonus += 1000; }
 
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
@@ -659,13 +662,15 @@
         }
 
         function finishLoading() { 
-            updateTechGridVisuals(); updateStudioVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins();
-            if (earnedOffline > 0) { document.getElementById('offlineRewardAmount').innerText = earnedOffline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; } 
-            else { updateScore(); }
+            updateTechGridVisuals(); updateStudioVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins(); updateScore();
             if (currentMySquad !== '' && startParam) { tg.showAlert(`🎉 Вы вступили в сквад @${currentMySquad}!`); }
         }
 
-        function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; bonus += earnedOffline; earnedOffline = 0; updateScore(); tg.HapticFeedback.notificationOccurred('success'); if (tg.CloudStorage) tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
+        function closeOfflineModal() { 
+            document.getElementById('offlineModal').style.display = 'none'; 
+            earnedOffline = 0; // Сервер уже прибавил их к балансу, просто закрываем модалку
+            tg.HapticFeedback.notificationOccurred('success'); 
+        }
         
         function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
         
@@ -786,10 +791,11 @@
 
         // --- 5. ЗАПУСК И ОБРАБОТЧИКИ СОБЫТИЙ ---
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'last_leave_time', 'saved_energy', 'rockets_count', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'studio_levels'], (err, values) => {
+            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'studio_levels'], (err, values) => {
                 if (!err && values) {
+                    // Баланс мы теперь получаем от сервера при первой же синхронизации, но для визуального комфорта загрузим то, что есть локально
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
-                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || bonus; 
+                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || 0; 
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
@@ -802,53 +808,35 @@
 
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
 
-                    // --- ЛОГИКА ЕЖЕДНЕВНОГО СБРОСА (Тапы и Ракеты) ---
-                    if (values.daily_taps_date === todayStr) {
-                        // Тот же день
-                        if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0;
-                        if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true;
-                        
-                        if (values.rockets_count !== undefined) {
-                            rocketsLeft = parseInt(values.rockets_count, 10);
-                            if (isNaN(rocketsLeft)) rocketsLeft = 3;
-                        } else { rocketsLeft = 3; }
+                    // --- ИСПРАВЛЕННАЯ ЛОГИКА РАКЕТ ---
+                    if (values.last_rocket_date !== todayStr) {
+                        rocketsLeft = 3;
+                        tg.CloudStorage.setItem('rockets_count', '3');
+                        tg.CloudStorage.setItem('last_rocket_date', todayStr);
                     } else {
-                        // НОВЫЙ ДЕНЬ
-                        dailyTaps = 0;
-                        dailyQuestClaimed = false;
-                        
-                        rocketsLeft = 3; // Обнуляем ракеты
-                        if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', '3');
+                        rocketsLeft = values.rockets_count !== undefined ? parseInt(values.rockets_count, 10) : 3;
                     }
                     
-                    // Обновляем визуал кнопки ракеты при загрузке
                     document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
                     let rocketBtn = document.getElementById('btnActivateRocket');
                     if (rocketBtn) {
                         if (rocketsLeft <= 0) {
-                            rocketBtn.innerText = "Закончились ❌";
-                            rocketBtn.style.background = "#475569";
+                            rocketBtn.innerText = "Закончились ❌"; rocketBtn.style.background = "#475569";
                         } else {
-                            rocketBtn.innerText = "Запустить Ракету 🚀";
-                            rocketBtn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)";
+                            rocketBtn.innerText = "Запустить Ракету 🚀"; rocketBtn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)";
                         }
                     }
-                    // ------------------------------------------------
 
+                    // --- ЕЖЕДНЕВНЫЕ ТАПЫ ---
+                    if (values.daily_taps_date === todayStr) {
+                        if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0;
+                        if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true;
+                    } else {
+                        dailyTaps = 0; dailyQuestClaimed = false;
+                    }
+                    
                     let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
-                    let lastLeave = values.last_leave_time !== undefined ? parseInt(values.last_leave_time, 10) : 0; if (isNaN(lastLeave)) lastLeave = 0;
-
-                    if (lastLeave > 0) {
-                        let secondsPassed = Math.floor(Date.now() / 1000) - lastLeave;
-                        energy = Math.min(maxEnergy, savedEnergy + (secondsPassed * 1)); 
-                        
-                        if (autoBotLevel > 0) { 
-                            let maxBotSeconds = 3 * 60 * 60; 
-                            let actualBotSeconds = Math.min(secondsPassed, maxBotSeconds); 
-                            let incomePerSec = autoBotLevel + calcStudioIncome(); 
-                            earnedOffline = actualBotSeconds * incomePerSec; 
-                        }
-                    } else { energy = savedEnergy; }
+                    energy = savedEnergy; // Энергию не ускоряем при входе, пусть тикает по секунде
 
                     if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
                 }
@@ -856,6 +844,7 @@
             });
         } else { finishLoading(); }
 
+        // ОБРАБОТЧИК КЛИКА
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
             
@@ -864,7 +853,9 @@
             let baseEarn = multitapLevel + skinBonus; 
             let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             
-            taps += earnAmount; unsyncedTaps += earnAmount; 
+            taps += earnAmount; // Только для визуала
+            unsyncedClicks++; // НОВАЯ ЗАЩИТА
+            
             if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
             updateScore(); tg.HapticFeedback.impactOccurred('medium');
 
@@ -872,63 +863,60 @@
             showFloatingText(x, y, earnAmount, isRocketActive);
         });
 
+        // ТОЛЬКО ЭНЕРГИЯ КАЖДУЮ СЕКУНДУ (Пассив теперь считает сервер)
         setInterval(() => { 
             if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } 
-            
-            let studioIncome = calcStudioIncome();
-            if (studioIncome > 0) {
-                bonus += studioIncome;
-                unsyncedTaps += studioIncome;
-                updateScore();
-            }
         }, 1000);
 
         window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveToCloudStorage(); });
         tg.onEvent('viewportChanged', (data) => { if (!data.isStateStable) saveToCloudStorage(); });
 
+        // НОВЫЙ БЕЗОПАСНЫЙ СЕРВЕРНЫЙ ЦИКЛ СИНХРОНИЗАЦИИ
         let cloudSyncCounter = 0;
-setInterval(() => {
-    cloudSyncCounter += 3;
-    if (cloudSyncCounter >= 30) { 
-        saveToCloudStorage(); 
-        cloudSyncCounter = 0; 
-    }
-    
-    // НОВЫЙ БЕЗОПАСНЫЙ КОД СИНХРОНИЗАЦИИ
-    if (unsyncedClicks > 0) {
-        let clicksToSend = unsyncedClicks;
-        let timeSinceLastSync = Date.now() - lastSyncTime;
-        
-        // Сбрасываем счетчики до отправки, чтобы избежать дублирования
-        unsyncedClicks = 0;
-        lastSyncTime = Date.now();
+        setInterval(() => {
+            cloudSyncCounter += 3;
+            if (cloudSyncCounter >= 30) { saveToCloudStorage(); cloudSyncCounter = 0; }
+            
+            // Синхронизируемся, если есть клики ИЛИ если у нас есть доход Студии
+            if (unsyncedClicks > 0 || calcStudioIncome() > 0) {
+                let clicksToSend = unsyncedClicks;
+                let timeSinceLastSync = Date.now() - lastSyncTime;
+                
+                unsyncedClicks = 0;
+                lastSyncTime = Date.now();
 
-        fetch(`${BACKEND_URL}/sync`, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ 
-                initData: tg.initData, 
-                clicks: clicksToSend,
-                elapsed_time_ms: timeSinceLastSync
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            // Сервер проверил клики и вернул честный баланс
-            if (data.status === "success" && data.new_taps_balance !== undefined) {
-                taps = data.new_taps_balance; // Принудительно ставим баланс с сервера
-                updateScore(); // Обновляем цифры на экране
-            } else if (data.error) {
-                console.error("Ошибка сервера:", data.error);
+                fetch(`${BACKEND_URL}/sync`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ 
+                        initData: tg.initData, 
+                        clicks: clicksToSend,
+                        elapsed_time_ms: timeSinceLastSync,
+                        studioIncome: calcStudioIncome()
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        if (data.new_taps_balance !== undefined) taps = data.new_taps_balance;
+                        if (data.new_bonus_balance !== undefined) bonus = data.new_bonus_balance;
+                        updateScore();
+                        
+                        if (data.earned_offline > 0) {
+                            earnedOffline = data.earned_offline;
+                            document.getElementById('offlineRewardAmount').innerText = earnedOffline.toLocaleString('ru-RU'); 
+                            document.getElementById('offlineModal').style.display = 'flex';
+                        }
+                    } else if (data.error) {
+                        console.error("Ошибка сервера:", data.error);
+                    }
+                })
+                .catch(err => { 
+                    unsyncedClicks += clicksToSend; 
+                    console.error("Ошибка сети:", err);
+                });
             }
-        })
-        .catch(err => { 
-            // Если пропал интернет, возвращаем клики в очередь
-            unsyncedClicks += clicksToSend; 
-            console.error("Ошибка сети:", err);
-        });
-    }
-}, 3000); 
+        }, 3000); 
     </script>
 </body>
 </html>
