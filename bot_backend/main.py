@@ -88,11 +88,21 @@ def get_upgrade_cost(base_cost, current_level):
 
 SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
 STUDIO_CATALOG = {
-    'desk1': {'cost': 900, 'col': 'studio_desk', 'lvl': 1}, 'desk2': {'cost': 2400, 'col': 'studio_desk', 'lvl': 2}, 'desk3': {'cost': 9000, 'col': 'studio_desk', 'lvl': 3},
-    'chair1': {'cost': 16000, 'col': 'studio_chair', 'lvl': 1}, 'chair2': {'cost': 35000, 'col': 'studio_chair', 'lvl': 2}, 'chair3': {'cost': 65000, 'col': 'studio_chair', 'lvl': 3},
-    'audio1': {'cost': 100000, 'col': 'studio_audio', 'lvl': 1}, 'audio2': {'cost': 180000, 'col': 'studio_audio', 'lvl': 2}, 'audio3': {'cost': 300000, 'col': 'studio_audio', 'lvl': 3},
-    'bed1': {'cost': 500000, 'col': 'studio_bed', 'lvl': 1}, 'bed2': {'cost': 850000, 'col': 'studio_bed', 'lvl': 2}, 'bed3': {'cost': 1500000, 'col': 'studio_bed', 'lvl': 3},
-    'decor1': {'cost': 2500000, 'col': 'studio_decor', 'lvl': 1}, 'decor2': {'cost': 5000000, 'col': 'studio_decor', 'lvl': 2}, 'decor3': {'cost': 0, 'col': 'studio_decor', 'lvl': 3}
+    'desk1': {'cost': 1, 'col': 'studio_desk', 'lvl': 1},
+    'desk2': {'cost': 1, 'col': 'studio_desk', 'lvl': 2},
+    'desk3': {'cost': 1, 'col': 'studio_desk', 'lvl': 3},
+    'chair1': {'cost': 1, 'col': 'studio_chair', 'lvl': 1},
+    'chair2': {'cost': 1, 'col': 'studio_chair', 'lvl': 2},
+    'chair3': {'cost': 1, 'col': 'studio_chair', 'lvl': 3},
+    'audio1': {'cost': 1, 'col': 'studio_audio', 'lvl': 1},
+    'audio2': {'cost': 1, 'col': 'studio_audio', 'lvl': 2},
+    'audio3': {'cost': 1, 'col': 'studio_audio', 'lvl': 3},
+    'bed1': {'cost': 1, 'col': 'studio_bed', 'lvl': 1},
+    'bed2': {'cost': 1, 'col': 'studio_bed', 'lvl': 2},
+    'bed3': {'cost': 1, 'col': 'studio_bed', 'lvl': 3},
+    'decor1': {'cost': 1, 'col': 'studio_decor', 'lvl': 1},
+    'decor2': {'cost': 1, 'col': 'studio_decor', 'lvl': 2},
+    'decor3': {'cost': 0, 'col': 'studio_decor', 'lvl': 3} # Оставляем 0, так как это за серию дней
 }
 
 # ==========================================
