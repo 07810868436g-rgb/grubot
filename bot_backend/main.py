@@ -143,38 +143,6 @@ async def check_subscription(user_id, channel_username):
         print(f"Ошибка проверки подписки: {e}")
         return False
 
-@dp.message(F.web_app_data)
-async def handle_web_app_data(message: types.Message):
-    try:
-        data = json.loads(message.web_app_data.data)
-        if data.get("action") == "withdraw":
-            amount = data.get("amount")
-            roblox_nick = data.get("nickname")
-            user = message.from_user
-            
-            await message.answer(
-                f"✅ <b>Заявка на вывод успешно создана!</b>\n\n"
-                f"💰 <b>Сумма:</b> {amount} R$\n"
-                f"🎮 <b>Ник в Roblox:</b> {roblox_nick}\n\n"
-                f"⏳ Администрация проверит и зачислит робуксы в течение 24 часов. "
-                f"Убедись, что у тебя создан геймпас на эту сумму!",
-                parse_mode="HTML"
-            )
-            
-            admin_text = (
-                f"🚨 <b>НОВАЯ ЗАЯВКА НА ВЫВОД ROBUX!</b>\n\n"
-                f"👤 <b>Игрок:</b> {user.first_name} \n"
-                f"🆔 <b>ID Телеграм:</b> <code>{user.id}</code>\n"
-                f"📱 <b>Юзернейм:</b> @{user.username if user.username else 'нету'}\n"
-                f"💰 <b>Сумма к выводу:</b> {amount} R$\n"
-                f"🎮 <b>Ник в Roblox:</b> <code>{roblox_nick}</code>\n\n"
-                f"ℹ️ Переведи робуксы игроку и напиши ему в личку об успешной выплате."
-            )
-            await bot.send_message(chat_id=YOUR_TELEGRAM_ID, text=admin_text, parse_mode="HTML")
-            
-    except Exception as e:
-        print(f"Ошибка при обработке вывода: {e}")
-
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
