@@ -359,7 +359,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
-        // НОВЫЕ СЧЕТЧИКИ БЕЗОПАСНОСТИ
         let taps = 0; let bonus = 0; let earnedOffline = 0; 
         let unsyncedClicks = 0; 
         let lastSyncTime = Date.now();
@@ -369,10 +368,8 @@
         let sponsorsClaimed = { 1: false, 2: false, 3: false };
         let isRocketActive = false; let rocketsLeft = 3;
 
-        // Тех. Бусты
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
         
-        // Ежедневные цели
         let dailyStreak = 0; let lastClaimDate = ""; let dailyTaps = 0; let dailyQuestClaimed = false;
         const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
@@ -613,19 +610,64 @@
 
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
+        // =====================================
+        // ОБНОВЛЕННАЯ ПОКУПКА БУСТОВ (ЧЕРЕЗ СЕРВЕР)
+        // =====================================
         function buyTechBoost(type) {
-            let cost, totalScore = taps + bonus;
-            if (type === 'multitap') {
-                cost = getUpgradeCost(2000, multitapLevel);
-                if (totalScore >= cost) { bonus -= cost; multitapLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
-            } else if (type === 'energy') {
-                cost = getUpgradeCost(2000, maxEnergyLevel);
-                if (totalScore >= cost) { bonus -= cost; maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); updateEnergyVisual(); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
-            } else if (type === 'bot') {
-                cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1);
-                if (totalScore >= cost) { bonus -= cost; autoBotLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен!"); } else { return tg.showAlert("❌ Недостаточно $ROB."); }
-            }
-            updateTechGridVisuals(); updateScore(); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
+            const btn = document.getElementById('techModalBuyBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "⏳ Покупка...";
+            btn.disabled = true;
+
+            fetch(`${BACKEND_URL}/buy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    initData: tg.initData,
+                    type: "tech",
+                    item_id: type
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+
+                if (data.status === "success") {
+                    taps = data.new_taps_balance;
+                    bonus = data.new_bonus_balance;
+                    
+                    if (type === 'multitap') { 
+                        multitapLevel++; 
+                        if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); 
+                    }
+                    else if (type === 'energy') { 
+                        maxEnergyLevel++; 
+                        maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); 
+                        document.getElementById('maxEnergyUI').innerText = maxEnergy; 
+                        updateEnergyVisual();
+                        if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); 
+                    }
+                    else if (type === 'bot') { 
+                        autoBotLevel++; 
+                        if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен!");
+                        if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); 
+                    }
+                    
+                    updateTechGridVisuals(); 
+                    updateScore(); 
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                    closeTechModal();
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                }
+            })
+            .catch(err => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                console.error("Ошибка покупки:", err);
+                tg.showAlert("❌ Ошибка сети. Попробуйте позже.");
+            });
         }
 
         function renderSkins() {
@@ -649,7 +691,51 @@
 
         function generateAISkin() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert('🛠 Нейро-кузница в разработке!\n\nСовсем скоро ты сможешь создавать уникальные ИИ-скины.'); }
         function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
-        function buySkin(skinId) { const skinObj = SKINS.find(s => s.id === skinId); if (!skinObj || ownedBaseSkinIds.includes(skinId)) return; let totalScore = taps + bonus; if (totalScore >= skinObj.cost) { bonus -= skinObj.cost; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Вы купили: ${skinObj.name}!`); } else { tg.showAlert(`❌ Нужно: ${skinObj.cost.toLocaleString('ru-RU')}`); } }
+        
+        // =====================================
+        // ОБНОВЛЕННАЯ ПОКУПКА СКИНОВ (ЧЕРЕЗ СЕРВЕР)
+        // =====================================
+        function buySkin(skinId) { 
+            const skinObj = SKINS.find(s => s.id === skinId); 
+            if (!skinObj || ownedBaseSkinIds.includes(skinId)) return; 
+            
+            fetch(`${BACKEND_URL}/buy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    initData: tg.initData,
+                    type: "skin",
+                    item_id: skinId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    taps = data.new_taps_balance;
+                    bonus = data.new_bonus_balance;
+                    
+                    ownedBaseSkinIds.push(skinId); 
+                    currentSkinId = skinId; 
+                    
+                    updateScore(); 
+                    renderSkins(); 
+                    
+                    if (tg.CloudStorage) { 
+                        tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); 
+                        tg.CloudStorage.setItem('current_skin', currentSkinId); 
+                    } 
+                    
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                    tg.showAlert(`🎉 Вы купили: ${skinObj.name}!`); 
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                }
+            })
+            .catch(err => {
+                console.error("Ошибка покупки скина:", err);
+                tg.showAlert("❌ Ошибка соединения с сервером.");
+            });
+        }
 
         function updateLevelVisuals(totalScore) {
             let currentLevelObj = LEVELS[0]; let nextLevelObj = LEVELS[1];
@@ -668,7 +754,7 @@
 
         function closeOfflineModal() { 
             document.getElementById('offlineModal').style.display = 'none'; 
-            earnedOffline = 0; // Сервер уже прибавил их к балансу, просто закрываем модалку
+            earnedOffline = 0; 
             tg.HapticFeedback.notificationOccurred('success'); 
         }
         
@@ -793,7 +879,6 @@
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'studio_levels'], (err, values) => {
                 if (!err && values) {
-                    // Баланс мы теперь получаем от сервера при первой же синхронизации, но для визуального комфорта загрузим то, что есть локально
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
                     if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || 0; 
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
@@ -836,7 +921,7 @@
                     }
                     
                     let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy;
-                    energy = savedEnergy; // Энергию не ускоряем при входе, пусть тикает по секунде
+                    energy = savedEnergy; 
 
                     if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
                 }
@@ -877,7 +962,6 @@
             cloudSyncCounter += 3;
             if (cloudSyncCounter >= 30) { saveToCloudStorage(); cloudSyncCounter = 0; }
             
-            // Синхронизируемся, если есть клики ИЛИ если у нас есть доход Студии
             if (unsyncedClicks > 0 || calcStudioIncome() > 0) {
                 let clicksToSend = unsyncedClicks;
                 let timeSinceLastSync = Date.now() - lastSyncTime;
