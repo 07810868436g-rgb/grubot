@@ -887,15 +887,48 @@
         tg.onEvent('viewportChanged', (data) => { if (!data.isStateStable) saveToCloudStorage(); });
 
         let cloudSyncCounter = 0;
-        setInterval(() => {
-            cloudSyncCounter += 3;
-            if (cloudSyncCounter >= 30) { saveToCloudStorage(); cloudSyncCounter = 0; }
-            if (unsyncedTaps > 0) {
-                let tapsToSend = unsyncedTaps; unsyncedTaps = 0; 
-                fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, newTaps: tapsToSend })
-                }).then(res => { if (!res.ok) unsyncedTaps += tapsToSend; }).catch(err => { unsyncedTaps += tapsToSend; });
+setInterval(() => {
+    cloudSyncCounter += 3;
+    if (cloudSyncCounter >= 30) { 
+        saveToCloudStorage(); 
+        cloudSyncCounter = 0; 
+    }
+    
+    // НОВЫЙ БЕЗОПАСНЫЙ КОД СИНХРОНИЗАЦИИ
+    if (unsyncedClicks > 0) {
+        let clicksToSend = unsyncedClicks;
+        let timeSinceLastSync = Date.now() - lastSyncTime;
+        
+        // Сбрасываем счетчики до отправки, чтобы избежать дублирования
+        unsyncedClicks = 0;
+        lastSyncTime = Date.now();
+
+        fetch(`${BACKEND_URL}/sync`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ 
+                initData: tg.initData, 
+                clicks: clicksToSend,
+                elapsed_time_ms: timeSinceLastSync
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Сервер проверил клики и вернул честный баланс
+            if (data.status === "success" && data.new_taps_balance !== undefined) {
+                taps = data.new_taps_balance; // Принудительно ставим баланс с сервера
+                updateScore(); // Обновляем цифры на экране
+            } else if (data.error) {
+                console.error("Ошибка сервера:", data.error);
             }
-        }, 3000); 
+        })
+        .catch(err => { 
+            // Если пропал интернет, возвращаем клики в очередь
+            unsyncedClicks += clicksToSend; 
+            console.error("Ошибка сети:", err);
+        });
+    }
+}, 3000); 
     </script>
 </body>
 </html>
