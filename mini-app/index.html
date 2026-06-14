@@ -128,15 +128,23 @@
     </div>
 
     <div id="squadModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 380px;">
             <button class="close-modal-btn" onclick="closeSquadModal()">×</button>
             <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
-            <div class="modal-title" style="color: #38bdf8;">Создать свой Сквад</div>
-            <div class="modal-text">Введите юзернейм вашего Telegram-канала, чтобы получить ссылку для приглашения.</div>
+            <div class="modal-title" style="color: #38bdf8; font-size: 20px;">Создать официальный Сквад</div>
+            
+            <div style="text-align: left; font-size: 13px; color: #cbd5e1; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;">
+                Чтобы ваш канал попал в Лидерборд, нам нужно убедиться, что вы его администратор.<br><br>
+                <b>Шаг 1:</b> Добавьте бота <b>@grutap_robot</b> в администраторы вашего канала.<br>
+                <b>Шаг 2:</b> 🛡 <b>ОТКЛЮЧИТЕ ВСЕ ПРАВА.</b> Уберите галочки с публикации постов, редактирования, добавления пользователей и т.д.<br><br>
+                <span style="color: #94a3b8; font-size: 12px;"><i>*Боту нужен только сам статус присутствия в списке. В целях безопасности вашего канала мы настоятельно просим ничего боту не разрешать!</i></span>
+            </div>
+
             <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
-            <button class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()">Получить ссылку</button>
+            <button id="btnCreateSquad" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()">Привязать канал</button>
+            
             <div id="squadLinkResult" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px dashed rgba(56, 189, 248, 0.5);">
-                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 5px;">Ваша ссылка:</div>
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 5px;">Ваша официальная ссылка:</div>
                 <div id="generatedSquadLink" style="font-size: 12px; color: #38bdf8; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
                 <button class="support-btn" style="background: #475569; width: 100%; padding: 8px; font-size: 14px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()">📋 Скопировать</button>
             </div>
@@ -166,6 +174,7 @@
 
         <div id="profile" class="screen">
             <div id="userName" style="font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #e2e8f0;">@Username</div>
+            
             <div id="mySquadInfo" style="display:none; font-size: 14px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(56, 189, 248, 0.3);">Сквад: <b id="mySquadNameText" style="color: white;"></b></div>
 
             <div class="studio-container">
@@ -255,10 +264,12 @@
                 <div style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">Ваша лига:</div>
                 <div id="userLeagueName" style="font-size: 24px; font-weight: 900; letter-spacing: 1px;">Загрузка...</div>
             </div>
+            
             <div id="createSquadContainer" style="display: none; width: 100%;">
                 <button class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); width: 100%; margin-top: 0; margin-bottom: 15px; font-size: 18px; padding: 15px;" onclick="showCreateSquadModal()">🔥 Вывести свой канал в ТОП</button>
             </div>
-            <div id="leaderboardList" style="width: 100%; box-sizing: border-box;">
+            
+            <div id="leaderboardList" style="width: 100%; box-sizing: border-box; padding-bottom: 20px;">
                 <div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>
             </div>
         </div>
@@ -329,12 +340,6 @@
             bed: [{ id: 'bed1', level: 1, name: 'Матрас на полу', cost: 500000, income: 70, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed1.png' }, { id: 'bed2', level: 2, name: 'Обычная кровать', cost: 850000, income: 100, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed2.png' }, { id: 'bed3', level: 3, name: 'Неоновая кровать', cost: 1500000, income: 150, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed3.png' }],
             decor: [{ id: 'decor1', level: 1, name: 'Старый постер', cost: 2500000, income: 200, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor1.png' }, { id: 'decor2', level: 2, name: 'RGB-подсветка', cost: 5000000, income: 300, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor2.png' }, { id: 'decor3', level: 3, name: 'Картина Скруджа', cost: 0, income: 400, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor3.png', reqStreak: 7 }]
         };
-
-        let startParam = tg.initDataUnsafe?.start_param;
-        if (startParam && startParam.startsWith('squad_')) {
-            currentMySquad = startParam.substring(6); 
-            if (tg.CloudStorage) tg.CloudStorage.setItem('current_squad', currentMySquad);
-        }
 
         const LEAGUES_CONFIG = [
             { id: 1, name: 'Дерево (Noob)', minScore: 0, color: '#a3a3a3' }, { id: 2, name: 'Бронза (Guest)', minScore: 10000, color: '#cd7f32' },
@@ -474,10 +479,17 @@
             if (currentLevelObj === nextLevelObj) { document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`; } 
             else { document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required; let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required; document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`; }
             let league = getCurrentUserLeague(); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
-            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = '@' + currentMySquad; }
+            
+            // Если сервер прислал нам сквад, выводим его
+            if (currentMySquad !== '') { 
+                document.getElementById('mySquadInfo').style.display = 'block'; 
+                document.getElementById('mySquadNameText').innerText = currentMySquad; 
+            } else {
+                document.getElementById('mySquadInfo').style.display = 'none'; 
+            }
         }
 
-        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins(); updateScore(); if (currentMySquad !== '' && startParam) { tg.showAlert(`🎉 Вы вступили в сквад @${currentMySquad}!`); } }
+        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins(); updateScore(); }
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; earnedOffline = 0; tg.HapticFeedback.notificationOccurred('success'); }
         function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
         
@@ -511,27 +523,67 @@
         }
 
         // =====================================
-        // ОБНОВЛЕННЫЙ ЖИВОЙ ЛИДЕРБОРД
+        // ГЕНЕРАЦИЯ СКВАДА (СЕРВЕРНАЯ ПРОВЕРКА)
+        // =====================================
+        function generateSquadLink() { 
+            let val = document.getElementById('squadInput').value.trim(); 
+            if(!val) return; 
+            
+            let btn = document.getElementById('btnCreateSquad');
+            let originalText = btn.innerText;
+            btn.innerText = "⏳ Проверка прав...";
+            btn.disabled = true;
+
+            fetch(`${BACKEND_URL}/create-squad`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData, channel: val })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                if(data.status === "success") {
+                    document.getElementById('squadLinkResult').style.display = 'block'; 
+                    document.getElementById('generatedSquadLink').innerText = data.link; 
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                }
+            })
+            .catch(err => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                tg.showAlert("❌ Ошибка соединения с сервером.");
+            });
+        }
+
+        function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
+        function showCreateSquadModal() { document.getElementById('squadModal').style.display = 'flex'; document.getElementById('squadLinkResult').style.display = 'none'; document.getElementById('squadInput').value = ''; }
+        function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
+        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована!"); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Ссылка: " + link); }); } else { tg.showAlert("🔗 Ссылка: " + link); } }
+
+        // =====================================
+        // ЗАГРУЗКА ЛИДЕРБОРДА (ИГРОКИ И СКВАДЫ)
         // =====================================
         function loadLeaderboard() {
             const listContainer = document.getElementById('leaderboardList');
             listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
             
-            if (currentLbTab === 'players') {
-                fetch(`${BACKEND_URL}/leaderboard`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ initData: tg.initData })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        listContainer.innerHTML = ''; 
-                        data.players.forEach((player, index) => {
+            fetch(`${BACKEND_URL}/leaderboard`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData, tab: currentLbTab })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    listContainer.innerHTML = ''; 
+                    
+                    if (data.tab === "players") {
+                        data.list.forEach((player, index) => {
                             const rank = index + 1; 
                             let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            
-                            // Подсветка своей строки
                             let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);'; 
                             let displayName = player.name + (player.isMe ? " (Вы)" : "");
                             
@@ -543,20 +595,44 @@
                                 </div>
                             `);
                         });
-                        
-                        if (data.players.length === 0) {
-                            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Список пока пуст... Стань первым!</div>';
-                        }
-                    } else {
-                        listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>';
+                    } else if (data.tab === "squads") {
+                        data.list.forEach((squad, index) => {
+                            const rank = index + 1; 
+                            let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                            
+                            // Подсветка, если мы состоим в этом скваде
+                            let isClickable = rank <= 5;
+                            let opacity = isClickable ? '1' : '0.6';
+                            let borderStyle = squad.isMySquad ? '1px solid #38bdf8' : (isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent');
+                            let titleColor = squad.isMySquad ? '#38bdf8' : (isClickable ? '#facc15' : '#94a3b8');
+                            let bgStyle = squad.isMySquad ? 'background: rgba(56, 189, 248, 0.05);' : 'background: rgba(255,255,255,0.05);';
+                            
+                            // Кнопка Вступить только для ТОП-5
+                            let actionHtml = isClickable 
+                                ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">Вступить</button>` 
+                                : ''; 
+                            
+                            listContainer.insertAdjacentHTML('beforeend', `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};">
+                                    <div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div>
+                                    <div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; color: ${titleColor};">
+                                        ${squad.id} ${squad.isMySquad ? '(Ваш)' : ''}<br>
+                                        <span style="font-size: 12px; color: #94a3b8;">👥 ${squad.members} игроков</span><br>
+                                        <span style="font-size: 13px; color: #38bdf8; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span>
+                                    </div>
+                                    <div>${actionHtml}</div>
+                                </div>
+                            `);
+                        });
                     }
-                })
-                .catch(err => {
-                    listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка соединения</div>';
-                });
-            } else {
-                listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Битва сквадов появится в следующем обновлении! 🚀</div>';
-            }
+                    if (data.list.length === 0) listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Список пока пуст... Стань первым!</div>';
+                } else {
+                    listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>';
+                }
+            })
+            .catch(err => {
+                listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка соединения</div>';
+            });
         }
 
         function updateScore() {
@@ -584,12 +660,6 @@
         function claimSponsor(id, channelId, url) { if (sponsorsClaimed[id]) return; let btn = document.getElementById('btnSponsor' + id); tg.openTelegramLink(url); btn.innerText = "Проверяем..."; setTimeout(() => { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); if (tg.CloudStorage) { tg.CloudStorage.setItem('sponsor_' + id, 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); } }, 5000); }
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
-        function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
-        function showCreateSquadModal() { document.getElementById('squadModal').style.display = 'flex'; document.getElementById('squadLinkResult').style.display = 'none'; document.getElementById('squadInput').value = ''; }
-        function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
-        function generateSquadLink() { let val = document.getElementById('squadInput').value.trim(); if(!val) return; val = val.replace('https://t.me/', '').replace('@', ''); let link = `https://t.me/grutap_robot?start=squad_${val}`; document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = link; tg.HapticFeedback.notificationOccurred('success'); }
-        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована!"); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Ссылка: " + link); }); } else { tg.showAlert("🔗 Ссылка: " + link); } }
-
         // --- 5. ЗАПУСК И ОБРАБОТЧИКИ СОБЫТИЙ ---
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'studio_levels'], (err, values) => {
@@ -604,7 +674,6 @@
                     if (values.owned_skins) { try { ownedBaseSkinIds = JSON.parse(values.owned_skins); } catch(e){} }
                     if (values.owned_ai_skins) { try { ownedAISkins = JSON.parse(values.owned_ai_skins); } catch(e){} }
                     if (values.current_skin) currentSkinId = values.current_skin;
-                    if (values.current_squad && currentMySquad === '') { currentMySquad = values.current_squad; }
 
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
 
@@ -675,11 +744,17 @@
                     if (data.status === "success") {
                         if (data.new_taps_balance !== undefined) taps = data.new_taps_balance;
                         if (data.new_bonus_balance !== undefined) bonus = data.new_bonus_balance;
+                        
+                        // Получаем наш текущий сквад с сервера
+                        if (data.current_squad) {
+                            currentMySquad = data.current_squad;
+                            if (tg.CloudStorage) tg.CloudStorage.setItem('current_squad', currentMySquad);
+                        }
+                        
                         updateScore();
                         
                         if (data.earned_offline > 0) {
-                            earnedOffline = data.earned_offline;
-                            document.getElementById('offlineRewardAmount').innerText = earnedOffline.toLocaleString('ru-RU'); 
+                            document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); 
                             document.getElementById('offlineModal').style.display = 'flex';
                         }
                     } else if (data.error) {
