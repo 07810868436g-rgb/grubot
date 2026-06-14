@@ -39,7 +39,10 @@ cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                     user_id INTEGER PRIMARY KEY,
                     referrer_id INTEGER,
-                    taps_balance INTEGER DEFAULT 0
+                    taps_balance INTEGER DEFAULT 0,
+                    multitap_level INTEGER DEFAULT 1,
+                    bot_level INTEGER DEFAULT 0,
+                    last_sync_time REAL DEFAULT 0
                 )''')
 conn.commit()
 
@@ -71,51 +74,66 @@ def validate_telegram_data(init_data: str, bot_token: str):
 # HTTP API ДЛЯ МИНИ-АППА
 # ==========================================
 async def sync_api(request):
-    """Принимает клики от игры и надежно их сохраняет"""
+    """Принимает клики от игры, проверяет на читы и обновляет баланс"""
     try:
         data = await request.json()
         init_data = data.get("initData")
-        clicks = data.get("clicks", 0)
+        clicks_claimed = data.get("clicks", 0)
+        elapsed_time_ms = data.get("elapsed_time_ms", 3000)
         
-        # 1. Проверяем подлинность запроса
+        # 1. ТАМОЖНЯ: Проверяем подлинность запроса
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data:
             return web.json_response({"error": "Unauthorized. Bad signature."}, status=401)
             
         user_id = user_data.get("id")
         
-        # 2. Получаем игрока из базы
+        # 2. ДОСТАЕМ ИГРОКА ИЗ БАЗЫ
         cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
         user_db = cursor.fetchone()
         
         if not user_db:
              return web.json_response({"error": "User not found in DB"}, status=404)
         
-        # 3. Временная логика начисления (позже добавим античит и мультитап)
-        print(f"⚡ Игрок {user_data.get('first_name')} прислал {clicks} кликов!")
+        # Разбираем данные из базы (по порядку столбцов в CREATE TABLE)
+        current_balance = user_db[2]
+        multitap_level = user_db[3]
         
-        return web.json_response({"status": "success", "message": "Клики приняты!"})
+        # 3. АНТИЧИТ: Проверка на автокликер
+        MAX_CLICKS_PER_SEC = 15 # Максимально возможная скорость человека
+        elapsed_sec = elapsed_time_ms / 1000.0
+        if elapsed_sec <= 0:
+            elapsed_sec = 3.0 # Страховка от багов времени
+            
+        max_possible_clicks = int(MAX_CLICKS_PER_SEC * elapsed_sec)
+        
+        # Если игрок прислал 1000 кликов за 3 секунды, мы засчитаем только 45 (15 * 3)
+        valid_clicks = min(clicks_claimed, max_possible_clicks)
+        
+        # 4. ФИНАНСЫ: Рассчитываем заработок
+        # Умножаем честные клики на силу тапа
+        earned_coins = valid_clicks * multitap_level
+        new_balance = current_balance + earned_coins
+        
+        # 5. СОХРАНЕНИЕ: Записываем в базу
+        current_time = time.time()
+        cursor.execute('''UPDATE users 
+                          SET taps_balance = ?, last_sync_time = ? 
+                          WHERE user_id = ?''', 
+                       (new_balance, current_time, user_id))
+        conn.commit()
+        
+        print(f"💰 Игрок {user_data.get('first_name')} заработал {earned_coins} $ROB (Баланс: {new_balance})")
+        
+        # 6. Отдаем клиенту его НАСТОЯЩИЙ баланс
+        return web.json_response({
+            "status": "success", 
+            "new_taps_balance": new_balance
+        })
 
     except Exception as e:
         print(f"Ошибка в /sync: {e}")
         return web.json_response({"error": "Server error"}, status=500)
-
-
-async def create_invoice_api(request):
-    try:
-        prices = [LabeledPrice(label="Нейро-Скин", amount=50)]
-        invoice_link = await bot.create_invoice_link(
-            title="✨ Генерация ИИ-Скина",
-            description="Оплата создания уникального скина в Нейро-кузнице",
-            payload="skin_generation_50",
-            provider_token="", # ОБЯЗАТЕЛЬНО ПУСТОЙ для Telegram Stars!
-            currency="XTR",
-            prices=prices
-        )
-        return web.json_response({"invoice_url": invoice_link})
-    except Exception as e:
-        print(f"Ошибка создания инвойса: {e}")
-        return web.json_response({"error": str(e)}, status=500)
 
 # ==========================================
 # ОБРАБОТЧИКИ ПЛАТЕЖЕЙ STARS
