@@ -47,10 +47,9 @@
         .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
 
+        /* ОБНОВЛЕННЫЕ СТИЛИ СТУДИИ (Без отдельных слоев) */
         .studio-container { position: relative; width: 100%; height: 250px; background: #0b0f19; border-radius: 16px; overflow: hidden; border: 2px solid #38bdf8; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; background: url('https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_ex27ggex27ggex27.png') center/cover no-repeat; opacity: 1; z-index: 0; }
-        .studio-layer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); height: 100px; object-fit: contain; display: none; }
-        .layer-desk { z-index: 1; height: 120px; } .layer-chair { z-index: 2; } .layer-audio { z-index: 3; } .layer-bed { z-index: 4; } .layer-decor { z-index: 5; }
+        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
         .studio-income-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid #38bdf8; padding: 6px 12px; border-radius: 10px; font-weight: bold; color: #facc15; z-index: 10; font-size: 14px; backdrop-filter: blur(4px); }
         .studio-overlay-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(11, 15, 25, 1), transparent); z-index: 9; }
         .studio-balance-badge { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; z-index: 10; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
@@ -69,16 +68,24 @@
         .sheet-title { font-size: 20px; font-weight: bold; color: #facc15; }
         .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 28px; cursor: pointer; }
         .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
-        .shop-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-        .shop-tabs::-webkit-scrollbar { display: none; }
-        .shop-tab { padding: 10px 15px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #94a3b8; font-weight: bold; white-space: nowrap; cursor: pointer; }
-        .shop-tab.active { background: #38bdf8; color: #0b0f19; border-color: #38bdf8; }
-        .shop-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .shop-item.locked { opacity: 0.5; filter: grayscale(100%); }
-        .shop-item-info { flex-grow: 1; text-align: left; }
-        .shop-item-title { font-size: 16px; font-weight: bold; color: white; margin-bottom: 4px; }
-        .shop-item-effect { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 8px; }
-        .shop-item-buy { padding: 8px 15px; border-radius: 10px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; min-width: 100px; }
+        
+        /* НОВЫЕ СТИЛИ ДЛЯ ВИТРИНЫ МАГАЗИНА */
+        .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
+        .showcase-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; transition: transform 0.2s; }
+        .showcase-img-container { width: 100%; height: 130px; background: #000; overflow: hidden; position: relative; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
+        .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: transform 0.5s; }
+        .showcase-card:hover .showcase-img { transform: scale(1.03); }
+        .showcase-info { padding: 15px; text-align: left; }
+        .showcase-title { font-size: 18px; font-weight: bold; color: white; margin-bottom: 4px; }
+        .showcase-effect { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 10px; }
+        .showcase-btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.1s; }
+        .showcase-btn:active { transform: scale(0.97); }
+        
+        .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.25; }
+        .showcase-card.locked .showcase-title { color: #64748b; }
+        .showcase-card.bought { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+        .showcase-card.bought .showcase-img { opacity: 1; }
+
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-gray { background: #475569; color: #cbd5e1; cursor: not-allowed; }
 
@@ -155,10 +162,9 @@
     <div id="shopSheet" class="sheet">
         <div class="sheet-header">
             <button class="sheet-close" onclick="closeStudioShop()">×</button>
-            <div class="sheet-title">🛋 Магазин Студии</div>
+            <div class="sheet-title">🛋 Магазин комнат</div>
         </div>
         <div class="sheet-content">
-            <div class="shop-tabs" id="shopTabsContainer"></div>
             <div id="shopItemsContainer"></div>
         </div>
     </div>
@@ -178,12 +184,7 @@
             <div id="mySquadInfo" style="display:none; font-size: 14px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(56, 189, 248, 0.3);">Сквад: <b id="mySquadNameText" style="color: white;"></b></div>
 
             <div class="studio-container">
-                <div class="studio-bg"></div>
-                <img id="layer-desk" class="studio-layer layer-desk" src=""> 
-                <img id="layer-chair" class="studio-layer layer-chair" src="">
-                <img id="layer-audio" class="studio-layer layer-audio" src="">
-                <img id="layer-bed" class="studio-layer layer-bed" src="">
-                <img id="layer-decor" class="studio-layer layer-decor" src="">
+                <div class="studio-bg" id="mainStudioBg"></div>
                 <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/сек</div>
                 <div class="studio-overlay-gradient"></div>
                 <div class="studio-balance-badge"><span id="profileScore">0</span> $ROB</div>
@@ -329,17 +330,36 @@
 
         let ownedBaseSkinIds = ['default']; let ownedAISkins = []; let currentSkinId = 'default';
 
-        let studioLevels = { desk: 0, chair: 0, audio: 0, bed: 0, decor: 0 };
-        let activeShopCategory = 'desk';
-        
-        const STUDIO_CATEGORIES = [{ id: 'desk', name: '💻 Стол и ПК' }, { id: 'chair', name: '🪑 Кресло' }, { id: 'audio', name: '🎧 Звук' }, { id: 'bed', name: '🛏 Кровать' }, { id: 'decor', name: '🖼 Декор' }];
-        const STUDIO_ITEMS = {
-            desk: [{ id: 'desk1', level: 1, name: 'Ноутбук на коробке', cost: 900, income: 1, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/Gemini_Generated_Image_9i2ct29i2ct29i2c-removebg-preview.png' }, { id: 'desk2', level: 2, name: 'Простой стол и ПК', cost: 2400, income: 2, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk2.png' }, { id: 'desk3', level: 3, name: 'Геймерский сет', cost: 9000, income: 5, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/desk3.png' }],
-            chair: [{ id: 'chair1', level: 1, name: 'Табуретка', cost: 16000, income: 8, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair1.png' }, { id: 'chair2', level: 2, name: 'Офисное кресло', cost: 35000, income: 14, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair2.png' }, { id: 'chair3', level: 3, name: 'Кибер-кресло', cost: 65000, income: 20, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/chair3.png' }],
-            audio: [{ id: 'audio1', level: 1, name: 'Наушники-затычки', cost: 100000, income: 25, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio1.png' }, { id: 'audio2', level: 2, name: 'Накладные наушники', cost: 180000, income: 35, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio2.png' }, { id: 'audio3', level: 3, name: 'Студийный микрофон', cost: 300000, income: 50, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/audio3.png' }],
-            bed: [{ id: 'bed1', level: 1, name: 'Матрас на полу', cost: 500000, income: 70, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed1.png' }, { id: 'bed2', level: 2, name: 'Обычная кровать', cost: 850000, income: 100, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed2.png' }, { id: 'bed3', level: 3, name: 'Неоновая кровать', cost: 1500000, income: 150, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/bed3.png' }],
-            decor: [{ id: 'decor1', level: 1, name: 'Старый постер', cost: 2500000, income: 200, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor1.png' }, { id: 'decor2', level: 2, name: 'RGB-подсветка', cost: 5000000, income: 300, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor2.png' }, { id: 'decor3', level: 3, name: 'Картина Скруджа', cost: 0, income: 400, img: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/decor3.png', reqStreak: 7 }]
-        };
+        // --- НОВАЯ СИСТЕМА УРОВНЕЙ И ФОНОВ ---
+        let currentRoomLevel = 0; 
+        const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
+
+        const ROOM_LEVELS = [
+            { 
+                level: 1, 
+                name: 'Стартовая студия', 
+                cost: 15000, 
+                income: 3, 
+                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', 
+                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' 
+            },
+            { 
+                level: 2, 
+                name: 'Офис', 
+                cost: 500000, 
+                income: 6, 
+                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png', 
+                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' 
+            },
+            { 
+                level: 3, 
+                name: 'Кибер-люкс', 
+                cost: 1500000, 
+                income: 12, 
+                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png', 
+                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png' 
+            }
+        ];
 
         const LEAGUES_CONFIG = [
             { id: 1, name: 'Дерево (Noob)', minScore: 0, color: '#a3a3a3' }, { id: 2, name: 'Бронза (Guest)', minScore: 10000, color: '#cd7f32' },
@@ -374,46 +394,97 @@
 
         function getCurrentUserLeague() { let total = taps + bonus; let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (total >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
-        function calcStudioIncome() { let totalIncome = 0; for (let cat in studioLevels) { let lvl = studioLevels[cat]; if (lvl > 0) { let item = STUDIO_ITEMS[cat].find(i => i.level === lvl); if (item) totalIncome += item.income; } } return totalIncome; }
+        
+        // Пересчет пассивного дохода на новую систему комнат
+        function calcStudioIncome() { 
+            if (currentRoomLevel === 0) return 0;
+            let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel);
+            return room ? room.income : 0;
+        }
 
+        // Плавная замена цельных картинок
         function updateStudioVisuals() {
-            for (let cat in studioLevels) {
-                let lvl = studioLevels[cat]; let layerImg = document.getElementById(`layer-${cat}`);
-                if (lvl > 0) { let item = STUDIO_ITEMS[cat].find(i => i.level === lvl); if (item && item.img) { layerImg.src = item.img; layerImg.style.display = 'block'; } else { layerImg.style.display = 'none'; } } else { layerImg.style.display = 'none'; }
+            let bgElement = document.getElementById('mainStudioBg');
+            if (currentRoomLevel === 0) {
+                bgElement.style.backgroundImage = `url('${BASE_ROOM_BG}')`;
+            } else {
+                let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel);
+                if (room) bgElement.style.backgroundImage = `url('${room.bgImg}')`;
             }
             document.getElementById('studioIncomeTotal').innerText = calcStudioIncome().toLocaleString('ru-RU');
         }
 
-        function openStudioShop() { document.getElementById('shopSheetOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.opacity = '1'; document.getElementById('shopSheet').classList.add('open'); }, 10); renderShopTabs(); renderShopItems(); }
+        function openStudioShop() { document.getElementById('shopSheetOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.opacity = '1'; document.getElementById('shopSheet').classList.add('open'); }, 10); renderShopItems(); }
         function closeStudioShop() { document.getElementById('shopSheet').classList.remove('open'); document.getElementById('shopSheetOverlay').style.opacity = '0'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.display = 'none'; }, 300); }
 
-        function renderShopTabs() {
-            const container = document.getElementById('shopTabsContainer'); container.innerHTML = '';
-            STUDIO_CATEGORIES.forEach(cat => { let btn = document.createElement('div'); btn.className = `shop-tab ${activeShopCategory === cat.id ? 'active' : ''}`; btn.innerText = cat.name; btn.onclick = () => { activeShopCategory = cat.id; renderShopTabs(); renderShopItems(); }; container.appendChild(btn); });
-        }
-
+        // Новая витрина без табов
         function renderShopItems() {
-            const container = document.getElementById('shopItemsContainer'); container.innerHTML = '';
-            let currentLvl = studioLevels[activeShopCategory];
-            STUDIO_ITEMS[activeShopCategory].forEach(item => {
-                let isBought = currentLvl >= item.level; let isLocked = item.level > currentLvl + 1; let btnHtml = '';
-                if (isBought) { btnHtml = `<button class="shop-item-buy btn-gray" disabled>Куплено ✅</button>`; } 
-                else if (isLocked) { btnHtml = `<button class="shop-item-buy btn-gray" disabled>🔒 Нужен ур. ${item.level - 1}</button>`; } 
-                else { if (item.reqStreak) { if (dailyStreak >= item.reqStreak) { btnHtml = `<button class="shop-item-buy btn-green" onclick="buyStudioItem('${item.id}')">Забрать (Бесплатно)</button>`; } else { btnHtml = `<button class="shop-item-buy btn-gray" disabled>Нужно ${item.reqStreak} дней</button>`; } } else { btnHtml = `<button class="shop-item-buy btn-green" onclick="buyStudioItem('${item.id}')">${item.cost.toLocaleString('ru-RU')} $ROB</button>`; } }
-                container.insertAdjacentHTML('beforeend', `<div class="shop-item ${isLocked ? 'locked' : ''}"><div class="shop-item-info"><div class="shop-item-title">${item.name}</div><div class="shop-item-effect">Пассив: +${item.income} $ROB/сек</div></div>${btnHtml}</div>`);
+            const container = document.getElementById('shopItemsContainer');
+            container.innerHTML = '<div class="showcase-grid"></div>';
+            const grid = container.querySelector('.showcase-grid');
+
+            ROOM_LEVELS.forEach(room => {
+                let isBought = currentRoomLevel >= room.level;
+                let isNext = currentRoomLevel + 1 === room.level;
+                let isLocked = room.level > currentRoomLevel + 1;
+
+                let btnHtml = '';
+                let cardClass = 'showcase-card';
+
+                if (isBought) {
+                    cardClass += ' bought';
+                    btnHtml = `<button class="showcase-btn btn-gray" disabled>Установлено ✅</button>`;
+                } else if (isLocked) {
+                    cardClass += ' locked';
+                    btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`;
+                } else if (isNext) {
+                    btnHtml = `<button class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level})">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`;
+                }
+
+                grid.insertAdjacentHTML('beforeend', `
+                    <div class="${cardClass}">
+                        <div class="showcase-img-container">
+                            <img src="${room.previewImg}" class="showcase-img">
+                        </div>
+                        <div class="showcase-info">
+                            <div class="showcase-title">${room.name} (Ур. ${room.level})</div>
+                            <div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                `);
             });
         }
 
-        function buyStudioItem(itemId) {
-            let item = STUDIO_ITEMS[activeShopCategory].find(i => i.id === itemId);
-            if (!item) return;
-            if (item.reqStreak && dailyStreak < item.reqStreak) { tg.showAlert(`❌ Нужно ${item.reqStreak} дней захода подряд!`); return; }
-            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "studio", item_id: itemId }) })
+        // Обновленная функция покупки для бэкенда
+        function buyRoomLevel(levelId) {
+            let room = ROOM_LEVELS.find(r => r.level === levelId);
+            if (!room) return;
+
+            fetch(`${BACKEND_URL}/buy`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) 
+            })
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") { taps = data.new_taps_balance; bonus = data.new_bonus_balance; studioLevels[activeShopCategory] = item.level; updateScore(); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('studio_levels', JSON.stringify(studioLevels)); tg.HapticFeedback.notificationOccurred('success'); } 
-                else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { tg.showAlert("❌ Ошибка соединения с сервером."); });
+                if (data.status === "success") { 
+                    taps = data.new_taps_balance; 
+                    bonus = data.new_bonus_balance; 
+                    currentRoomLevel = levelId;
+                    
+                    updateScore(); 
+                    updateStudioVisuals(); 
+                    renderShopItems(); 
+                    
+                    if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); 
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                } else { 
+                    tg.showAlert(`❌ ${data.error}`); 
+                }
+            }).catch(err => { 
+                tg.showAlert("❌ Ошибка соединения с сервером."); 
+            });
         }
 
         function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; }
@@ -480,7 +551,6 @@
             else { document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required; let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required; document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`; }
             let league = getCurrentUserLeague(); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
             
-            // Если сервер прислал нам сквад, выводим его
             if (currentMySquad !== '') { 
                 document.getElementById('mySquadInfo').style.display = 'block'; 
                 document.getElementById('mySquadNameText').innerText = currentMySquad; 
@@ -522,9 +592,6 @@
             document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
         }
 
-        // =====================================
-        // ГЕНЕРАЦИЯ СКВАДА (СЕРВЕРНАЯ ПРОВЕРКА)
-        // =====================================
         function generateSquadLink() { 
             let val = document.getElementById('squadInput').value.trim(); 
             if(!val) return; 
@@ -563,9 +630,6 @@
         function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
         function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована!"); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Ссылка: " + link); }); } else { tg.showAlert("🔗 Ссылка: " + link); } }
 
-        // =====================================
-        // ЗАГРУЗКА ЛИДЕРБОРДА (ИГРОКИ И СКВАДЫ)
-        // =====================================
         function loadLeaderboard() {
             const listContainer = document.getElementById('leaderboardList');
             listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
@@ -600,14 +664,12 @@
                             const rank = index + 1; 
                             let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
                             
-                            // Подсветка, если мы состоим в этом скваде
                             let isClickable = rank <= 5;
                             let opacity = isClickable ? '1' : '0.6';
                             let borderStyle = squad.isMySquad ? '1px solid #38bdf8' : (isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent');
                             let titleColor = squad.isMySquad ? '#38bdf8' : (isClickable ? '#facc15' : '#94a3b8');
                             let bgStyle = squad.isMySquad ? 'background: rgba(56, 189, 248, 0.05);' : 'background: rgba(255,255,255,0.05);';
                             
-                            // Кнопка Вступить только для ТОП-5
                             let actionHtml = isClickable 
                                 ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">Вступить</button>` 
                                 : ''; 
@@ -654,22 +716,22 @@
             let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
         }
 
-        function saveToCloudStorage() { if (tg.CloudStorage) { tg.CloudStorage.setItem('taps_balance', taps.toString()); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString()); tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); tg.CloudStorage.setItem('daily_taps_date', todayStr); } }
+        function saveToCloudStorage() { if (tg.CloudStorage) { tg.CloudStorage.setItem('taps_balance', taps.toString()); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString()); tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); tg.CloudStorage.setItem('daily_taps_date', todayStr); tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); } }
 
         function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert("🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
         function claimSponsor(id, channelId, url) { if (sponsorsClaimed[id]) return; let btn = document.getElementById('btnSponsor' + id); tg.openTelegramLink(url); btn.innerText = "Проверяем..."; setTimeout(() => { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); if (tg.CloudStorage) { tg.CloudStorage.setItem('sponsor_' + id, 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); } }, 5000); }
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
-        // --- 5. ЗАПУСК И ОБРАБОТЧИКИ СОБЫТИЙ ---
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'studio_levels'], (err, values) => {
+            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'current_room_level'], (err, values) => {
                 if (!err && values) {
                     if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
                     if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || 0; 
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
-                    if (values.studio_levels) { try { studioLevels = JSON.parse(values.studio_levels); } catch(e){} }
+                    
+                    if (values.current_room_level) currentRoomLevel = parseInt(values.current_room_level, 10) || 0;
                     
                     if (values.owned_skins) { try { ownedBaseSkinIds = JSON.parse(values.owned_skins); } catch(e){} }
                     if (values.owned_ai_skins) { try { ownedAISkins = JSON.parse(values.owned_ai_skins); } catch(e){} }
@@ -703,7 +765,8 @@
             let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             
             taps += earnAmount;
-            unsyncedClicks++;
+            let clicksToSend = 1;
+            unsyncedClicks += clicksToSend;
             
             if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
             updateScore(); tg.HapticFeedback.impactOccurred('medium');
@@ -745,7 +808,6 @@
                         if (data.new_taps_balance !== undefined) taps = data.new_taps_balance;
                         if (data.new_bonus_balance !== undefined) bonus = data.new_bonus_balance;
                         
-                        // Получаем наш текущий сквад с сервера
                         if (data.current_squad) {
                             currentMySquad = data.current_squad;
                             if (tg.CloudStorage) tg.CloudStorage.setItem('current_squad', currentMySquad);
