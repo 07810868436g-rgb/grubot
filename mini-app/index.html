@@ -318,7 +318,11 @@
         let visualScore = 0; 
         let serverTaps = 0; 
         let serverBonus = 0; 
-        let pendingClicks = 0; 
+        
+        // РАЗДЕЛЯЕМ ПОТОКИ КЛИКОВ
+        let pendingStandardClicks = 0; 
+        let pendingRocketClicks = 0;
+        
         let currentLbTab = 'players';
         let currentMySquad = ''; 
         
@@ -415,11 +419,10 @@
             });
         }
 
-        // ОБЕРТКА ДЛЯ ВСЕХ ПОКУПОК (Умная покупка)
         function processPurchase(buyFunction) {
-            if (pendingClicks > 0) {
+            if (pendingStandardClicks > 0 || pendingRocketClicks > 0) {
                 syncWithServer(false);
-                setTimeout(buyFunction, 600); // Ждем пока клики зальются на сервер, потом покупаем
+                setTimeout(buyFunction, 600); 
             } else {
                 buyFunction();
             }
@@ -500,57 +503,21 @@
         }
 
         function activateRocket() {
-            // ИСПРАВЛЕНИЕ 1: Сразу отсекаем клик, если ракет нет
             if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились на сегодня!"); return; }
             if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
-            
-            let btn = document.getElementById('btnActivateRocket'); 
-            const origText = btn.innerText; 
-            btn.innerText = "⏳..."; 
-            btn.disabled = true;
-            
+            let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    rocketsLeft = data.rockets_left; 
-                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    
-                    // ИСПРАВЛЕНИЕ 2: Оставляем кнопку выключенной, если ракет больше нет
-                    if (rocketsLeft <= 0) { 
-                        btn.innerText = "Закончились ❌"; 
-                        btn.style.background = "#475569"; 
-                        btn.disabled = true; 
-                    } else {
-                        btn.innerText = origText; 
-                        btn.disabled = false;
-                    }
-                    
-                    isRocketActive = true; 
-                    document.getElementById('rocketBadge').style.display = 'block'; 
-                    showScreen('main', document.querySelector('.menu-btn'));
-                    
-                    let timeLeft = 15; 
-                    document.getElementById('rocketTimer').innerText = timeLeft;
-                    let countdown = setInterval(() => { 
-                        timeLeft--; 
-                        document.getElementById('rocketTimer').innerText = timeLeft; 
-                        if (timeLeft <= 0) { 
-                            clearInterval(countdown); 
-                            isRocketActive = false; 
-                            document.getElementById('rocketBadge').style.display = 'none'; 
-                        } 
-                    }, 1000);
+                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
+                    else { btn.innerText = origText; btn.disabled = false; }
+                    isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
+                    let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
+                    let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
                     tg.HapticFeedback.notificationOccurred('success');
-                } else { 
-                    tg.showAlert(`❌ ${data.error}`); 
-                    btn.innerText = origText; 
-                    btn.disabled = false;
-                }
-            }).catch(err => { 
-                btn.innerText = origText; 
-                btn.disabled = false; 
-                tg.showAlert("❌ Ошибка сети."); 
-            });
+                } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = origText; btn.disabled = false; }
+            }).catch(err => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
         }
 
         function generateSquadLink() { 
@@ -709,11 +676,21 @@
             });
         } else { finishLoading(); }
 
+        // РАЗДЕЛЕНИЕ КЛИКОВ
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
-            let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
-            visualScore += earnAmount; pendingClicks += 1;
+            
+            let earnAmount = 0;
+            if (isRocketActive) {
+                earnAmount = (multitapLevel + activeSkinObj.bonus) * 5;
+                pendingRocketClicks += 1;
+            } else {
+                earnAmount = (multitapLevel + activeSkinObj.bonus);
+                pendingStandardClicks += 1;
+            }
+            
+            visualScore += earnAmount;
             
             if (globalQuestClaimed !== 1) {
                 globalDailyTaps += earnAmount;
@@ -729,8 +706,16 @@
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
 
         function syncWithServer(isInitial = false) {
-            let clicksToSend = pendingClicks; pendingClicks = 0;
-            fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, clicks: clicksToSend }) })
+            let stdToSend = pendingStandardClicks; 
+            let rktToSend = pendingRocketClicks;
+            pendingStandardClicks = 0;
+            pendingRocketClicks = 0;
+            
+            fetch(`${BACKEND_URL}/sync`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData, standard_clicks: stdToSend, rocket_clicks: rktToSend }) 
+            })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
@@ -749,21 +734,26 @@
 
                     if (data.rockets_left !== undefined) {
                         rocketsLeft = data.rockets_left; let btn = document.getElementById('btnActivateRocket'); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                        if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-                        else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; }
+                        if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
+                        else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
                     updateVisualScore(true);
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 }
-            }).catch(() => { pendingClicks += clicksToSend; });
+            }).catch(() => { 
+                pendingStandardClicks += stdToSend; 
+                pendingRocketClicks += rktToSend; 
+            });
         }
 
         setInterval(() => { syncWithServer(false); }, 3000); 
 
         window.addEventListener('visibilitychange', () => { 
-            if (document.visibilityState === 'hidden' && pendingClicks > 0) { 
-                const payload = JSON.stringify({ initData: tg.initData, clicks: pendingClicks });
-                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload); pendingClicks = 0;
+            if (document.visibilityState === 'hidden' && (pendingStandardClicks > 0 || pendingRocketClicks > 0)) { 
+                const payload = JSON.stringify({ initData: tg.initData, standard_clicks: pendingStandardClicks, rocket_clicks: pendingRocketClicks });
+                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload); 
+                pendingStandardClicks = 0;
+                pendingRocketClicks = 0;
             } 
         });
     </script>

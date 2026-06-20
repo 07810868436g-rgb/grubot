@@ -102,7 +102,8 @@ async def sync_api(request):
     try:
         data = await request.json()
         init_data = data.get("initData")
-        clicks_claimed = data.get("clicks", 0)
+        standard_clicks = data.get("standard_clicks", 0)
+        rocket_clicks = data.get("rocket_clicks", 0)
         
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
@@ -131,19 +132,35 @@ async def sync_api(request):
                 daily_taps = 0
                 daily_quest_claimed = 0
 
+            # АНТИЧИТ НА ОБЩЕЕ КОЛИЧЕСТВО КЛИКОВ
+            total_clicks_claimed = standard_clicks + rocket_clicks
             elapsed_sec = current_time - user_db['last_sync_time'] if user_db['last_sync_time'] > 0 else 0
             MAX_CLICKS_PER_SEC = 30
             safe_time = max(elapsed_sec, 3.0)
             max_possible_clicks = int(MAX_CLICKS_PER_SEC * safe_time)
             
-            valid_clicks = min(clicks_claimed, max_possible_clicks)
-            earned_from_taps = valid_clicks * user_db['multitap_level']
+            valid_total_clicks = min(total_clicks_claimed, max_possible_clicks)
             
-            if current_time <= user_db['rocket_expires_at']:
-                earned_from_taps *= 5
+            # Если игрок превысил лимит, урезаем пропорционально
+            if total_clicks_claimed > 0:
+                ratio = valid_total_clicks / total_clicks_claimed
+                valid_standard = int(standard_clicks * ratio)
+                valid_rocket = int(rocket_clicks * ratio)
+            else:
+                valid_standard, valid_rocket = 0, 0
+
+            # РАСЧЕТ ДОХОДА С 3-СЕКУНДНЫМ GRACE PERIOD ДЛЯ РАКЕТЫ
+            earned_from_taps = valid_standard * user_db['multitap_level']
+            
+            if current_time <= user_db['rocket_expires_at'] + 3.0: # +3 секунды на пинг
+                earned_from_taps += valid_rocket * user_db['multitap_level'] * 5
+            else:
+                # Если пытаются прислать ракетные клики когда ракета давно кончилась, считаем как обычные
+                earned_from_taps += valid_rocket * user_db['multitap_level']
                 
             daily_taps += earned_from_taps
             
+            # ПАССИВНЫЙ ДОХОД
             earned_passive = 0
             is_offline_reward = False
             studio_income = ROOM_LEVELS.get(user_db['current_room_level'], {}).get('income', 0)
@@ -290,7 +307,6 @@ async def activate_rocket_api(request):
             async with db.execute("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 row = await cursor.fetchone()
             
-            # ИСПРАВЛЕНИЕ: Явная проверка на None, чтобы 0 не превращался в 3
             r_count = int(row[0]) if row[0] is not None else 3
             r_exp = float(row[1]) if row[1] is not None else 0
             last_date = row[2]
