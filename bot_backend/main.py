@@ -290,8 +290,9 @@ async def activate_rocket_api(request):
             async with db.execute("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 row = await cursor.fetchone()
             
-            r_count = int(row[0] or 3)
-            r_exp = row[1] or 0
+            # ИСПРАВЛЕНИЕ: Явная проверка на None, чтобы 0 не превращался в 3
+            r_count = int(row[0]) if row[0] is not None else 3
+            r_exp = float(row[1]) if row[1] is not None else 0
             last_date = row[2]
             
             if last_date != current_date:

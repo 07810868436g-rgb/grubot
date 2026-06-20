@@ -500,20 +500,57 @@
         }
 
         function activateRocket() {
+            // ИСПРАВЛЕНИЕ 1: Сразу отсекаем клик, если ракет нет
+            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились на сегодня!"); return; }
             if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
-            let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            
+            let btn = document.getElementById('btnActivateRocket'); 
+            const origText = btn.innerText; 
+            btn.innerText = "⏳..."; 
+            btn.disabled = true;
+            
             fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
-                btn.innerText = origText; btn.disabled = false;
                 if (data.status === "success") {
-                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-                    isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
-                    let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-                    let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
+                    rocketsLeft = data.rockets_left; 
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    
+                    // ИСПРАВЛЕНИЕ 2: Оставляем кнопку выключенной, если ракет больше нет
+                    if (rocketsLeft <= 0) { 
+                        btn.innerText = "Закончились ❌"; 
+                        btn.style.background = "#475569"; 
+                        btn.disabled = true; 
+                    } else {
+                        btn.innerText = origText; 
+                        btn.disabled = false;
+                    }
+                    
+                    isRocketActive = true; 
+                    document.getElementById('rocketBadge').style.display = 'block'; 
+                    showScreen('main', document.querySelector('.menu-btn'));
+                    
+                    let timeLeft = 15; 
+                    document.getElementById('rocketTimer').innerText = timeLeft;
+                    let countdown = setInterval(() => { 
+                        timeLeft--; 
+                        document.getElementById('rocketTimer').innerText = timeLeft; 
+                        if (timeLeft <= 0) { 
+                            clearInterval(countdown); 
+                            isRocketActive = false; 
+                            document.getElementById('rocketBadge').style.display = 'none'; 
+                        } 
+                    }, 1000);
                     tg.HapticFeedback.notificationOccurred('success');
-                } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
+                } else { 
+                    tg.showAlert(`❌ ${data.error}`); 
+                    btn.innerText = origText; 
+                    btn.disabled = false;
+                }
+            }).catch(err => { 
+                btn.innerText = origText; 
+                btn.disabled = false; 
+                tg.showAlert("❌ Ошибка сети."); 
+            });
         }
 
         function generateSquadLink() { 
