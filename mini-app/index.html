@@ -201,8 +201,8 @@
             <div class="task-box" style="border: 1px solid rgba(234, 179, 8, 0.3); background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.1) 0%, rgba(255,255,255,0.02) 80%); text-align: center; margin-bottom: 25px;">
                 <b style="font-size: 18px; color: #facc15;">📆 Ежедневная Награда</b><br>
                 <div style="margin-top: 10px; text-align: left;">
-                    <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней</span>
-                    <button id="btnDailyReward" class="support-btn" style="background: #475569; color: white; padding: 12px; font-size: 16px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="showInDevAlert()">В разработке</button>
+                    <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней (До +700 $ROB!)</span>
+                    <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 12px; font-size: 16px; margin-top: 10px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
                 </div>
             </div>
 
@@ -230,22 +230,41 @@
 
         <div id="tasks" class="screen">
             <div class="title">Задания</div>
+            
             <div class="task-box" style="text-align: left;">
                 <b style="font-size: 16px; color: #facc15;">🎯 Цель: Сделать 5000 тапов</b><br>
                 <span style="font-size: 14px; color: #94a3b8;">Прогресс: <b id="dailyTapsText" style="color: #38bdf8;">0</b> / 5000</span>
                 <div class="level-bar-bg" style="margin-top: 5px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
                 <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="showInDevAlert()">Скоро</button>
             </div>
-            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px; background: #475569;" onclick="showInDevAlert()">Скоро</button></div>
-            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px; background: #475569;" onclick="showInDevAlert()">Скоро</button></div>
-            <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
+
+            <div class="task-box">
+                <b>Спонсоры Grutap</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
+                <button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Обновления grubot</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
+                <button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(2, 'https://t.me/grulvl')">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Фанаты Grutap</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
+                <button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(3, 'https://t.me/grufans')">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Релиз комнат</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
+                <button id="btnSponsor4" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(4, 'https://t.me/gruroom')">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
+                <button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button>
+            </div>
         </div>
 
         <div id="skins" class="screen">
             <div class="generator-box">
                 <div style="font-size: 24px; font-weight: bold; color: #a855f7; margin-bottom: 5px;">✨ Нейро-Кузница</div>
                 <div style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Сгенерируй уникальный скин ИИ. Чем выше редкость, тем сильнее бонус к клику!</div>
-                <button id="btnGenerateSkin" class="support-btn" style="background: linear-gradient(90deg, #a855f7, #7e22ce); color: white; width: 100%; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" onclick="generateAISkin()">Создать Скин (50 ⭐️)</button>
+                <button id="btnGenerateSkin" class="support-btn" style="background: linear-gradient(90deg, #a855f7, #7e22ce); color: white; width: 100%; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" onclick="showNeuroForgeEasterEgg()">Создать Скин (50 ⭐️)</button>
             </div>
             <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 10px 0 25px 0;"></div>
             <div class="title" style="font-size: 22px;">Ваша Коллекция</div>
@@ -287,7 +306,6 @@
         
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
         
-        // UI Элементы
         const scoreElement = document.getElementById('score');
         const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
@@ -297,15 +315,19 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // Глобальные переменные (ТОНКИЙ КЛИЕНТ)
         let visualScore = 0; 
         let serverTaps = 0; 
         let serverBonus = 0; 
-        let pendingClicks = 0; // Строго физические нажатия
+        let pendingClicks = 0; 
         let currentLbTab = 'players';
         let currentMySquad = ''; 
         
-        // Визуальные анимации (плавающий текст)
+        // Серверные переменные наград и спонсоров
+        let globalDailyStreak = 0;
+        let globalLastClaimDate = "";
+        let globalClaimedSponsors = [];
+        let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
+
         const floatingPool = [];
         let poolIndex = 0;
         const poolSize = 15;
@@ -318,19 +340,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
-        // Состояния бустов и прокачки (синхронизируются через CloudStorage/Локально для визуала)
-        let isRocketActive = false; 
-        let rocketsLeft = 3;
-        let multitapLevel = 1; 
-        let maxEnergyLevel = 1; 
-        let autoBotLevel = 0; 
-        let energy = 1000; 
-        let maxEnergy = 1000; 
-        let currentRoomLevel = 0; 
-        let ownedBaseSkinIds = ['default']; 
-        let currentSkinId = 'default';
+        let isRocketActive = false; let rocketsLeft = 3;
+        let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
+        let currentRoomLevel = 0; let ownedBaseSkinIds = ['default']; let currentSkinId = 'default';
 
-        // Константы (для визуала, сервер сам проверяет цены)
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
             { level: 1, name: 'Стартовая студия', cost: 15000, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
@@ -356,7 +369,6 @@
             { level: 5, required: 500000 }, { level: 6, required: 1000000 }, { level: 7, required: 5000000 }, { level: 8, required: 10000000 }
         ];
 
-        // Инициализация UI
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
@@ -364,6 +376,11 @@
         function showInDevAlert() {
             tg.HapticFeedback.notificationOccurred('warning');
             tg.showAlert('🛠 Эта функция сейчас переносится на сервер для защиты от накрутки. Скоро заработает!');
+        }
+
+        function showNeuroForgeEasterEgg() {
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert('🤫 Скоро ты сделаешь свою кастомную кнопку... 🚀');
         }
 
         function showFloatingText(x, y, amount, isRocket) {
@@ -380,12 +397,8 @@
 
         function updateStudioVisuals() {
             let bgElement = document.getElementById('mainStudioBg');
-            if (currentRoomLevel === 0) {
-                bgElement.style.backgroundImage = `url('${BASE_ROOM_BG}')`;
-            } else {
-                let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel);
-                if (room) bgElement.style.backgroundImage = `url('${room.bgImg}')`;
-            }
+            if (currentRoomLevel === 0) { bgElement.style.backgroundImage = `url('${BASE_ROOM_BG}')`; } 
+            else { let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel); if (room) bgElement.style.backgroundImage = `url('${room.bgImg}')`; }
             let income = ROOM_LEVELS.find(r => r.level === currentRoomLevel)?.income || 0;
             document.getElementById('studioIncomeTotal').innerText = income.toLocaleString('ru-RU');
         }
@@ -394,78 +407,28 @@
         function closeStudioShop() { document.getElementById('shopSheet').classList.remove('open'); document.getElementById('shopSheetOverlay').style.opacity = '0'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.display = 'none'; }, 300); }
 
         function renderShopItems() {
-            const container = document.getElementById('shopItemsContainer');
-            container.innerHTML = '<div class="showcase-grid"></div>';
+            const container = document.getElementById('shopItemsContainer'); container.innerHTML = '<div class="showcase-grid"></div>';
             const grid = container.querySelector('.showcase-grid');
-
             ROOM_LEVELS.forEach(room => {
-                let isBought = currentRoomLevel >= room.level;
-                let isNext = currentRoomLevel + 1 === room.level;
-                let isLocked = room.level > currentRoomLevel + 1;
-
-                let btnHtml = '';
-                let cardClass = 'showcase-card';
-
-                if (isBought) {
-                    cardClass += ' bought';
-                    btnHtml = `<button class="showcase-btn btn-gray" disabled>Установлено ✅</button>`;
-                } else if (isLocked) {
-                    cardClass += ' locked';
-                    btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`;
-                } else if (isNext) {
-                    btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level}, this)">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`;
-                }
-
-                grid.insertAdjacentHTML('beforeend', `
-                    <div class="${cardClass}">
-                        <div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div>
-                        <div class="showcase-info">
-                            <div class="showcase-title">${room.name} (Ур. ${room.level})</div>
-                            <div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>
-                            ${btnHtml}
-                        </div>
-                    </div>
-                `);
+                let isBought = currentRoomLevel >= room.level; let isNext = currentRoomLevel + 1 === room.level; let isLocked = room.level > currentRoomLevel + 1;
+                let btnHtml = ''; let cardClass = 'showcase-card';
+                if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>Установлено ✅</button>`; } 
+                else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`; } 
+                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level}, this)">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (Ур. ${room.level})</div><div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>${btnHtml}</div></div>`);
             });
         }
 
         function buyRoomLevel(levelId, btnElement) {
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
-
-            fetch(`${BACKEND_URL}/buy`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) 
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") { 
-                    serverTaps = data.new_taps_balance; 
-                    serverBonus = data.new_bonus_balance; 
-                    currentRoomLevel = levelId;
-                    
-                    updateVisualScore(true); 
-                    updateStudioVisuals(); 
-                    renderShopItems(); 
-                    
-                    if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); 
-                    tg.HapticFeedback.notificationOccurred('success'); 
-                } else { 
-                    tg.showAlert(`❌ ${data.error}`); 
-                    btnElement.innerText = originalText; btnElement.disabled = false;
-                }
-            }).catch(err => { 
-                tg.showAlert("❌ Ошибка соединения с сервером."); 
-                btnElement.innerText = originalText; btnElement.disabled = false;
-            });
+            const originalText = btnElement.innerText; btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
+            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) })
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(true); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
+                else { tg.showAlert(`❌ ${data.error}`); btnElement.innerText = originalText; btnElement.disabled = false; }
+            }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerText = originalText; btnElement.disabled = false; });
         }
 
-        function updateTechGridVisuals() { 
-            document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; 
-            document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; 
-            document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; 
-        }
+        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; }
 
         function openTechModal(type) {
             const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
@@ -477,19 +440,15 @@
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function buyTechBoost(type, btnElement) {
-            const originalText = btnElement.innerText; 
-            btnElement.innerText = "⏳ Покупка..."; btnElement.disabled = true;
-            
+            const originalText = btnElement.innerText; btnElement.innerText = "⏳ Покупка..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "tech", item_id: type }) })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.json()).then(data => {
                 btnElement.innerText = originalText; btnElement.disabled = false;
                 if (data.status === "success") {
                     serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
                     if (type === 'multitap') { multitapLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); }
                     else if (type === 'energy') { maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; updateEnergyVisual(); if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); }
-                    else if (type === 'bot') { autoBotLevel++; if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен!"); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); }
-                    
+                    else if (type === 'bot') { autoBotLevel++; updateStudioVisuals(); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); }
                     updateTechGridVisuals(); updateVisualScore(true); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
                 } else { tg.showAlert(`❌ ${data.error}`); }
             }).catch(err => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Ошибка сети."); });
@@ -507,45 +466,15 @@
             const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
-        function generateAISkin() { 
-            const btn = document.getElementById('btnGenerateSkin');
-            const orig = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
-            fetch(`${BACKEND_URL}/create-invoice`, { method: 'POST' })
-            .then(res => res.json()).then(data => {
-                btn.innerText = orig; btn.disabled = false;
-                if(data.invoice_url) tg.openInvoice(data.invoice_url, (status) => { if(status === 'paid') tg.showAlert('Оплата прошла! Скин скоро появится в коллекции.'); });
-            }).catch(e => { btn.innerText = orig; btn.disabled = false; });
-        }
-
-        function selectSkin(skinId) { 
-            if (ownedBaseSkinIds.includes(skinId)) { 
-                currentSkinId = skinId; renderSkins(); 
-                if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); 
-                tg.HapticFeedback.selectionChanged(); 
-            } 
-        }
+        function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
         
         function buySkin(skinId, btnElement) { 
-            const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
-
+            const originalText = btnElement.innerHTML; btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: skinId }) })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") { 
-                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; 
-                    ownedBaseSkinIds.push(skinId); currentSkinId = skinId; 
-                    updateVisualScore(true); renderSkins(); 
-                    if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } 
-                    tg.HapticFeedback.notificationOccurred('success'); 
-                } else { 
-                    tg.showAlert(`❌ ${data.error}`); 
-                    btnElement.innerHTML = originalText; btnElement.disabled = false;
-                }
-            }).catch(err => { 
-                tg.showAlert("❌ Ошибка соединения с сервером."); 
-                btnElement.innerHTML = originalText; btnElement.disabled = false;
-            });
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateVisualScore(true); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); } 
+                else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
+            }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
 
         function updateLevelVisuals(totalScore) {
@@ -554,71 +483,41 @@
             if (currentLevelObj === nextLevelObj) { document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`; } 
             else { document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required; let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required; document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`; }
             let league = getCurrentUserLeague(totalScore); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
-            
-            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } 
-            else { document.getElementById('mySquadInfo').style.display = 'none'; }
+            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } else { document.getElementById('mySquadInfo').style.display = 'none'; }
         }
 
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
+        
         function switchLeaderboardTab(tab) {
             currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#38bdf8' : '#1e293b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#38bdf8' : '#1e293b';
             document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
         }
 
-        // РАКЕТА (Отправляем запрос на сервер)
         function activateRocket() {
             if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
-            
-            let btn = document.getElementById('btnActivateRocket');
-            let origText = btn.innerText;
-            btn.innerText = "⏳ Запуск..."; btn.disabled = true;
-
-            fetch(`${BACKEND_URL}/activate-rocket`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData }) 
-            })
-            .then(res => res.json())
-            .then(data => {
+            let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
+            .then(res => res.json()).then(data => {
                 btn.innerText = origText; btn.disabled = false;
-                
                 if (data.status === "success") {
-                    rocketsLeft = data.rockets_left;
-                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
                     if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-                    
-                    isRocketActive = true; 
-                    document.getElementById('rocketBadge').style.display = 'block'; 
-                    showScreen('main', document.querySelector('.menu-btn'));
+                    isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
                     let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-                    
-                    let countdown = setInterval(() => { 
-                        timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; 
-                        if (timeLeft <= 0) { 
-                            clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; 
-                        } 
-                    }, 1000);
+                    let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
                     tg.HapticFeedback.notificationOccurred('success');
-                } else {
-                    tg.showAlert(`❌ ${data.error}`);
-                }
-            })
-            .catch(err => { 
-                btn.innerText = origText; btn.disabled = false;
-                tg.showAlert("❌ Ошибка соединения."); 
-            });
+                } else { tg.showAlert(`❌ ${data.error}`); }
+            }).catch(err => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
         }
 
         function generateSquadLink() { 
             let val = document.getElementById('squadInput').value.trim(); if(!val) return; 
-            let btn = document.getElementById('btnCreateSquad'); const originalText = btn.innerText; btn.innerText = "⏳ Проверка прав..."; btn.disabled = true;
+            let btn = document.getElementById('btnCreateSquad'); const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/create-squad`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, channel: val }) })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.json()).then(data => {
                 btn.innerText = originalText; btn.disabled = false;
-                if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } 
-                else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Ошибка сервера."); });
+                if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } else { tg.showAlert(`❌ ${data.error}`); }
+            }).catch(err => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
         }
 
         function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
@@ -629,16 +528,14 @@
         function loadLeaderboard() {
             const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
             fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     listContainer.innerHTML = ''; 
                     if (data.tab === "players") {
                         data.list.forEach((player, index) => {
                             const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
                             let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);'; 
-                            let displayName = player.name + (player.isMe ? " (Вы)" : "");
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${displayName}</div><div style="font-weight: bold; color: #38bdf8; font-size: 16px; text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);">${player.score.toLocaleString('ru-RU')}</div></div>`);
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #38bdf8; font-size: 16px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
                         });
                     } else if (data.tab === "squads") {
                         data.list.forEach((squad, index) => {
@@ -650,19 +547,14 @@
                     }
                     if (data.list.length === 0) listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Список пока пуст... Стань первым!</div>';
                 } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>'; }
-            }).catch(err => { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка соединения</div>'; });
+            });
         }
 
-        // ОБНОВЛЕНИЕ БАЛАНСА
         function updateVisualScore(forceSyncWithServer = false) {
-            if (forceSyncWithServer) {
-                visualScore = serverTaps + serverBonus;
-            }
+            if (forceSyncWithServer) { visualScore = serverTaps + serverBonus; }
             let robux = Math.floor(visualScore / 1000);
-            scoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
-            profileScoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
-            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); 
-            withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
+            scoreElement.innerText = visualScore.toLocaleString('ru-RU'); profileScoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
+            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
             updateLevelVisuals(visualScore); 
         }
 
@@ -670,11 +562,67 @@
         function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert("🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
-        // СТАРТОВАЯ ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ
-        function finishLoading() { 
-            updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(true);
-            syncWithServer(true); 
+        function renderDailyRewardUI() {
+            document.getElementById('dailyStreakText').innerText = globalDailyStreak;
+            let btn = document.getElementById('btnDailyReward');
+            const todayStr = new Date().toISOString().slice(0, 10);
+            
+            if (globalLastClaimDate === todayStr) {
+                btn.innerText = "Забрано ✅"; btn.style.background = "#475569"; btn.style.color = "white"; btn.disabled = true;
+            } else {
+                let nextDay = (globalDailyStreak % 7) + 1;
+                btn.innerText = `Забрать +${nextDay * 100} $ROB`;
+                btn.style.background = "linear-gradient(90deg, #eab308, #ca8a04)"; btn.style.color = "black"; btn.disabled = false;
+            }
         }
+
+        function claimDailyServer() {
+            let btn = document.getElementById('btnDailyReward');
+            btn.innerText = "⏳..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/daily-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
+                    updateVisualScore(true); renderDailyRewardUI();
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
+                } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
+            }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyRewardUI(); });
+        }
+
+        function renderSponsorsUI() {
+            for(let id = 1; id <= 4; id++) {
+                let btn = document.getElementById('btnSponsor' + id);
+                if (!btn) continue;
+                if (globalClaimedSponsors.includes(id)) {
+                    btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.disabled = true;
+                } else if (sponsorStates[id] === "clicked") {
+                    btn.innerText = "Проверить 🔄"; btn.style.background = "linear-gradient(90deg, #38bdf8, #0284c7)";
+                }
+            }
+        }
+
+        function clickSponsor(id, url) {
+            let btn = document.getElementById('btnSponsor' + id);
+            if (sponsorStates[id] === "init") {
+                tg.openTelegramLink(url);
+                sponsorStates[id] = "clicked";
+                renderSponsorsUI();
+            } else if (sponsorStates[id] === "clicked") {
+                btn.innerText = "⏳..."; btn.disabled = true;
+                fetch(`${BACKEND_URL}/claim-sponsor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, sponsor_id: id }) })
+                .then(res => res.json()).then(data => {
+                    if (data.status === "success") {
+                        globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
+                        updateVisualScore(true); renderSponsorsUI();
+                        tg.HapticFeedback.notificationOccurred('success');
+                        tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
+                    } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = "Проверить 🔄"; btn.disabled = false; }
+                }).catch(() => { tg.showAlert("❌ Ошибка сети."); btn.innerText = "Проверить 🔄"; btn.disabled = false; });
+            }
+        }
+
+        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(true); syncWithServer(true); }
 
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_room_level'], (err, values) => {
@@ -691,77 +639,50 @@
             });
         } else { finishLoading(); }
 
-        // ЛОГИКА ТАПА
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
-            
+            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
-            let skinBonus = activeSkinObj.bonus || 0;
-            let baseEarn = multitapLevel + skinBonus; 
-            
-            // На экране всё умножается на 5
-            let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
-            visualScore += earnAmount;
-            
-            // НА СЕРВЕР ОТПРАВЛЯЕТСЯ СТРОГО +1 ФИЗИЧЕСКИЙ КЛИК!
-            pendingClicks += 1;
-            
+            let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
+            visualScore += earnAmount; pendingClicks += 1;
             updateVisualScore(); tg.HapticFeedback.impactOccurred('medium');
-
             let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             showFloatingText(x, y, earnAmount, isRocketActive);
         });
 
-        // ВОССТАНОВЛЕНИЕ ЭНЕРГИИ
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
 
-        // СЕРВЕРНАЯ СИНХРОНИЗАЦИЯ (Каждые 3 секунды)
         function syncWithServer(isInitial = false) {
-            let clicksToSend = pendingClicks;
-            pendingClicks = 0;
-
-            fetch(`${BACKEND_URL}/sync`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData, clicks: clicksToSend })
-            })
-            .then(res => res.json())
-            .then(data => {
+            let clicksToSend = pendingClicks; pendingClicks = 0;
+            fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, clicks: clicksToSend }) })
+            .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    serverTaps = data.new_taps_balance;
-                    serverBonus = data.new_bonus_balance;
+                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
                     if (data.current_squad) currentMySquad = data.current_squad;
                     
-                    // Обновляем ракеты с сервера
+                    globalDailyStreak = data.daily_streak || 0;
+                    globalLastClaimDate = data.last_claim_date || "";
+                    try { globalClaimedSponsors = JSON.parse(data.claimed_sponsors || "[]"); } catch(e) { globalClaimedSponsors = []; }
+                    
+                    renderDailyRewardUI();
+                    renderSponsorsUI();
+
                     if (data.rockets_left !== undefined) {
-                        rocketsLeft = data.rockets_left;
-                        let btn = document.getElementById('btnActivateRocket');
-                        document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                        rocketsLeft = data.rockets_left; let btn = document.getElementById('btnActivateRocket'); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
                         if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
                         else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; }
                     }
-                    
                     updateVisualScore(true);
-                    
-                    if (isInitial && data.earned_offline > 0) {
-                        document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); 
-                        document.getElementById('offlineModal').style.display = 'flex';
-                    }
+                    if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 }
-            })
-            .catch(err => { 
-                pendingClicks += clicksToSend; 
-            });
+            }).catch(() => { pendingClicks += clicksToSend; });
         }
 
         setInterval(() => { syncWithServer(false); }, 3000); 
 
-        // СПАСЕНИЕ КЛИКОВ ПРИ ВЫХОДЕ ИЗ МИНИ-АППА
         window.addEventListener('visibilitychange', () => { 
             if (document.visibilityState === 'hidden' && pendingClicks > 0) { 
                 const payload = JSON.stringify({ initData: tg.initData, clicks: pendingClicks });
-                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload);
-                pendingClicks = 0;
+                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload); pendingClicks = 0;
             } 
         });
     </script>
