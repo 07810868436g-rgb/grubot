@@ -17,19 +17,15 @@ from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# ==========================================
-# ⚠️ НАСТРОЙКИ КАНАЛОВ И СПОНСОРОВ
-# ==========================================
 YOUR_TELEGRAM_ID = None  
 CHANNEL_RU = "@robuxtap_ru"
 CHANNEL_SNG = "@robuxtap_sng"
 WEB_APP_URL = "https://grubot.vercel.app/"
 
-# Реальные юзернеймы каналов спонсоров для проверки подписки на бэкенде
 SPONSOR_CHANNELS = {
-    1: "@grusponsors",       # Замени на реальный юзернейм Спонсора #1
-    2: "@grulvl",      # Замени на реальный юзернейм Спонсора #2
-    3: "@grufans",        # Замени на реальный юзернейм Спонсора #3
+    1: "@grusponsors",
+    2: "@grulvl",
+    3: "@grufans",
     4: "@gruroom"
 }
 
@@ -46,9 +42,6 @@ ROOM_LEVELS = {
     3: {'cost': 1500000, 'income': 12}
 }
 
-# ==========================================
-# ИНИЦИАЛИЗАЦИЯ БД
-# ==========================================
 async def init_db():
     async with aiosqlite.connect(DB_NAME) as db:
         await db.execute('PRAGMA journal_mode=WAL;')
@@ -73,7 +66,9 @@ async def init_db():
             last_play_date TEXT DEFAULT '',
             daily_streak INTEGER DEFAULT 0,
             last_claim_date TEXT DEFAULT '',
-            claimed_sponsors TEXT DEFAULT '[]'
+            claimed_sponsors TEXT DEFAULT '[]',
+            daily_taps INTEGER DEFAULT 0,
+            daily_quest_claimed INTEGER DEFAULT 0
         )''')
         await db.commit()
 
@@ -96,9 +91,6 @@ async def check_subscription(user_id, channel_username):
         return member.status in ["member", "creator", "administrator"]
     except Exception: return False
 
-# ==========================================
-# HTTP API ЭНДПОИНТЫ
-# ==========================================
 async def sync_api(request):
     try:
         data = await request.json()
@@ -121,14 +113,18 @@ async def sync_api(request):
                 
             if not user_db: return web.json_response({"error": "User not found"}, status=404)
             
-            # Сброс ежедневных ракет
             rockets_count = user_db['rockets_count']
             last_play_date = user_db['last_play_date']
+            daily_taps = user_db['daily_taps']
+            daily_quest_claimed = user_db['daily_quest_claimed']
+            
+            # Сброс ежедневных счетчиков
             if last_play_date != current_date:
                 rockets_count = 3
                 last_play_date = current_date
+                daily_taps = 0
+                daily_quest_claimed = 0
 
-            # Античит
             elapsed_sec = current_time - user_db['last_sync_time'] if user_db['last_sync_time'] > 0 else 0
             MAX_CLICKS_PER_SEC = 30
             safe_time = max(elapsed_sec, 3.0)
@@ -139,8 +135,9 @@ async def sync_api(request):
             
             if current_time <= user_db['rocket_expires_at']:
                 earned_from_taps *= 5
+                
+            daily_taps += earned_from_taps
             
-            # Пассивный доход
             earned_passive = 0
             is_offline_reward = False
             studio_income = ROOM_LEVELS.get(user_db['current_room_level'], {}).get('income', 0)
@@ -158,9 +155,10 @@ async def sync_api(request):
             new_bonus_bal = user_db['bonus_balance'] + earned_passive
             
             await db.execute('''UPDATE users 
-                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?, rockets_count = ?, last_play_date = ?
+                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?, 
+                                  rockets_count = ?, last_play_date = ?, daily_taps = ?, daily_quest_claimed = ?
                               WHERE user_id = ?''', 
-                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, user_id))
+                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, user_id))
             await db.commit()
             
         return web.json_response({
@@ -172,12 +170,45 @@ async def sync_api(request):
             "rockets_left": rockets_count,
             "daily_streak": user_db['daily_streak'],
             "last_claim_date": user_db['last_claim_date'],
-            "claimed_sponsors": user_db['claimed_sponsors']
+            "claimed_sponsors": user_db['claimed_sponsors'],
+            "daily_taps": daily_taps,
+            "daily_quest_claimed": daily_quest_claimed
         })
     except Exception as e:
         return web.json_response({"error": "Server error"}, status=500)
 
-# СБОР ЕЖЕДНЕВНОЙ НАГРАДЫ (Логика на сервере)
+# ==========================================
+# ЦЕЛЬ НА 5000 КЛИКОВ
+# ==========================================
+async def claim_daily_quest_api(request):
+    try:
+        data = await request.json()
+        init_data = data.get("initData")
+        user_data = validate_telegram_data(init_data, BOT_TOKEN)
+        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+        
+        user_id = user_data.get("id")
+        
+        async with aiosqlite.connect(DB_NAME) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT daily_taps, daily_quest_claimed, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
+                row = await cursor.fetchone()
+            
+            if not row: return web.json_response({"error": "User not found"}, status=404)
+            
+            if row['daily_taps'] < 5000:
+                return web.json_response({"error": "Цель еще не выполнена!"}, status=400)
+            if row['daily_quest_claimed'] == 1:
+                return web.json_response({"error": "Награда уже получена!"}, status=400)
+                
+            new_bonus = row['bonus_balance'] + 10000
+            
+            await db.execute("UPDATE users SET daily_quest_claimed = 1, bonus_balance = ? WHERE user_id = ?", (new_bonus, user_id))
+            await db.commit()
+            
+            return web.json_response({"status": "success", "new_bonus_balance": new_bonus})
+    except Exception: return web.json_response({"error": "Server error"}, status=500)
+
 async def daily_claim_api(request):
     try:
         data = await request.json()
@@ -198,24 +229,18 @@ async def daily_claim_api(request):
             streak = row['daily_streak']
             last_claim = row['last_claim_date']
             
-            if last_claim == today_str:
-                return web.json_response({"error": "Сегодня вы уже забрали награду!"}, status=400)
-            
-            if last_claim == yesterday_str:
-                streak = (streak % 7) + 1
-            else:
-                streak = 1  
+            if last_claim == today_str: return web.json_response({"error": "Сегодня вы уже забрали награду!"}, status=400)
+            if last_claim == yesterday_str: streak = (streak % 7) + 1
+            else: streak = 1  
                 
-            reward = streak * 100  # 1 день = 100, 2 день = 200 ... 7 день = 700
+            reward = streak * 100
             new_bonus = row['bonus_balance'] + reward
             
             await db.execute("UPDATE users SET daily_streak = ?, last_claim_date = ?, bonus_balance = ? WHERE user_id = ?", (streak, today_str, new_bonus, user_id))
             await db.commit()
-            
             return web.json_response({"status": "success", "daily_streak": streak, "last_claim_date": today_str, "new_bonus_balance": new_bonus, "reward_received": reward})
     except Exception: return web.json_response({"error": "Server error"}, status=500)
 
-# ПРОВЕРКА ПОДПИСКИ НА СПОНСОРОВ
 async def claim_sponsor_api(request):
     try:
         data = await request.json()
@@ -235,20 +260,16 @@ async def claim_sponsor_api(request):
                 row = await cursor.fetchone()
             
             claimed = json.loads(row['claimed_sponsors'])
-            if sponsor_id in claimed:
-                return web.json_response({"error": "Награда за этот канал уже получена!"}, status=400)
+            if sponsor_id in claimed: return web.json_response({"error": "Награда уже получена!"}, status=400)
             
-            # Проверяем подписку через Телеграм бота
             is_member = await check_subscription(user_id, channel)
-            if not is_member:
-                return web.json_response({"error": f"Вы не подписаны на канал {channel}!"}, status=400)
+            if not is_member: return web.json_response({"error": f"Вы не подписаны на канал {channel}!"}, status=400)
                 
             claimed.append(sponsor_id)
             new_bonus = row['bonus_balance'] + 450
             
             await db.execute("UPDATE users SET claimed_sponsors = ?, bonus_balance = ? WHERE user_id = ?", (json.dumps(claimed), new_bonus, user_id))
             await db.commit()
-            
             return web.json_response({"status": "success", "claimed_sponsors": json.dumps(claimed), "new_bonus_balance": new_bonus})
     except Exception: return web.json_response({"error": "Server error"}, status=500)
 
@@ -366,9 +387,6 @@ async def leaderboard_api(request):
                 return web.json_response({"status": "success", "list": squads, "tab": "squads"})
     except Exception: return web.json_response({"error": "Server error"}, status=500)
 
-# ==========================================
-# ОБРАБОТЧИКИ БОТА
-# ==========================================
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
@@ -436,6 +454,7 @@ async def main():
     cors.add(app.router.add_post('/api/activate-rocket', activate_rocket_api))
     cors.add(app.router.add_post('/api/daily-claim', daily_claim_api))
     cors.add(app.router.add_post('/api/claim-sponsor', claim_sponsor_api))
+    cors.add(app.router.add_post('/api/claim-daily-quest', claim_daily_quest_api)) # НОВЫЙ РОУТ!
     cors.add(app.router.add_post('/api/create-squad', create_squad_api))
     cors.add(app.router.add_post('/api/leaderboard', leaderboard_api))
     

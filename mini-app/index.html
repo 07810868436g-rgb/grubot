@@ -232,10 +232,10 @@
             <div class="title">Задания</div>
             
             <div class="task-box" style="text-align: left;">
-                <b style="font-size: 16px; color: #facc15;">🎯 Цель: Сделать 5000 тапов</b><br>
+                <b style="font-size: 16px; color: #facc15;">🎯 Цель: Сделать 5000 тапов за день</b><br>
                 <span style="font-size: 14px; color: #94a3b8;">Прогресс: <b id="dailyTapsText" style="color: #38bdf8;">0</b> / 5000</span>
                 <div class="level-bar-bg" style="margin-top: 5px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="showInDevAlert()">Скоро</button>
+                <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()">Выполни цель 🎯</button>
             </div>
 
             <div class="task-box">
@@ -326,6 +326,8 @@
         let globalDailyStreak = 0;
         let globalLastClaimDate = "";
         let globalClaimedSponsors = [];
+        let globalDailyTaps = 0;
+        let globalQuestClaimed = 0;
         let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
 
         const floatingPool = [];
@@ -372,11 +374,6 @@
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
-
-        function showInDevAlert() {
-            tg.HapticFeedback.notificationOccurred('warning');
-            tg.showAlert('🛠 Эта функция сейчас переносится на сервер для защиты от накрутки. Скоро заработает!');
-        }
 
         function showNeuroForgeEasterEgg() {
             tg.HapticFeedback.notificationOccurred('success');
@@ -576,6 +573,29 @@
             }
         }
 
+        // ОБНОВЛЕННЫЙ ИНТЕРФЕЙС ЕЖЕДНЕВНОЙ ЦЕЛИ
+        function renderDailyQuestUI() {
+            document.getElementById('dailyTapsText').innerText = globalDailyTaps;
+            document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (globalDailyTaps / 5000) * 100)}%`;
+            
+            let btn = document.getElementById('btnDailyQuest');
+            if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
+                btn.innerText = "Получено ✅"; 
+                btn.style.background = "#475569"; 
+                btn.disabled = true; 
+                btn.style.color = "white";
+            } else if (globalDailyTaps >= 5000) {
+                btn.innerText = "Забрать 10 000 $ROB 🎁"; 
+                btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; 
+                btn.disabled = false; 
+                btn.style.color = "white";
+            } else {
+                btn.innerText = "Выполни цель 🎯"; 
+                btn.style.background = "#475569"; 
+                btn.disabled = true;
+            }
+        }
+
         function claimDailyServer() {
             let btn = document.getElementById('btnDailyReward');
             btn.innerText = "⏳..."; btn.disabled = true;
@@ -588,6 +608,32 @@
                     tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyRewardUI(); });
+        }
+
+        // КЛИК НА СБОР НАГРАДЫ 5000 ТАПОВ
+        function claimDailyQuestServer() {
+            let btn = document.getElementById('btnDailyQuest');
+            btn.innerText = "⏳..."; btn.disabled = true;
+            
+            fetch(`${BACKEND_URL}/claim-daily-quest`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    globalQuestClaimed = 1;
+                    serverBonus = data.new_bonus_balance;
+                    updateVisualScore(true);
+                    renderDailyQuestUI();
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                    renderDailyQuestUI();
+                }
+            })
+            .catch(() => {
+                tg.showAlert("❌ Ошибка сервера.");
+                renderDailyQuestUI();
+            });
         }
 
         function renderSponsorsUI() {
@@ -644,6 +690,14 @@
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
             visualScore += earnAmount; pendingClicks += 1;
+            
+            // Закрашиваем полоску прогресса на ходу для красоты интерфейса
+            if (globalQuestClaimed !== 1) {
+                globalDailyTaps += earnAmount;
+                if (globalDailyTaps > 5000) globalDailyTaps = 5000;
+                renderDailyQuestUI();
+            }
+
             updateVisualScore(); tg.HapticFeedback.impactOccurred('medium');
             let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             showFloatingText(x, y, earnAmount, isRocketActive);
@@ -663,7 +717,12 @@
                     globalLastClaimDate = data.last_claim_date || "";
                     try { globalClaimedSponsors = JSON.parse(data.claimed_sponsors || "[]"); } catch(e) { globalClaimedSponsors = []; }
                     
+                    // Обновляем данные цели на 5000 кликов
+                    globalDailyTaps = data.daily_taps || 0;
+                    globalQuestClaimed = data.daily_quest_claimed || 0;
+                    
                     renderDailyRewardUI();
+                    renderDailyQuestUI();
                     renderSponsorsUI();
 
                     if (data.rockets_left !== undefined) {
