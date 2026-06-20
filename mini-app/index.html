@@ -315,13 +315,17 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        let visualScore = 0; 
+        // АРХИТЕКТУРА "СЕЙФ И КАРМАНЫ"
         let serverTaps = 0; 
         let serverBonus = 0; 
         
-        // РАЗДЕЛЯЕМ ПОТОКИ КЛИКОВ
+        // В кармане (новые клики)
         let pendingStandardClicks = 0; 
         let pendingRocketClicks = 0;
+        
+        // В пути (отправлены, ждем ответа сервера)
+        let inFlightStandardClicks = 0;
+        let inFlightRocketClicks = 0;
         
         let currentLbTab = 'players';
         let currentMySquad = ''; 
@@ -419,10 +423,11 @@
             });
         }
 
+        // БЕЗОПАСНАЯ ПОКУПКА: Ждем пока все "В пути" и "В кармане" клики дойдут
         function processPurchase(buyFunction) {
-            if (pendingStandardClicks > 0 || pendingRocketClicks > 0) {
-                syncWithServer(false);
-                setTimeout(buyFunction, 600); 
+            if (pendingStandardClicks > 0 || pendingRocketClicks > 0 || inFlightStandardClicks > 0 || inFlightRocketClicks > 0) {
+                if (pendingStandardClicks > 0 || pendingRocketClicks > 0) syncWithServer(false);
+                setTimeout(() => processPurchase(buyFunction), 500); 
             } else {
                 buyFunction();
             }
@@ -432,7 +437,7 @@
             const originalText = btnElement.innerText; btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) })
             .then(res => res.json()).then(data => {
-                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(true); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerText = originalText; btnElement.disabled = false; }
             }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerText = originalText; btnElement.disabled = false; });
         }
@@ -458,7 +463,7 @@
                     if (type === 'multitap') { multitapLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); }
                     else if (type === 'energy') { maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; updateEnergyVisual(); if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); }
                     else if (type === 'bot') { autoBotLevel++; updateStudioVisuals(); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); }
-                    updateTechGridVisuals(); updateVisualScore(true); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
+                    updateTechGridVisuals(); updateVisualScore(); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
                 } else { tg.showAlert(`❌ ${data.error}`); }
             }).catch(err => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Ошибка сети."); });
         }
@@ -481,7 +486,7 @@
             const originalText = btnElement.innerHTML; btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: skinId }) })
             .then(res => res.json()).then(data => {
-                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateVisualScore(true); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); } 
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateVisualScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
             }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
@@ -560,12 +565,24 @@
             });
         }
 
-        function updateVisualScore(forceSyncWithServer = false) {
-            if (forceSyncWithServer) { visualScore = serverTaps + serverBonus; }
-            let robux = Math.floor(visualScore / 1000);
-            scoreElement.innerText = visualScore.toLocaleString('ru-RU'); profileScoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
-            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
-            updateLevelVisuals(visualScore); 
+        // ПОЛНЫЙ ПЕРЕСЧЕТ СЕЙФА И КАРМАНОВ
+        function getUnsyncedEarn() {
+            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
+            let baseEarn = multitapLevel + activeSkinObj.bonus;
+            let rocketEarn = baseEarn * 5;
+            return (pendingStandardClicks + inFlightStandardClicks) * baseEarn + 
+                   (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
+        }
+
+        function updateVisualScore() {
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
+            let robux = Math.floor(currentTotal / 1000);
+            
+            scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
+            profileScoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
+            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); 
+            withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
+            updateLevelVisuals(currentTotal); 
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
@@ -587,13 +604,16 @@
         }
 
         function renderDailyQuestUI() {
-            document.getElementById('dailyTapsText').innerText = globalDailyTaps;
-            document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (globalDailyTaps / 5000) * 100)}%`;
+            let visualDailyTaps = globalDailyTaps + getUnsyncedEarn();
+            if (visualDailyTaps > 5000) visualDailyTaps = 5000;
+            
+            document.getElementById('dailyTapsText').innerText = visualDailyTaps;
+            document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (visualDailyTaps / 5000) * 100)}%`;
             
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
                 btn.innerText = "Получено ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white";
-            } else if (globalDailyTaps >= 5000) {
+            } else if (visualDailyTaps >= 5000) {
                 btn.innerText = "Забрать 10 000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
             } else {
                 btn.innerText = "Выполни цель 🎯"; btn.style.background = "#475569"; btn.disabled = true;
@@ -607,7 +627,7 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(true); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
+                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyRewardUI(); });
         }
@@ -619,7 +639,7 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalQuestClaimed = 1; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(true); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
+                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyQuestUI(); }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyQuestUI(); });
         }
@@ -650,7 +670,7 @@
                 .then(res => res.json()).then(data => {
                     if (data.status === "success") {
                         globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
-                        updateVisualScore(true); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
+                        updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
                     } else { 
                         tg.showAlert(`❌ ${data.error}`); 
                         sponsorStates[id] = "init"; renderSponsorsUI(); 
@@ -659,7 +679,7 @@
             }
         }
 
-        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(true); syncWithServer(true); }
+        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(); syncWithServer(true); }
 
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_room_level'], (err, values) => {
@@ -676,29 +696,23 @@
             });
         } else { finishLoading(); }
 
-        // РАЗДЕЛЕНИЕ КЛИКОВ
+        // ЗАГРУЖАЕМ ТОЛЬКО В КАРМАН
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
-            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             
-            let earnAmount = 0;
             if (isRocketActive) {
-                earnAmount = (multitapLevel + activeSkinObj.bonus) * 5;
                 pendingRocketClicks += 1;
             } else {
-                earnAmount = (multitapLevel + activeSkinObj.bonus);
                 pendingStandardClicks += 1;
             }
             
-            visualScore += earnAmount;
+            updateVisualScore(); 
+            if (globalQuestClaimed !== 1) renderDailyQuestUI();
             
-            if (globalQuestClaimed !== 1) {
-                globalDailyTaps += earnAmount;
-                if (globalDailyTaps > 5000) globalDailyTaps = 5000;
-                renderDailyQuestUI();
-            }
+            tg.HapticFeedback.impactOccurred('medium');
+            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
+            let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
 
-            updateVisualScore(); tg.HapticFeedback.impactOccurred('medium');
             let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             showFloatingText(x, y, earnAmount, isRocketActive);
         });
@@ -708,6 +722,10 @@
         function syncWithServer(isInitial = false) {
             let stdToSend = pendingStandardClicks; 
             let rktToSend = pendingRocketClicks;
+            
+            // ПЕРЕКЛАДЫВАЕМ В ПУТЬ
+            inFlightStandardClicks += stdToSend;
+            inFlightRocketClicks += rktToSend;
             pendingStandardClicks = 0;
             pendingRocketClicks = 0;
             
@@ -718,7 +736,8 @@
             })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
+                    serverTaps = data.new_taps_balance; 
+                    serverBonus = data.new_bonus_balance;
                     if (data.current_squad) currentMySquad = data.current_squad;
                     
                     globalDailyStreak = data.daily_streak || 0;
@@ -727,6 +746,10 @@
                     
                     globalDailyTaps = data.daily_taps || 0;
                     globalQuestClaimed = data.daily_quest_claimed || 0;
+                    
+                    // СЕРВЕР ПОДТВЕРДИЛ: УДАЛЯЕМ ИЗ ПУТИ
+                    inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
+                    inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                     
                     renderDailyRewardUI();
                     renderDailyQuestUI();
@@ -737,23 +760,29 @@
                         if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
                         else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
-                    updateVisualScore(true);
+                    updateVisualScore();
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 }
             }).catch(() => { 
+                // ОШИБКА ИНТЕРНЕТА: ВОЗВРАЩАЕМ В КАРМАН ДЛЯ ПОВТОРА
                 pendingStandardClicks += stdToSend; 
                 pendingRocketClicks += rktToSend; 
+                inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
+                inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
+                updateVisualScore();
             });
         }
 
         setInterval(() => { syncWithServer(false); }, 3000); 
 
         window.addEventListener('visibilitychange', () => { 
-            if (document.visibilityState === 'hidden' && (pendingStandardClicks > 0 || pendingRocketClicks > 0)) { 
-                const payload = JSON.stringify({ initData: tg.initData, standard_clicks: pendingStandardClicks, rocket_clicks: pendingRocketClicks });
+            let totalStd = pendingStandardClicks + inFlightStandardClicks;
+            let totalRkt = pendingRocketClicks + inFlightRocketClicks;
+            if (document.visibilityState === 'hidden' && (totalStd > 0 || totalRkt > 0)) { 
+                const payload = JSON.stringify({ initData: tg.initData, standard_clicks: totalStd, rocket_clicks: totalRkt });
                 navigator.sendBeacon(`${BACKEND_URL}/sync`, payload); 
-                pendingStandardClicks = 0;
-                pendingRocketClicks = 0;
+                pendingStandardClicks = 0; pendingRocketClicks = 0;
+                inFlightStandardClicks = 0; inFlightRocketClicks = 0;
             } 
         });
     </script>

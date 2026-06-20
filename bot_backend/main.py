@@ -141,7 +141,6 @@ async def sync_api(request):
             
             valid_total_clicks = min(total_clicks_claimed, max_possible_clicks)
             
-            # Если игрок превысил лимит, урезаем пропорционально
             if total_clicks_claimed > 0:
                 ratio = valid_total_clicks / total_clicks_claimed
                 valid_standard = int(standard_clicks * ratio)
@@ -149,13 +148,13 @@ async def sync_api(request):
             else:
                 valid_standard, valid_rocket = 0, 0
 
-            # РАСЧЕТ ДОХОДА С 3-СЕКУНДНЫМ GRACE PERIOD ДЛЯ РАКЕТЫ
+            # 🛠 ИСПРАВЛЕНИЕ РАКЕТЫ: Увеличиваем Grace Period до 8 секунд!
             earned_from_taps = valid_standard * user_db['multitap_level']
             
-            if current_time <= user_db['rocket_expires_at'] + 3.0: # +3 секунды на пинг
+            if current_time <= user_db['rocket_expires_at'] + 8.0:
                 earned_from_taps += valid_rocket * user_db['multitap_level'] * 5
             else:
-                # Если пытаются прислать ракетные клики когда ракета давно кончилась, считаем как обычные
+                # Опоздали слишком сильно — считаем без умножения
                 earned_from_taps += valid_rocket * user_db['multitap_level']
                 
             daily_taps += earned_from_taps
@@ -207,24 +206,19 @@ async def claim_daily_quest_api(request):
         init_data = data.get("initData")
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
-        
         user_id = user_data.get("id")
         
         async with aiosqlite.connect(DB_NAME) as db:
             db.row_factory = aiosqlite.Row
             async with db.execute("SELECT daily_taps, daily_quest_claimed, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 row = await cursor.fetchone()
-            
             if not row: return web.json_response({"error": "User not found"}, status=404)
-            
             if row['daily_taps'] < 5000: return web.json_response({"error": "Цель еще не выполнена!"}, status=400)
             if row['daily_quest_claimed'] == 1: return web.json_response({"error": "Награда уже получена!"}, status=400)
                 
             new_bonus = row['bonus_balance'] + 10000
-            
             await db.execute("UPDATE users SET daily_quest_claimed = 1, bonus_balance = ? WHERE user_id = ?", (new_bonus, user_id))
             await db.commit()
-            
             return web.json_response({"status": "success", "new_bonus_balance": new_bonus})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
@@ -254,7 +248,6 @@ async def daily_claim_api(request):
                 
             reward = streak * 100
             new_bonus = int(row['bonus_balance'] or 0) + reward
-            
             await db.execute("UPDATE users SET daily_streak = ?, last_claim_date = ?, bonus_balance = ? WHERE user_id = ?", (streak, today_str, new_bonus, user_id))
             await db.commit()
             return web.json_response({"status": "success", "daily_streak": streak, "last_claim_date": today_str, "new_bonus_balance": new_bonus, "reward_received": reward})
@@ -286,7 +279,6 @@ async def claim_sponsor_api(request):
                 
             claimed.append(sponsor_id)
             new_bonus = int(row['bonus_balance'] or 0) + 450
-            
             await db.execute("UPDATE users SET claimed_sponsors = ?, bonus_balance = ? WHERE user_id = ?", (json.dumps(claimed), new_bonus, user_id))
             await db.commit()
             return web.json_response({"status": "success", "claimed_sponsors": json.dumps(claimed), "new_bonus_balance": new_bonus})
@@ -320,7 +312,6 @@ async def activate_rocket_api(request):
 
             new_count = r_count - 1
             new_exp = current_time + 15
-
             await db.execute("UPDATE users SET rockets_count = ?, rocket_expires_at = ?, last_play_date = ? WHERE user_id = ?", (new_count, new_exp, last_date, user_id))
             await db.commit()
             return web.json_response({"status": "success", "rockets_left": new_count})
@@ -380,9 +371,7 @@ async def buy_api(request):
                 await db.commit()
             
             return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
-    except Exception as e:
-        print(f"Buy error: {e}")
-        return web.json_response({"error": f"Server error: {str(e)}"}, status=500)
+    except Exception as e: return web.json_response({"error": f"Server error: {str(e)}"}, status=500)
 
 async def create_squad_api(request):
     try:
