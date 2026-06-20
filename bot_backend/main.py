@@ -1,6 +1,5 @@
 import asyncio
 import os
-import sqlite3
 import time
 import json
 import hashlib
@@ -8,16 +7,17 @@ import hmac
 from urllib.parse import parse_qsl
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters.command import Command, CommandStart, CommandObject
+from aiogram.filters.command import CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
+import aiosqlite  # Асинхронная работа с БД
 from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # ==========================================
-# ⚠️ БЛОК ДЛЯ ТВОИХ ДАННЫХ
+# ⚠️ НАСТРОЙКИ
 # ==========================================
 YOUR_TELEGRAM_ID = None  
 CHANNEL_RU = "@robuxtap_ru"
@@ -29,34 +29,51 @@ BANNER_GAME = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+DB_NAME = 'database.db'
 
 # ==========================================
-# БАЗА ДАННЫХ
+# ЭКОНОМИКА: ФОРМУЛЫ И ЦЕНЫ
 # ==========================================
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                    user_id INTEGER PRIMARY KEY,
-                    referrer_id INTEGER,
-                    first_name TEXT DEFAULT 'Игрок',
-                    username TEXT DEFAULT '',
-                    squad_id TEXT DEFAULT '',
-                    taps_balance INTEGER DEFAULT 0,
-                    bonus_balance INTEGER DEFAULT 0,
-                    multitap_level INTEGER DEFAULT 1,
-                    bot_level INTEGER DEFAULT 0,
-                    max_energy_level INTEGER DEFAULT 1,
-                    studio_desk INTEGER DEFAULT 0,
-                    studio_chair INTEGER DEFAULT 0,
-                    studio_audio INTEGER DEFAULT 0,
-                    studio_bed INTEGER DEFAULT 0,
-                    studio_decor INTEGER DEFAULT 0,
-                    owned_skins TEXT DEFAULT '["default"]',
-                    current_skin TEXT DEFAULT 'default',
-                    last_sync_time REAL DEFAULT 0,
-                    last_squad_join_time REAL DEFAULT 0
-                )''')
-conn.commit()
+def get_upgrade_cost(base_cost, current_level):
+    if base_cost == 5000 and current_level == 0: return 5000
+    power = current_level - 1 if current_level > 0 else 0
+    return base_cost * (2 ** power)
+
+SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
+
+# Синхронизировано с фронтендом!
+ROOM_LEVELS = {
+    1: {'cost': 15000, 'income': 3},
+    2: {'cost': 500000, 'income': 6},
+    3: {'cost': 1500000, 'income': 12}
+}
+
+# ==========================================
+# ИНИЦИАЛИЗАЦИЯ БД (Асинхронная)
+# ==========================================
+async def init_db():
+    async with aiosqlite.connect(DB_NAME) as db:
+        # Включаем WAL-режим (Write-Ahead Logging) для ускорения записи в 3-5 раз
+        await db.execute('PRAGMA journal_mode=WAL;')
+        
+        await db.execute('''CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            referrer_id INTEGER,
+            first_name TEXT DEFAULT 'Игрок',
+            username TEXT DEFAULT '',
+            squad_id TEXT DEFAULT '',
+            taps_balance INTEGER DEFAULT 0,
+            bonus_balance INTEGER DEFAULT 0,
+            multitap_level INTEGER DEFAULT 1,
+            bot_level INTEGER DEFAULT 0,
+            max_energy_level INTEGER DEFAULT 1,
+            current_room_level INTEGER DEFAULT 0,
+            owned_skins TEXT DEFAULT '["default"]',
+            current_skin TEXT DEFAULT 'default',
+            last_sync_time REAL DEFAULT 0,
+            last_squad_join_time REAL DEFAULT 0
+        )''')
+        await db.commit()
 
 # ==========================================
 # СИСТЕМА БЕЗОПАСНОСТИ (ТАМОЖНЯ)
@@ -79,33 +96,6 @@ def validate_telegram_data(init_data: str, bot_token: str):
         return None
 
 # ==========================================
-# ЭКОНОМИКА: ФОРМУЛЫ И ЦЕНЫ
-# ==========================================
-def get_upgrade_cost(base_cost, current_level):
-    if base_cost == 5000 and current_level == 0: return 5000
-    power = current_level - 1 if current_level > 0 else 0
-    return base_cost * (2 ** power)
-
-SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
-STUDIO_CATALOG = {
-    'desk1': {'cost': 1, 'col': 'studio_desk', 'lvl': 1},
-    'desk2': {'cost': 1, 'col': 'studio_desk', 'lvl': 2},
-    'desk3': {'cost': 1, 'col': 'studio_desk', 'lvl': 3},
-    'chair1': {'cost': 1, 'col': 'studio_chair', 'lvl': 1},
-    'chair2': {'cost': 1, 'col': 'studio_chair', 'lvl': 2},
-    'chair3': {'cost': 1, 'col': 'studio_chair', 'lvl': 3},
-    'audio1': {'cost': 1, 'col': 'studio_audio', 'lvl': 1},
-    'audio2': {'cost': 1, 'col': 'studio_audio', 'lvl': 2},
-    'audio3': {'cost': 1, 'col': 'studio_audio', 'lvl': 3},
-    'bed1': {'cost': 1, 'col': 'studio_bed', 'lvl': 1},
-    'bed2': {'cost': 1, 'col': 'studio_bed', 'lvl': 2},
-    'bed3': {'cost': 1, 'col': 'studio_bed', 'lvl': 3},
-    'decor1': {'cost': 1, 'col': 'studio_decor', 'lvl': 1},
-    'decor2': {'cost': 1, 'col': 'studio_decor', 'lvl': 2},
-    'decor3': {'cost': 0, 'col': 'studio_decor', 'lvl': 3} # Оставляем 0, так как это за серию дней
-}
-
-# ==========================================
 # HTTP API ДЛЯ МИНИ-АППА
 # ==========================================
 async def sync_api(request):
@@ -113,8 +103,6 @@ async def sync_api(request):
         data = await request.json()
         init_data = data.get("initData")
         clicks_claimed = data.get("clicks", 0)
-        elapsed_time_ms = data.get("elapsed_time_ms", 3000)
-        studio_income_per_sec = data.get("studioIncome", 0) 
         
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
@@ -124,50 +112,57 @@ async def sync_api(request):
         username = user_data.get("username", "")
         current_time = time.time()
         
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-        user_db = cursor.fetchone()
-        if not user_db: return web.json_response({"error": "User not found"}, status=404)
-        
-        taps_balance = user_db[5]
-        bonus_balance = user_db[6]
-        multitap_level = user_db[7]
-        bot_level = user_db[8]
-        last_sync_time = user_db[17]
-        squad_id = user_db[4]
-        
-        MAX_CLICKS_PER_SEC = 15
-        elapsed_sec = elapsed_time_ms / 1000.0 if elapsed_time_ms > 0 else 3.0
-        valid_clicks = min(clicks_claimed, int(MAX_CLICKS_PER_SEC * elapsed_sec))
-        
-        earned_from_taps = valid_clicks * multitap_level
-        new_taps_balance = taps_balance + earned_from_taps
-        
-        earned_passive = 0
-        is_offline_reward = False
-        
-        if last_sync_time > 0:
-            time_away_sec = current_time - last_sync_time
-            if time_away_sec < 60:
-                earned_passive = int(time_away_sec * studio_income_per_sec)
-            else:
-                if bot_level > 0:
-                    active_offline_sec = min(time_away_sec, 10800)
-                    earned_passive = int(active_offline_sec * (studio_income_per_sec + bot_level))
-                    is_offline_reward = True
-        
-        new_bonus_balance = bonus_balance + earned_passive
-        
-        cursor.execute('''UPDATE users 
-                          SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?
-                          WHERE user_id = ?''', 
-                       (new_taps_balance, new_bonus_balance, current_time, first_name, username, user_id))
-        conn.commit()
-        
+        async with aiosqlite.connect(DB_NAME) as db:
+            async with db.execute("SELECT taps_balance, bonus_balance, multitap_level, bot_level, current_room_level, last_sync_time, squad_id FROM users WHERE user_id = ?", (user_id,)) as cursor:
+                user_db = await cursor.fetchone()
+                
+            if not user_db: return web.json_response({"error": "User not found"}, status=404)
+            
+            taps_bal, bonus_bal, multi_lvl, bot_lvl, room_lvl, last_sync, squad_id = user_db
+            
+            # 1. ЗАЩИТА АВТОКЛИКЕРА: Считаем реальное время на сервере
+            elapsed_sec = current_time - last_sync if last_sync > 0 else 0
+            MAX_CLICKS_PER_SEC = 15
+            
+            # Даем небольшой буфер (например, 3 секунды), если игрок только зашел
+            safe_time = max(elapsed_sec, 3.0) 
+            max_possible_clicks = int(MAX_CLICKS_PER_SEC * safe_time)
+            
+            # Берем минимальное значение: либо сколько он реально накликал, либо лимит
+            valid_clicks = min(clicks_claimed, max_possible_clicks)
+            earned_from_taps = valid_clicks * multi_lvl
+            
+            # 2. ЗАЩИТА ПАССИВНОГО ДОХОДА: Сервер сам знает, сколько приносит комната
+            earned_passive = 0
+            is_offline_reward = False
+            studio_income_per_sec = ROOM_LEVELS.get(room_lvl, {}).get('income', 0)
+            
+            if last_sync > 0 and elapsed_sec > 0:
+                if elapsed_sec < 60:
+                    # Игрок онлайн, начисляем пассивный доход за эти секунды
+                    earned_passive = int(elapsed_sec * studio_income_per_sec)
+                else:
+                    # Офлайн логика (работает только если куплен Авто-Бот)
+                    if bot_lvl > 0:
+                        active_offline_sec = min(elapsed_sec, 10800) # Максимум 3 часа
+                        earned_passive = int(active_offline_sec * (studio_income_per_sec + bot_lvl))
+                        is_offline_reward = True
+            
+            new_taps_bal = taps_bal + earned_from_taps
+            new_bonus_bal = bonus_bal + earned_passive
+            
+            await db.execute('''UPDATE users 
+                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?
+                              WHERE user_id = ?''', 
+                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, user_id))
+            await db.commit()
+            
         return web.json_response({
-            "status": "success", "new_taps_balance": new_taps_balance, "new_bonus_balance": new_bonus_balance,
+            "status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal,
             "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": squad_id
         })
     except Exception as e:
+        print(f"Sync error: {e}")
         return web.json_response({"error": "Server error"}, status=500)
 
 
@@ -176,49 +171,74 @@ async def buy_api(request):
         data = await request.json()
         init_data = data.get("initData")
         buy_type = data.get("type") 
-        item_id = data.get("item_id") 
         
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         user_id = user_data.get("id")
         
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-        user_db = cursor.fetchone()
-        if not user_db: return web.json_response({"error": "User not found"}, status=404)
-        
-        cols = [desc[0] for desc in cursor.description]
-        user_dict = dict(zip(cols, user_db))
-        
-        taps_bal = user_dict['taps_balance']
-        bonus_bal = user_dict['bonus_balance']
-        total_balance = taps_bal + bonus_bal
-        
-        cost = 0; column_to_update = ""; new_level = 0
-        
-        if buy_type == "tech":
-            if item_id == "multitap": cost = get_upgrade_cost(2000, user_dict['multitap_level']); column_to_update = "multitap_level"; new_level = user_dict['multitap_level'] + 1
-            elif item_id == "energy": cost = get_upgrade_cost(2000, user_dict['max_energy_level']); column_to_update = "max_energy_level"; new_level = user_dict['max_energy_level'] + 1
-            elif item_id == "bot": cost = get_upgrade_cost(5000, user_dict['bot_level']); column_to_update = "bot_level"; new_level = user_dict['bot_level'] + 1
-        elif buy_type == "skin":
-            cost = SKIN_COSTS.get(item_id, 0); owned_skins = json.loads(user_dict['owned_skins'])
-            if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
-            owned_skins.append(item_id); column_to_update = "owned_skins"; new_level = json.dumps(owned_skins)
-        elif buy_type == "studio":
-            item_info = STUDIO_CATALOG.get(item_id)
-            if not item_info: return web.json_response({"error": "Предмет не найден"}, status=400)
-            cost = item_info['cost']; column_to_update = item_info['col']; new_level = item_info['lvl']
-            if user_dict[column_to_update] >= new_level: return web.json_response({"error": "Этот уровень уже куплен"}, status=400)
-        else: return web.json_response({"error": "Неизвестный тип"}, status=400)
+        async with aiosqlite.connect(DB_NAME) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
+                user_db = await cursor.fetchone()
+                
+            if not user_db: return web.json_response({"error": "User not found"}, status=404)
+            
+            taps_bal = user_db['taps_balance']
+            bonus_bal = user_db['bonus_balance']
+            total_balance = taps_bal + bonus_bal
+            
+            cost = 0; column_to_update = ""; new_value = 0
+            
+            if buy_type == "tech":
+                item_id = data.get("item_id")
+                if item_id == "multitap": 
+                    cost = get_upgrade_cost(2000, user_db['multitap_level'])
+                    column_to_update = "multitap_level"; new_value = user_db['multitap_level'] + 1
+                elif item_id == "energy": 
+                    cost = get_upgrade_cost(2000, user_db['max_energy_level'])
+                    column_to_update = "max_energy_level"; new_value = user_db['max_energy_level'] + 1
+                elif item_id == "bot": 
+                    cost = get_upgrade_cost(5000, user_db['bot_level'])
+                    column_to_update = "bot_level"; new_value = user_db['bot_level'] + 1
+            
+            elif buy_type == "skin":
+                item_id = data.get("item_id")
+                cost = SKIN_COSTS.get(item_id, 0)
+                owned_skins = json.loads(user_db['owned_skins'])
+                if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
+                owned_skins.append(item_id)
+                column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
+            
+            elif buy_type == "room_upgrade":
+                level_id = data.get("level")
+                if level_id not in ROOM_LEVELS: return web.json_response({"error": "Неверный уровень комнаты"}, status=400)
+                if user_db['current_room_level'] >= level_id: return web.json_response({"error": "Этот уровень уже установлен"}, status=400)
+                if level_id > user_db['current_room_level'] + 1: return web.json_response({"error": "Нельзя перепрыгивать уровни"}, status=400)
+                
+                cost = ROOM_LEVELS[level_id]['cost']
+                column_to_update = "current_room_level"
+                new_value = level_id
+                
+            else: return web.json_response({"error": "Неизвестный тип"}, status=400)
 
-        if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
+            if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
+                
+            # Расчет списания
+            if bonus_bal >= cost: 
+                new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
+            else: 
+                remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
+                
+            # АТОМАРНОЕ ОБНОВЛЕНИЕ (защита от багов и хаков)
+            await db.execute(f'''UPDATE users 
+                                 SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? 
+                                 WHERE user_id = ? AND (taps_balance + bonus_balance) >= ?''', 
+                             (new_taps_bal, new_bonus_bal, new_value, user_id, cost))
+            await db.commit()
             
-        if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
-        else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
-            
-        cursor.execute(f'''UPDATE users SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? WHERE user_id = ?''', (new_taps_bal, new_bonus_bal, new_level, user_id))
-        conn.commit()
-        return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
+            return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
     except Exception as e:
+        print(f"Buy error: {e}")
         return web.json_response({"error": "Server error"}, status=500)
 
 
@@ -237,18 +257,15 @@ async def create_squad_api(request):
             channel_username = "@" + channel_username
 
         try:
-            # Проверяем права пользователя в указанном канале
             member = await bot.get_chat_member(chat_id=channel_username, user_id=user_id)
             if member.status not in ["administrator", "creator"]:
                 return web.json_response({"error": "Вы не являетесь администратором этого канала!"}, status=400)
-        except Exception as e:
-            # Если бот не может проверить (его нет в канале или канал не существует)
+        except Exception:
             return web.json_response({"error": "Добавьте бота в администраторы канала (без прав)!"}, status=400)
 
-        # Если проверки пройдены, генерируем ссылку
         link = f"https://t.me/grutap_robot?start=squad_{channel_username[1:]}"
         return web.json_response({"status": "success", "link": link})
-    except Exception as e:
+    except Exception:
         return web.json_response({"error": "Ошибка на сервере"}, status=500)
 
 async def leaderboard_api(request):
@@ -261,27 +278,28 @@ async def leaderboard_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         req_user_id = user_data.get("id")
         
-        if tab == "players":
-            cursor.execute('''SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score
-                              FROM users ORDER BY score DESC LIMIT 50''')
-            rows = cursor.fetchall()
-            players = [{"id": r[0], "name": r[1] or "Аноним", "username": r[2], "score": r[3], "isMe": r[0] == req_user_id} for r in rows]
-            return web.json_response({"status": "success", "list": players, "tab": "players"})
-        
-        elif tab == "squads":
-            # Суммируем балансы по сквадам и считаем участников
-            cursor.execute('''SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as total_score
-                              FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY total_score DESC LIMIT 50''')
-            rows = cursor.fetchall()
+        async with aiosqlite.connect(DB_NAME) as db:
+            if tab == "players":
+                async with db.execute('''SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score
+                                         FROM users ORDER BY score DESC LIMIT 50''') as cursor:
+                    rows = await cursor.fetchall()
+                players = [{"id": r[0], "name": r[1] or "Аноним", "username": r[2], "score": r[3], "isMe": r[0] == req_user_id} for r in rows]
+                return web.json_response({"status": "success", "list": players, "tab": "players"})
             
-            # Узнаем текущий сквад пользователя для подсветки
-            cursor.execute("SELECT squad_id FROM users WHERE user_id = ?", (req_user_id,))
-            user_squad = cursor.fetchone()[0]
-            
-            squads = [{"id": r[0], "members": r[1], "score": r[2], "isMySquad": r[0] == user_squad} for r in rows]
-            return web.json_response({"status": "success", "list": squads, "tab": "squads"})
-            
+            elif tab == "squads":
+                async with db.execute('''SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as total_score
+                                         FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY total_score DESC LIMIT 50''') as cursor:
+                    rows = await cursor.fetchall()
+                
+                async with db.execute("SELECT squad_id FROM users WHERE user_id = ?", (req_user_id,)) as cursor:
+                    user_squad_row = await cursor.fetchone()
+                    user_squad = user_squad_row[0] if user_squad_row else ""
+                
+                squads = [{"id": r[0], "members": r[1], "score": r[2], "isMySquad": r[0] == user_squad} for r in rows]
+                return web.json_response({"status": "success", "list": squads, "tab": "squads"})
+                
     except Exception as e:
+        print(f"Leaderboard error: {e}")
         return web.json_response({"error": "Server error"}, status=500)
 
 
@@ -327,40 +345,39 @@ async def cmd_start(message: types.Message, command: CommandObject):
         elif command.args.startswith("squad_"):
             squad_id = "@" + command.args.split("_")[1]
 
-    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-    user_data = cursor.fetchone()
-    
-    if not user_data:
-        # Новый пользователь
-        join_time = current_time if squad_id else 0
-        cursor.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES (?, ?, ?, ?, ?)", 
-                       (user_id, ref_id, first_name, squad_id, join_time))
-        conn.commit()
-        if ref_id:
-            try: await bot.send_message(ref_id, "🎉 <b>Новый друг по ссылке!</b>", parse_mode="HTML")
-            except: pass
-        if squad_id:
-            await message.answer(f"🎉 Вы успешно вступили в сквад <b>{squad_id}</b>!", parse_mode="HTML")
-    else:
-        # Существующий пользователь пытается сменить сквад
-        if squad_id and user_data[4] != squad_id:
-            last_join = user_data[18]
-            # Кулдаун 7 дней (604800 секунд)
-            if current_time - last_join >= 604800 or last_join == 0:
-                cursor.execute("UPDATE users SET squad_id = ?, last_squad_join_time = ? WHERE user_id = ?", (squad_id, current_time, user_id))
-                conn.commit()
-                await message.answer(f"🎉 Вы успешно перешли в сквад <b>{squad_id}</b>!", parse_mode="HTML")
-            else:
-                days_left = int((604800 - (current_time - last_join)) / 86400) + 1
-                await message.answer(f"⏳ Слишком частая смена сквада!\nСледующий переход будет доступен через <b>{days_left} дн.</b>", parse_mode="HTML")
+    async with aiosqlite.connect(DB_NAME) as db:
+        async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
+            user_data = await cursor.fetchone()
+        
+        if not user_data:
+            join_time = current_time if squad_id else 0
+            await db.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES (?, ?, ?, ?, ?)", 
+                             (user_id, ref_id, first_name, squad_id, join_time))
+            await db.commit()
+            if ref_id:
+                try: await bot.send_message(ref_id, "🎉 <b>Новый друг по ссылке!</b>", parse_mode="HTML")
+                except: pass
+            if squad_id:
+                await message.answer(f"🎉 Вы успешно вступили в сквад <b>{squad_id}</b>!", parse_mode="HTML")
+        else:
+            if squad_id and user_data[4] != squad_id:
+                last_join = user_data[14] # Индекс last_squad_join_time
+                if current_time - last_join >= 604800 or last_join == 0:
+                    await db.execute("UPDATE users SET squad_id = ?, last_squad_join_time = ? WHERE user_id = ?", (squad_id, current_time, user_id))
+                    await db.commit()
+                    await message.answer(f"🎉 Вы успешно перешли в сквад <b>{squad_id}</b>!", parse_mode="HTML")
+                else:
+                    days_left = int((604800 - (current_time - last_join)) / 86400) + 1
+                    await message.answer(f"⏳ Слишком частая смена сквада!\nСледующий переход будет доступен через <b>{days_left} дн.</b>", parse_mode="HTML")
 
-    # Проверка подписки на обязательные каналы
+        async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor:
+            refs_count_row = await cursor.fetchone()
+            refs_count = refs_count_row[0] if refs_count_row else 0
+
     is_sub_ru = await check_subscription(user_id, CHANNEL_RU)
     is_sub_sng = await check_subscription(user_id, CHANNEL_SNG)
     
     if is_sub_ru or is_sub_sng:
-        cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
-        refs_count = cursor.fetchone()[0]
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(current_time)}"
         
         builder = InlineKeyboardBuilder()
@@ -377,8 +394,11 @@ async def cmd_start(message: types.Message, command: CommandObject):
 async def process_check(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     if await check_subscription(user_id, CHANNEL_RU) or await check_subscription(user_id, CHANNEL_SNG):
-        cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,))
-        custom_url = f"{WEB_APP_URL}?refs={cursor.fetchone()[0]}&v={int(time.time())}"
+        async with aiosqlite.connect(DB_NAME) as db:
+            async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor:
+                refs_count = (await cursor.fetchone())[0]
+                
+        custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}"
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 ИГРАТЬ (Tap to Earn)", web_app=WebAppInfo(url=custom_url)))
         await callback.message.delete()
@@ -390,6 +410,9 @@ async def process_check(callback: types.CallbackQuery):
 # ЗАПУСК
 # ==========================================
 async def main():
+    print("Инициализация базы данных...")
+    await init_db()
+    
     print("Бот запущен!")
     app = web.Application()
     import aiohttp_cors
