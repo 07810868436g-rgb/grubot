@@ -91,6 +91,13 @@ async def check_subscription(user_id, channel_username):
         return member.status in ["member", "creator", "administrator"]
     except Exception: return False
 
+def get_upgrade_cost(base_cost, current_level):
+    if base_cost == 5000 and current_level == 0: return 5000
+    power = current_level - 1 if current_level > 0 else 0
+    return base_cost * (2 ** power)
+
+SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
+
 async def sync_api(request):
     try:
         data = await request.json()
@@ -118,7 +125,6 @@ async def sync_api(request):
             daily_taps = user_db['daily_taps']
             daily_quest_claimed = user_db['daily_quest_claimed']
             
-            # Сброс ежедневных счетчиков
             if last_play_date != current_date:
                 rockets_count = 3
                 last_play_date = current_date
@@ -175,11 +181,9 @@ async def sync_api(request):
             "daily_quest_claimed": daily_quest_claimed
         })
     except Exception as e:
-        return web.json_response({"error": "Server error"}, status=500)
+        print(f"Sync error: {e}")
+        return web.json_response({"error": f"Server error: {str(e)}"}, status=500)
 
-# ==========================================
-# ЦЕЛЬ НА 5000 КЛИКОВ
-# ==========================================
 async def claim_daily_quest_api(request):
     try:
         data = await request.json()
@@ -196,10 +200,8 @@ async def claim_daily_quest_api(request):
             
             if not row: return web.json_response({"error": "User not found"}, status=404)
             
-            if row['daily_taps'] < 5000:
-                return web.json_response({"error": "Цель еще не выполнена!"}, status=400)
-            if row['daily_quest_claimed'] == 1:
-                return web.json_response({"error": "Награда уже получена!"}, status=400)
+            if row['daily_taps'] < 5000: return web.json_response({"error": "Цель еще не выполнена!"}, status=400)
+            if row['daily_quest_claimed'] == 1: return web.json_response({"error": "Награда уже получена!"}, status=400)
                 
             new_bonus = row['bonus_balance'] + 10000
             
@@ -207,7 +209,7 @@ async def claim_daily_quest_api(request):
             await db.commit()
             
             return web.json_response({"status": "success", "new_bonus_balance": new_bonus})
-    except Exception: return web.json_response({"error": "Server error"}, status=500)
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def daily_claim_api(request):
     try:
@@ -226,7 +228,7 @@ async def daily_claim_api(request):
                 row = await cursor.fetchone()
             if not row: return web.json_response({"error": "User not found"}, status=404)
             
-            streak = row['daily_streak']
+            streak = int(row['daily_streak'] or 0)
             last_claim = row['last_claim_date']
             
             if last_claim == today_str: return web.json_response({"error": "Сегодня вы уже забрали награду!"}, status=400)
@@ -234,12 +236,12 @@ async def daily_claim_api(request):
             else: streak = 1  
                 
             reward = streak * 100
-            new_bonus = row['bonus_balance'] + reward
+            new_bonus = int(row['bonus_balance'] or 0) + reward
             
             await db.execute("UPDATE users SET daily_streak = ?, last_claim_date = ?, bonus_balance = ? WHERE user_id = ?", (streak, today_str, new_bonus, user_id))
             await db.commit()
             return web.json_response({"status": "success", "daily_streak": streak, "last_claim_date": today_str, "new_bonus_balance": new_bonus, "reward_received": reward})
-    except Exception: return web.json_response({"error": "Server error"}, status=500)
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def claim_sponsor_api(request):
     try:
@@ -259,19 +261,19 @@ async def claim_sponsor_api(request):
             async with db.execute("SELECT claimed_sponsors, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 row = await cursor.fetchone()
             
-            claimed = json.loads(row['claimed_sponsors'])
+            claimed = json.loads(row['claimed_sponsors'] or '[]')
             if sponsor_id in claimed: return web.json_response({"error": "Награда уже получена!"}, status=400)
             
             is_member = await check_subscription(user_id, channel)
             if not is_member: return web.json_response({"error": f"Вы не подписаны на канал {channel}!"}, status=400)
                 
             claimed.append(sponsor_id)
-            new_bonus = row['bonus_balance'] + 450
+            new_bonus = int(row['bonus_balance'] or 0) + 450
             
             await db.execute("UPDATE users SET claimed_sponsors = ?, bonus_balance = ? WHERE user_id = ?", (json.dumps(claimed), new_bonus, user_id))
             await db.commit()
             return web.json_response({"status": "success", "claimed_sponsors": json.dumps(claimed), "new_bonus_balance": new_bonus})
-    except Exception: return web.json_response({"error": "Server error"}, status=500)
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def activate_rocket_api(request):
     try:
@@ -287,7 +289,10 @@ async def activate_rocket_api(request):
         async with aiosqlite.connect(DB_NAME) as db:
             async with db.execute("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 row = await cursor.fetchone()
-            r_count, r_exp, last_date = row
+            
+            r_count = int(row[0] or 3)
+            r_exp = row[1] or 0
+            last_date = row[2]
             
             if last_date != current_date:
                 r_count = 3
@@ -302,7 +307,7 @@ async def activate_rocket_api(request):
             await db.execute("UPDATE users SET rockets_count = ?, rocket_expires_at = ?, last_play_date = ? WHERE user_id = ?", (new_count, new_exp, last_date, user_id))
             await db.commit()
             return web.json_response({"status": "success", "rockets_left": new_count})
-    except Exception: return web.json_response({"error": "Server error"}, status=500)
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def buy_api(request):
     try:
@@ -318,36 +323,49 @@ async def buy_api(request):
             async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 user_db = await cursor.fetchone()
             
-            taps_bal = user_db['taps_balance']
-            bonus_bal = user_db['bonus_balance']
+            taps_bal = int(user_db['taps_balance'] or 0)
+            bonus_bal = int(user_db['bonus_balance'] or 0)
             total_balance = taps_bal + bonus_bal
             cost = 0; column_to_update = ""; new_value = 0
             
             if buy_type == "tech":
                 item_id = data.get("item_id")
-                if item_id == "multitap": cost = get_upgrade_cost(2000, user_db['multitap_level']); column_to_update = "multitap_level"; new_value = user_db['multitap_level'] + 1
-                elif item_id == "energy": cost = get_upgrade_cost(2000, user_db['max_energy_level']); column_to_update = "max_energy_level"; new_value = user_db['max_energy_level'] + 1
-                elif item_id == "bot": cost = get_upgrade_cost(5000, user_db['bot_level']); column_to_update = "bot_level"; new_value = user_db['bot_level'] + 1
+                if item_id == "multitap": 
+                    cost = get_upgrade_cost(2000, int(user_db['multitap_level'] or 1))
+                    column_to_update = "multitap_level"
+                    new_value = int(user_db['multitap_level'] or 1) + 1
+                elif item_id == "energy": 
+                    cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1))
+                    column_to_update = "max_energy_level"
+                    new_value = int(user_db['max_energy_level'] or 1) + 1
+                elif item_id == "bot": 
+                    cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0))
+                    column_to_update = "bot_level"
+                    new_value = int(user_db['bot_level'] or 0) + 1
             elif buy_type == "skin":
                 item_id = data.get("item_id")
                 cost = SKIN_COSTS.get(item_id, 0)
-                owned_skins = json.loads(user_db['owned_skins'])
+                owned_skins = json.loads(user_db['owned_skins'] or '[]')
                 if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
                 owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
             elif buy_type == "room_upgrade":
                 level_id = data.get("level")
                 if level_id not in ROOM_LEVELS: return web.json_response({"error": "Неверный уровень"}, status=400)
-                if user_db['current_room_level'] >= level_id: return web.json_response({"error": "Уже куплено"}, status=400)
+                if int(user_db['current_room_level'] or 0) >= level_id: return web.json_response({"error": "Уже куплено"}, status=400)
                 cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
             
             if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
             if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
             else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
                 
-            await db.execute(f'UPDATE users SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? WHERE user_id = ?', (new_taps_bal, new_bonus_bal, new_value, user_id))
-            await db.commit()
+            if column_to_update:
+                await db.execute(f'UPDATE users SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? WHERE user_id = ?', (new_taps_bal, new_bonus_bal, new_value, user_id))
+                await db.commit()
+            
             return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
-    except Exception: return web.json_response({"error": "Server error"}, status=500)
+    except Exception as e:
+        print(f"Buy error: {e}")
+        return web.json_response({"error": f"Server error: {str(e)}"}, status=500)
 
 async def create_squad_api(request):
     try:
@@ -454,7 +472,7 @@ async def main():
     cors.add(app.router.add_post('/api/activate-rocket', activate_rocket_api))
     cors.add(app.router.add_post('/api/daily-claim', daily_claim_api))
     cors.add(app.router.add_post('/api/claim-sponsor', claim_sponsor_api))
-    cors.add(app.router.add_post('/api/claim-daily-quest', claim_daily_quest_api)) # НОВЫЙ РОУТ!
+    cors.add(app.router.add_post('/api/claim-daily-quest', claim_daily_quest_api))
     cors.add(app.router.add_post('/api/create-squad', create_squad_api))
     cors.add(app.router.add_post('/api/leaderboard', leaderboard_api))
     

@@ -322,7 +322,6 @@
         let currentLbTab = 'players';
         let currentMySquad = ''; 
         
-        // Серверные переменные наград и спонсоров
         let globalDailyStreak = 0;
         let globalLastClaimDate = "";
         let globalClaimedSponsors = [];
@@ -411,9 +410,19 @@
                 let btnHtml = ''; let cardClass = 'showcase-card';
                 if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>Установлено ✅</button>`; } 
                 else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`; } 
-                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level}, this)">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="processPurchase(() => buyRoomLevel(${room.level}, this))">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (Ур. ${room.level})</div><div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>${btnHtml}</div></div>`);
             });
+        }
+
+        // ОБЕРТКА ДЛЯ ВСЕХ ПОКУПОК (Умная покупка)
+        function processPurchase(buyFunction) {
+            if (pendingClicks > 0) {
+                syncWithServer(false);
+                setTimeout(buyFunction, 600); // Ждем пока клики зальются на сервер, потом покупаем
+            } else {
+                buyFunction();
+            }
         }
 
         function buyRoomLevel(levelId, btnElement) {
@@ -432,7 +441,7 @@
             if (type === 'multitap') { icon.innerText = "👆"; title.innerText = "Мультитап"; desc.innerText = "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
             else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = "Энергоемкость"; desc.innerText = "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
             else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = "Авто-Бот"; desc.innerText = "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `База: +${autoBotLevel}/сек`; next.innerText = `База: +${autoBotLevel + 1}/сек`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? 'Купить бота' : 'Прокачать'} • ${cost.toLocaleString('ru-RU')} $ROB`; }
-            btn.onclick = () => { buyTechBoost(type, btn); }; document.getElementById('techModal').style.display = 'flex';
+            btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
         }
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
@@ -457,7 +466,7 @@
                 const isOwned = ownedBaseSkinIds.includes(skin.id); const isEquipped = currentSkinId === skin.id; let btnHTML = ''; let cardClass = 'skin-card';
                 if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
                 else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; } 
-                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="buySkin('${skin.id}', this)">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="processPurchase(() => buySkin('${skin.id}', this))">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${skin.img}" class="skin-img"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`);
             });
             const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
@@ -573,26 +582,17 @@
             }
         }
 
-        // ОБНОВЛЕННЫЙ ИНТЕРФЕЙС ЕЖЕДНЕВНОЙ ЦЕЛИ
         function renderDailyQuestUI() {
             document.getElementById('dailyTapsText').innerText = globalDailyTaps;
             document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (globalDailyTaps / 5000) * 100)}%`;
             
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
-                btn.innerText = "Получено ✅"; 
-                btn.style.background = "#475569"; 
-                btn.disabled = true; 
-                btn.style.color = "white";
+                btn.innerText = "Получено ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white";
             } else if (globalDailyTaps >= 5000) {
-                btn.innerText = "Забрать 10 000 $ROB 🎁"; 
-                btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; 
-                btn.disabled = false; 
-                btn.style.color = "white";
+                btn.innerText = "Забрать 10 000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
             } else {
-                btn.innerText = "Выполни цель 🎯"; 
-                btn.style.background = "#475569"; 
-                btn.disabled = true;
+                btn.innerText = "Выполни цель 🎯"; btn.style.background = "#475569"; btn.disabled = true;
             }
         }
 
@@ -603,37 +603,21 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(true); renderDailyRewardUI();
-                    tg.HapticFeedback.notificationOccurred('success');
-                    tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
+                    updateVisualScore(true); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyRewardUI(); });
         }
 
-        // КЛИК НА СБОР НАГРАДЫ 5000 ТАПОВ
         function claimDailyQuestServer() {
             let btn = document.getElementById('btnDailyQuest');
             btn.innerText = "⏳..."; btn.disabled = true;
-            
             fetch(`${BACKEND_URL}/claim-daily-quest`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    globalQuestClaimed = 1;
-                    serverBonus = data.new_bonus_balance;
-                    updateVisualScore(true);
-                    renderDailyQuestUI();
-                    tg.HapticFeedback.notificationOccurred('success');
-                    tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
-                } else {
-                    tg.showAlert(`❌ ${data.error}`);
-                    renderDailyQuestUI();
-                }
-            })
-            .catch(() => {
-                tg.showAlert("❌ Ошибка сервера.");
-                renderDailyQuestUI();
-            });
+                    globalQuestClaimed = 1; serverBonus = data.new_bonus_balance;
+                    updateVisualScore(true); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
+                } else { tg.showAlert(`❌ ${data.error}`); renderDailyQuestUI(); }
+            }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyQuestUI(); });
         }
 
         function renderSponsorsUI() {
@@ -644,6 +628,8 @@
                     btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.disabled = true;
                 } else if (sponsorStates[id] === "clicked") {
                     btn.innerText = "Проверить 🔄"; btn.style.background = "linear-gradient(90deg, #38bdf8, #0284c7)";
+                } else {
+                    btn.innerText = "Подписаться"; btn.style.background = "linear-gradient(90deg, #2563eb, #1d4ed8)"; btn.disabled = false;
                 }
             }
         }
@@ -660,11 +646,12 @@
                 .then(res => res.json()).then(data => {
                     if (data.status === "success") {
                         globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
-                        updateVisualScore(true); renderSponsorsUI();
-                        tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
-                    } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = "Проверить 🔄"; btn.disabled = false; }
-                }).catch(() => { tg.showAlert("❌ Ошибка сети."); btn.innerText = "Проверить 🔄"; btn.disabled = false; });
+                        updateVisualScore(true); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
+                    } else { 
+                        tg.showAlert(`❌ ${data.error}`); 
+                        sponsorStates[id] = "init"; renderSponsorsUI(); 
+                    }
+                }).catch(() => { tg.showAlert("❌ Ошибка сети."); sponsorStates[id] = "init"; renderSponsorsUI(); });
             }
         }
 
@@ -691,7 +678,6 @@
             let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
             visualScore += earnAmount; pendingClicks += 1;
             
-            // Закрашиваем полоску прогресса на ходу для красоты интерфейса
             if (globalQuestClaimed !== 1) {
                 globalDailyTaps += earnAmount;
                 if (globalDailyTaps > 5000) globalDailyTaps = 5000;
@@ -717,7 +703,6 @@
                     globalLastClaimDate = data.last_claim_date || "";
                     try { globalClaimedSponsors = JSON.parse(data.claimed_sponsors || "[]"); } catch(e) { globalClaimedSponsors = []; }
                     
-                    // Обновляем данные цели на 5000 кликов
                     globalDailyTaps = data.daily_taps || 0;
                     globalQuestClaimed = data.daily_quest_claimed || 0;
                     
