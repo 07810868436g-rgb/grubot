@@ -135,7 +135,7 @@ async def sync_api(request):
             # АНТИЧИТ НА ОБЩЕЕ КОЛИЧЕСТВО КЛИКОВ
             total_clicks_claimed = standard_clicks + rocket_clicks
             elapsed_sec = current_time - user_db['last_sync_time'] if user_db['last_sync_time'] > 0 else 0
-            MAX_CLICKS_PER_SEC = 30
+            MAX_CLICKS_PER_SEC = 45
             safe_time = max(elapsed_sec, 3.0)
             max_possible_clicks = int(MAX_CLICKS_PER_SEC * safe_time)
             

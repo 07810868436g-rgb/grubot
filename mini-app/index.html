@@ -315,15 +315,15 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // АРХИТЕКТУРА "СЕЙФ И КАРМАНЫ"
+        // СЕРВЕРНЫЙ СЕЙФ
         let serverTaps = 0; 
         let serverBonus = 0; 
         
-        // В кармане (новые клики)
+        // В КАРМАНЕ (Только что накликали)
         let pendingStandardClicks = 0; 
         let pendingRocketClicks = 0;
         
-        // В пути (отправлены, ждем ответа сервера)
+        // В ПУТИ (Ждем подтверждения от сервера)
         let inFlightStandardClicks = 0;
         let inFlightRocketClicks = 0;
         
@@ -423,7 +423,6 @@
             });
         }
 
-        // БЕЗОПАСНАЯ ПОКУПКА: Ждем пока все "В пути" и "В кармане" клики дойдут
         function processPurchase(buyFunction) {
             if (pendingStandardClicks > 0 || pendingRocketClicks > 0 || inFlightStandardClicks > 0 || inFlightRocketClicks > 0) {
                 if (pendingStandardClicks > 0 || pendingRocketClicks > 0) syncWithServer(false);
@@ -565,16 +564,20 @@
             });
         }
 
-        // ПОЛНЫЙ ПЕРЕСЧЕТ СЕЙФА И КАРМАНОВ
+        // ==========================================
+        // ИСПРАВЛЕННАЯ ЛОГИКА ОТОБРАЖЕНИЯ БАЛАНСА
+        // ==========================================
         function getUnsyncedEarn() {
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let baseEarn = multitapLevel + activeSkinObj.bonus;
             let rocketEarn = baseEarn * 5;
+            // Суммируем всё, что еще не подтверждено сервером
             return (pendingStandardClicks + inFlightStandardClicks) * baseEarn + 
                    (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
         }
 
         function updateVisualScore() {
+            // Баланс = Сейф + В пути + В кармане
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             let robux = Math.floor(currentTotal / 1000);
             
@@ -604,6 +607,7 @@
         }
 
         function renderDailyQuestUI() {
+            // Учитываем неподтвержденные очки для прогресс-бара
             let visualDailyTaps = globalDailyTaps + getUnsyncedEarn();
             if (visualDailyTaps > 5000) visualDailyTaps = 5000;
             
@@ -696,7 +700,7 @@
             });
         } else { finishLoading(); }
 
-        // ЗАГРУЖАЕМ ТОЛЬКО В КАРМАН
+        // ЗАГРУЖАЕМ ТОЛЬКО В КАРМАН (Физические клики)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             
@@ -760,8 +764,17 @@
                         if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
                         else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
+                    
                     updateVisualScore();
+                    
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
+                } else {
+                    // ЕСЛИ СЕРВЕР ОТВЕТИЛ ОШИБКОЙ (не success) - ВОЗВРАЩАЕМ В КАРМАН
+                    pendingStandardClicks += stdToSend; 
+                    pendingRocketClicks += rktToSend; 
+                    inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
+                    inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
+                    updateVisualScore();
                 }
             }).catch(() => { 
                 // ОШИБКА ИНТЕРНЕТА: ВОЗВРАЩАЕМ В КАРМАН ДЛЯ ПОВТОРА
