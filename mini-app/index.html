@@ -298,10 +298,10 @@
         const energyBar = document.getElementById('energyBar');
 
         // Глобальные переменные (ТОНКИЙ КЛИЕНТ)
-        let visualScore = 0; // Оптимистичный баланс на экране
+        let visualScore = 0; 
         let serverTaps = 0; 
         let serverBonus = 0; 
-        let pendingClicks = 0; // Клики, ожидающие отправки на сервер
+        let pendingClicks = 0; // Строго физические нажатия
         let currentLbTab = 'players';
         let currentMySquad = ''; 
         
@@ -429,7 +429,6 @@
             });
         }
 
-        // ПОКУПКА КОМНАТ (Через сервер)
         function buyRoomLevel(levelId, btnElement) {
             const originalText = btnElement.innerText;
             btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
@@ -477,7 +476,6 @@
         }
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
-        // ПОКУПКА БУСТОВ (Через сервер)
         function buyTechBoost(type, btnElement) {
             const originalText = btnElement.innerText; 
             btnElement.innerText = "⏳ Покупка..."; btnElement.disabled = true;
@@ -527,7 +525,6 @@
             } 
         }
         
-        // ПОКУПКА СКИНОВ (Через сервер)
         function buySkin(skinId, btnElement) { 
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
@@ -568,15 +565,48 @@
             document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
         }
 
-        // РАКЕТА (Локальный визуал, сервер корректирует)
+        // РАКЕТА (Отправляем запрос на сервер)
         function activateRocket() {
-            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились!"); return; }
             if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
-            rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; 
             
-            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
-            let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-            let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
+            let btn = document.getElementById('btnActivateRocket');
+            let origText = btn.innerText;
+            btn.innerText = "⏳ Запуск..."; btn.disabled = true;
+
+            fetch(`${BACKEND_URL}/activate-rocket`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = origText; btn.disabled = false;
+                
+                if (data.status === "success") {
+                    rocketsLeft = data.rockets_left;
+                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
+                    
+                    isRocketActive = true; 
+                    document.getElementById('rocketBadge').style.display = 'block'; 
+                    showScreen('main', document.querySelector('.menu-btn'));
+                    let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
+                    
+                    let countdown = setInterval(() => { 
+                        timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; 
+                        if (timeLeft <= 0) { 
+                            clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; 
+                        } 
+                    }, 1000);
+                    tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    tg.showAlert(`❌ ${data.error}`);
+                }
+            })
+            .catch(err => { 
+                btn.innerText = origText; btn.disabled = false;
+                tg.showAlert("❌ Ошибка соединения."); 
+            });
         }
 
         function generateSquadLink() { 
@@ -643,7 +673,6 @@
         // СТАРТОВАЯ ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ
         function finishLoading() { 
             updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(true);
-            // Делаем первый запрос на синхронизацию для получения точных данных и пассива
             syncWithServer(true); 
         }
 
@@ -662,20 +691,20 @@
             });
         } else { finishLoading(); }
 
-        // ЛОГИКА ТАПА (Сохраняем только клики)
+        // ЛОГИКА ТАПА
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
             
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let skinBonus = activeSkinObj.bonus || 0;
             let baseEarn = multitapLevel + skinBonus; 
-            let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             
-            // Визуально добавляем баланс для красоты
+            // На экране всё умножается на 5
+            let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             visualScore += earnAmount;
             
-            // Фиксируем физические клики для отправки на сервер (ракета дает умножение кликов для обхода лимита)
-            pendingClicks += (isRocketActive ? 5 : 1);
+            // НА СЕРВЕР ОТПРАВЛЯЕТСЯ СТРОГО +1 ФИЗИЧЕСКИЙ КЛИК!
+            pendingClicks += 1;
             
             updateVisualScore(); tg.HapticFeedback.impactOccurred('medium');
 
@@ -689,7 +718,7 @@
         // СЕРВЕРНАЯ СИНХРОНИЗАЦИЯ (Каждые 3 секунды)
         function syncWithServer(isInitial = false) {
             let clicksToSend = pendingClicks;
-            pendingClicks = 0; // Сбрасываем сразу, чтобы не потерять новые тапы
+            pendingClicks = 0;
 
             fetch(`${BACKEND_URL}/sync`, { 
                 method: 'POST', 
@@ -703,7 +732,15 @@
                     serverBonus = data.new_bonus_balance;
                     if (data.current_squad) currentMySquad = data.current_squad;
                     
-                    // Жесткая синхронизация (сервер - босс)
+                    // Обновляем ракеты с сервера
+                    if (data.rockets_left !== undefined) {
+                        rocketsLeft = data.rockets_left;
+                        let btn = document.getElementById('btnActivateRocket');
+                        document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                        if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
+                        else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; }
+                    }
+                    
                     updateVisualScore(true);
                     
                     if (isInitial && data.earned_offline > 0) {
@@ -713,7 +750,7 @@
                 }
             })
             .catch(err => { 
-                pendingClicks += clicksToSend; // Возвращаем клики если ошибка сети
+                pendingClicks += clicksToSend; 
             });
         }
 

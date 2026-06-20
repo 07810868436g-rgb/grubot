@@ -10,7 +10,7 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters.command import CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
-import aiosqlite  # Асинхронная работа с БД
+import aiosqlite
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -41,7 +41,6 @@ def get_upgrade_cost(base_cost, current_level):
 
 SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
 
-# Синхронизировано с фронтендом!
 ROOM_LEVELS = {
     1: {'cost': 15000, 'income': 3},
     2: {'cost': 500000, 'income': 6},
@@ -49,11 +48,10 @@ ROOM_LEVELS = {
 }
 
 # ==========================================
-# ИНИЦИАЛИЗАЦИЯ БД (Асинхронная)
+# ИНИЦИАЛИЗАЦИЯ БД
 # ==========================================
 async def init_db():
     async with aiosqlite.connect(DB_NAME) as db:
-        # Включаем WAL-режим (Write-Ahead Logging) для ускорения записи в 3-5 раз
         await db.execute('PRAGMA journal_mode=WAL;')
         
         await db.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -71,12 +69,15 @@ async def init_db():
             owned_skins TEXT DEFAULT '["default"]',
             current_skin TEXT DEFAULT 'default',
             last_sync_time REAL DEFAULT 0,
-            last_squad_join_time REAL DEFAULT 0
+            last_squad_join_time REAL DEFAULT 0,
+            rockets_count INTEGER DEFAULT 3,
+            rocket_expires_at REAL DEFAULT 0,
+            last_play_date TEXT DEFAULT ''
         )''')
         await db.commit()
 
 # ==========================================
-# СИСТЕМА БЕЗОПАСНОСТИ (ТАМОЖНЯ)
+# ТАМОЖНЯ
 # ==========================================
 def validate_telegram_data(init_data: str, bot_token: str):
     try:
@@ -91,8 +92,7 @@ def validate_telegram_data(init_data: str, bot_token: str):
         if calculated_hash == received_hash:
             return json.loads(parsed_data.get('user', '{}'))
         return None
-    except Exception as e:
-        print(f"Ошибка валидации: {e}")
+    except Exception:
         return None
 
 # ==========================================
@@ -111,40 +111,45 @@ async def sync_api(request):
         first_name = user_data.get("first_name", "Игрок")
         username = user_data.get("username", "")
         current_time = time.time()
+        current_date = time.strftime('%Y-%m-%d')
         
         async with aiosqlite.connect(DB_NAME) as db:
-            async with db.execute("SELECT taps_balance, bonus_balance, multitap_level, bot_level, current_room_level, last_sync_time, squad_id FROM users WHERE user_id = ?", (user_id,)) as cursor:
+            async with db.execute("SELECT taps_balance, bonus_balance, multitap_level, bot_level, current_room_level, last_sync_time, squad_id, rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
                 user_db = await cursor.fetchone()
                 
             if not user_db: return web.json_response({"error": "User not found"}, status=404)
             
-            taps_bal, bonus_bal, multi_lvl, bot_lvl, room_lvl, last_sync, squad_id = user_db
+            taps_bal, bonus_bal, multi_lvl, bot_lvl, room_lvl, last_sync, squad_id, rockets_count, rocket_exp, last_play_date = user_db
             
-            # 1. ЗАЩИТА АВТОКЛИКЕРА: Считаем реальное время на сервере
+            # Обнуляем ракеты каждый новый день
+            if last_play_date != current_date:
+                rockets_count = 3
+                last_play_date = current_date
+
+            # АНТИЧИТ (Подняли до 30 кликов)
             elapsed_sec = current_time - last_sync if last_sync > 0 else 0
-            MAX_CLICKS_PER_SEC = 15
-            
-            # Даем небольшой буфер (например, 3 секунды), если игрок только зашел
+            MAX_CLICKS_PER_SEC = 30
             safe_time = max(elapsed_sec, 3.0) 
             max_possible_clicks = int(MAX_CLICKS_PER_SEC * safe_time)
             
-            # Берем минимальное значение: либо сколько он реально накликал, либо лимит
             valid_clicks = min(clicks_claimed, max_possible_clicks)
             earned_from_taps = valid_clicks * multi_lvl
             
-            # 2. ЗАЩИТА ПАССИВНОГО ДОХОДА: Сервер сам знает, сколько приносит комната
+            # Умножаем на сервере, если ракета активна!
+            if current_time <= rocket_exp:
+                earned_from_taps *= 5
+            
+            # ПАССИВНЫЙ ДОХОД
             earned_passive = 0
             is_offline_reward = False
             studio_income_per_sec = ROOM_LEVELS.get(room_lvl, {}).get('income', 0)
             
             if last_sync > 0 and elapsed_sec > 0:
                 if elapsed_sec < 60:
-                    # Игрок онлайн, начисляем пассивный доход за эти секунды
                     earned_passive = int(elapsed_sec * studio_income_per_sec)
                 else:
-                    # Офлайн логика (работает только если куплен Авто-Бот)
                     if bot_lvl > 0:
-                        active_offline_sec = min(elapsed_sec, 10800) # Максимум 3 часа
+                        active_offline_sec = min(elapsed_sec, 10800)
                         earned_passive = int(active_offline_sec * (studio_income_per_sec + bot_lvl))
                         is_offline_reward = True
             
@@ -152,19 +157,55 @@ async def sync_api(request):
             new_bonus_bal = bonus_bal + earned_passive
             
             await db.execute('''UPDATE users 
-                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?
+                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?, rockets_count = ?, last_play_date = ?
                               WHERE user_id = ?''', 
-                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, user_id))
+                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, user_id))
             await db.commit()
             
         return web.json_response({
             "status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal,
-            "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": squad_id
+            "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": squad_id, "rockets_left": rockets_count
         })
     except Exception as e:
         print(f"Sync error: {e}")
         return web.json_response({"error": "Server error"}, status=500)
 
+async def activate_rocket_api(request):
+    try:
+        data = await request.json()
+        init_data = data.get("initData")
+        user_data = validate_telegram_data(init_data, BOT_TOKEN)
+        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+        
+        user_id = user_data.get("id")
+        current_time = time.time()
+        current_date = time.strftime('%Y-%m-%d')
+
+        async with aiosqlite.connect(DB_NAME) as db:
+            async with db.execute("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
+                row = await cursor.fetchone()
+            if not row: return web.json_response({"error": "User not found"}, status=404)
+
+            r_count, r_exp, last_date = row
+            
+            if last_date != current_date:
+                r_count = 3
+                last_date = current_date
+
+            if r_count <= 0:
+                return web.json_response({"error": "Ракеты закончились на сегодня!"}, status=400)
+            if current_time <= r_exp:
+                return web.json_response({"error": "Ракета уже активна!"}, status=400)
+
+            new_count = r_count - 1
+            new_exp = current_time + 15
+
+            await db.execute("UPDATE users SET rockets_count = ?, rocket_expires_at = ?, last_play_date = ? WHERE user_id = ?", (new_count, new_exp, last_date, user_id))
+            await db.commit()
+
+            return web.json_response({"status": "success", "rockets_left": new_count})
+    except Exception as e:
+        return web.json_response({"error": "Server error"}, status=500)
 
 async def buy_api(request):
     try:
@@ -211,57 +252,47 @@ async def buy_api(request):
             
             elif buy_type == "room_upgrade":
                 level_id = data.get("level")
-                if level_id not in ROOM_LEVELS: return web.json_response({"error": "Неверный уровень комнаты"}, status=400)
-                if user_db['current_room_level'] >= level_id: return web.json_response({"error": "Этот уровень уже установлен"}, status=400)
-                if level_id > user_db['current_room_level'] + 1: return web.json_response({"error": "Нельзя перепрыгивать уровни"}, status=400)
+                if level_id not in ROOM_LEVELS: return web.json_response({"error": "Неверный уровень"}, status=400)
+                if user_db['current_room_level'] >= level_id: return web.json_response({"error": "Уже куплено"}, status=400)
+                if level_id > user_db['current_room_level'] + 1: return web.json_response({"error": "Перепрыгивать нельзя"}, status=400)
                 
                 cost = ROOM_LEVELS[level_id]['cost']
                 column_to_update = "current_room_level"
                 new_value = level_id
-                
             else: return web.json_response({"error": "Неизвестный тип"}, status=400)
 
             if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
                 
-            # Расчет списания
             if bonus_bal >= cost: 
                 new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
             else: 
                 remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
                 
-            # АТОМАРНОЕ ОБНОВЛЕНИЕ (защита от багов и хаков)
             await db.execute(f'''UPDATE users 
                                  SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? 
                                  WHERE user_id = ? AND (taps_balance + bonus_balance) >= ?''', 
                              (new_taps_bal, new_bonus_bal, new_value, user_id, cost))
             await db.commit()
-            
             return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
-    except Exception as e:
-        print(f"Buy error: {e}")
+    except Exception:
         return web.json_response({"error": "Server error"}, status=500)
 
-
-# --- СКВАДЫ И ЛИДЕРБОРД ---
 async def create_squad_api(request):
     try:
         data = await request.json()
         init_data = data.get("initData")
         channel_username = data.get("channel", "").strip()
-        
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
-        
         user_id = user_data.get("id")
-        if not channel_username.startswith("@"):
-            channel_username = "@" + channel_username
+        if not channel_username.startswith("@"): channel_username = "@" + channel_username
 
         try:
             member = await bot.get_chat_member(chat_id=channel_username, user_id=user_id)
             if member.status not in ["administrator", "creator"]:
-                return web.json_response({"error": "Вы не являетесь администратором этого канала!"}, status=400)
+                return web.json_response({"error": "Вы не являетесь администратором!"}, status=400)
         except Exception:
-            return web.json_response({"error": "Добавьте бота в администраторы канала (без прав)!"}, status=400)
+            return web.json_response({"error": "Добавьте бота в администраторы (без прав)!"}, status=400)
 
         link = f"https://t.me/grutap_robot?start=squad_{channel_username[1:]}"
         return web.json_response({"status": "success", "link": link})
@@ -273,7 +304,6 @@ async def leaderboard_api(request):
         data = await request.json()
         init_data = data.get("initData")
         tab = data.get("tab", "players")
-        
         user_data = validate_telegram_data(init_data, BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         req_user_id = user_data.get("id")
@@ -290,23 +320,18 @@ async def leaderboard_api(request):
                 async with db.execute('''SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as total_score
                                          FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY total_score DESC LIMIT 50''') as cursor:
                     rows = await cursor.fetchall()
-                
                 async with db.execute("SELECT squad_id FROM users WHERE user_id = ?", (req_user_id,)) as cursor:
                     user_squad_row = await cursor.fetchone()
                     user_squad = user_squad_row[0] if user_squad_row else ""
-                
                 squads = [{"id": r[0], "members": r[1], "score": r[2], "isMySquad": r[0] == user_squad} for r in rows]
                 return web.json_response({"status": "success", "list": squads, "tab": "squads"})
-                
-    except Exception as e:
-        print(f"Leaderboard error: {e}")
+    except Exception:
         return web.json_response({"error": "Server error"}, status=500)
-
 
 async def create_invoice_api(request):
     try:
         prices = [LabeledPrice(label="Нейро-Скин", amount=50)]
-        invoice_link = await bot.create_invoice_link(title="✨ Генерация ИИ-Скина", description="Оплата создания уникального скина", payload="skin_generation_50", provider_token="", currency="XTR", prices=prices)
+        invoice_link = await bot.create_invoice_link(title="✨ Генерация ИИ-Скина", description="Оплата скина", payload="skin_generation", provider_token="", currency="XTR", prices=prices)
         return web.json_response({"invoice_url": invoice_link})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
@@ -320,8 +345,7 @@ async def process_pre_checkout(pre_checkout_query: PreCheckoutQuery):
 
 @dp.message(F.successful_payment)
 async def process_successful_payment(message: types.Message):
-    if message.successful_payment.invoice_payload == "skin_generation_50":
-        await message.answer(f"✅ Оплата {message.successful_payment.total_amount} ⭐️ успешно получена!")
+    await message.answer(f"✅ Оплата {message.successful_payment.total_amount} ⭐️ успешно получена!")
 
 async def check_subscription(user_id, channel_username):
     try:
@@ -334,7 +358,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
     first_name = message.from_user.first_name
     current_time = time.time()
-
     ref_id = None
     squad_id = ""
     
@@ -351,38 +374,32 @@ async def cmd_start(message: types.Message, command: CommandObject):
         
         if not user_data:
             join_time = current_time if squad_id else 0
-            await db.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES (?, ?, ?, ?, ?)", 
-                             (user_id, ref_id, first_name, squad_id, join_time))
+            await db.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES (?, ?, ?, ?, ?)", (user_id, ref_id, first_name, squad_id, join_time))
             await db.commit()
             if ref_id:
                 try: await bot.send_message(ref_id, "🎉 <b>Новый друг по ссылке!</b>", parse_mode="HTML")
                 except: pass
-            if squad_id:
-                await message.answer(f"🎉 Вы успешно вступили в сквад <b>{squad_id}</b>!", parse_mode="HTML")
         else:
             if squad_id and user_data[4] != squad_id:
-                last_join = user_data[14] # Индекс last_squad_join_time
+                last_join = user_data[14] 
                 if current_time - last_join >= 604800 or last_join == 0:
                     await db.execute("UPDATE users SET squad_id = ?, last_squad_join_time = ? WHERE user_id = ?", (squad_id, current_time, user_id))
                     await db.commit()
-                    await message.answer(f"🎉 Вы успешно перешли в сквад <b>{squad_id}</b>!", parse_mode="HTML")
                 else:
                     days_left = int((604800 - (current_time - last_join)) / 86400) + 1
-                    await message.answer(f"⏳ Слишком частая смена сквада!\nСледующий переход будет доступен через <b>{days_left} дн.</b>", parse_mode="HTML")
+                    await message.answer(f"⏳ Переход доступен через <b>{days_left} дн.</b>", parse_mode="HTML")
 
         async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor:
-            refs_count_row = await cursor.fetchone()
-            refs_count = refs_count_row[0] if refs_count_row else 0
+            refs_count = (await cursor.fetchone() or [0])[0]
 
     is_sub_ru = await check_subscription(user_id, CHANNEL_RU)
     is_sub_sng = await check_subscription(user_id, CHANNEL_SNG)
     
     if is_sub_ru or is_sub_sng:
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(current_time)}"
-        
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text="🎮 ИГРАТЬ (Tap to Earn)", web_app=WebAppInfo(url=custom_url)))
-        await message.answer_photo(photo=BANNER_GAME, caption=f"🚀 <b>С возвращением, {first_name}!</b>\n\n👇 <b>Жми на кнопку ниже:</b>", reply_markup=builder.as_markup(), parse_mode="HTML")
+        await message.answer_photo(photo=BANNER_GAME, caption=f"🚀 <b>С возвращением, {first_name}!</b>", reply_markup=builder.as_markup(), parse_mode="HTML")
     else:
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text="🇷🇺 Канал (РФ)", url=f"https://t.me/{CHANNEL_RU[1:]}"))
@@ -397,12 +414,11 @@ async def process_check(callback: types.CallbackQuery):
         async with aiosqlite.connect(DB_NAME) as db:
             async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor:
                 refs_count = (await cursor.fetchone())[0]
-                
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}"
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 ИГРАТЬ (Tap to Earn)", web_app=WebAppInfo(url=custom_url)))
         await callback.message.delete()
-        await bot.send_photo(chat_id=callback.message.chat.id, photo=BANNER_GAME, caption=f"✅ <b>Отлично, {callback.from_user.first_name}!</b>", reply_markup=game_builder.as_markup(), parse_mode="HTML")
+        await bot.send_photo(chat_id=callback.message.chat.id, photo=BANNER_GAME, caption="✅ <b>Отлично!</b>", reply_markup=game_builder.as_markup(), parse_mode="HTML")
     else:
         await callback.answer("❌ Ты еще не подписался!", show_alert=True)
 
@@ -420,6 +436,7 @@ async def main():
     
     cors.add(app.router.add_post('/api/sync', sync_api))
     cors.add(app.router.add_post('/api/buy', buy_api))
+    cors.add(app.router.add_post('/api/activate-rocket', activate_rocket_api))
     cors.add(app.router.add_post('/api/create-squad', create_squad_api))
     cors.add(app.router.add_post('/api/leaderboard', leaderboard_api))
     cors.add(app.router.add_post('/api/create-invoice', create_invoice_api))
