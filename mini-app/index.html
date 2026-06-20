@@ -47,7 +47,6 @@
         .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
 
-        /* ОБНОВЛЕННЫЕ СТИЛИ СТУДИИ (Без отдельных слоев) */
         .studio-container { position: relative; width: 100%; height: 250px; background: #0b0f19; border-radius: 16px; overflow: hidden; border: 2px solid #38bdf8; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
         .studio-income-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid #38bdf8; padding: 6px 12px; border-radius: 10px; font-weight: bold; color: #facc15; z-index: 10; font-size: 14px; backdrop-filter: blur(4px); }
@@ -69,7 +68,6 @@
         .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 28px; cursor: pointer; }
         .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
         
-        /* НОВЫЕ СТИЛИ ДЛЯ ВИТРИНЫ МАГАЗИНА */
         .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
         .showcase-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; transition: transform 0.2s; }
         .showcase-img-container { width: 100%; height: 130px; background: #000; overflow: hidden; position: relative; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
@@ -203,8 +201,8 @@
             <div class="task-box" style="border: 1px solid rgba(234, 179, 8, 0.3); background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.1) 0%, rgba(255,255,255,0.02) 80%); text-align: center; margin-bottom: 25px;">
                 <b style="font-size: 18px; color: #facc15;">📆 Ежедневная Награда</b><br>
                 <div style="margin-top: 10px; text-align: left;">
-                    <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней (На 7-й день эксклюзивный декор!)</span>
-                    <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 12px; font-size: 16px; margin-top: 10px; width: 100%;" onclick="claimDaily()">Забрать бонус</button>
+                    <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней</span>
+                    <button id="btnDailyReward" class="support-btn" style="background: #475569; color: white; padding: 12px; font-size: 16px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="showInDevAlert()">В разработке</button>
                 </div>
             </div>
 
@@ -236,11 +234,10 @@
                 <b style="font-size: 16px; color: #facc15;">🎯 Цель: Сделать 5000 тапов</b><br>
                 <span style="font-size: 14px; color: #94a3b8;">Прогресс: <b id="dailyTapsText" style="color: #38bdf8;">0</b> / 5000</span>
                 <div class="level-bar-bg" style="margin-top: 5px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuest()" disabled>Выполни цель</button>
+                <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="showInDevAlert()">Скоро</button>
             </div>
-            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(1, '@channel1_username', 'https://t.me/+EAtzJtk5HhtjMDZi')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(2, '@channel2_username', 'https://t.me/+46xgoo7Uaoo5NzYy')">Подписаться</button></div>
-            <div class="task-box"><b>Спонсор #3</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="claimSponsor(3, '@channel3_username', 'https://t.me/+bw_AZPBC3Ig1YWMy')">Подписаться</button></div>
+            <div class="task-box"><b>Спонсор #1</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px; background: #475569;" onclick="showInDevAlert()">Скоро</button></div>
+            <div class="task-box"><b>Спонсор #2</b><br><span style="color: #38bdf8;">+450 $ROB</span><br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px; background: #475569;" onclick="showInDevAlert()">Скоро</button></div>
             <div class="task-box"><b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br><button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button></div>
         </div>
 
@@ -290,6 +287,7 @@
         
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
         
+        // UI Элементы
         const scoreElement = document.getElementById('score');
         const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
@@ -299,9 +297,15 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
+        // Глобальные переменные (ТОНКИЙ КЛИЕНТ)
+        let visualScore = 0; // Оптимистичный баланс на экране
+        let serverTaps = 0; 
+        let serverBonus = 0; 
+        let pendingClicks = 0; // Клики, ожидающие отправки на сервер
         let currentLbTab = 'players';
         let currentMySquad = ''; 
         
+        // Визуальные анимации (плавающий текст)
         const floatingPool = [];
         let poolIndex = 0;
         const poolSize = 15;
@@ -314,51 +318,24 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         
-        let taps = 0; let bonus = 0; let earnedOffline = 0; 
-        let unsyncedClicks = 0; 
-        let lastSyncTime = Date.now();
-        
-        if (refsCount >= 10) { bonus += 1000; }
-
-        let sponsorsClaimed = { 1: false, 2: false, 3: false };
-        let isRocketActive = false; let rocketsLeft = 3;
-        let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
-        
-        let dailyStreak = 0; let lastClaimDate = ""; let dailyTaps = 0; let dailyQuestClaimed = false;
-        const now = new Date(); const todayStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
-
-        let ownedBaseSkinIds = ['default']; let ownedAISkins = []; let currentSkinId = 'default';
-
-        // --- НОВАЯ СИСТЕМА УРОВНЕЙ И ФОНОВ ---
+        // Состояния бустов и прокачки (синхронизируются через CloudStorage/Локально для визуала)
+        let isRocketActive = false; 
+        let rocketsLeft = 3;
+        let multitapLevel = 1; 
+        let maxEnergyLevel = 1; 
+        let autoBotLevel = 0; 
+        let energy = 1000; 
+        let maxEnergy = 1000; 
         let currentRoomLevel = 0; 
-        const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
+        let ownedBaseSkinIds = ['default']; 
+        let currentSkinId = 'default';
 
+        // Константы (для визуала, сервер сам проверяет цены)
+        const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
-            { 
-                level: 1, 
-                name: 'Стартовая студия', 
-                cost: 15000, 
-                income: 3, 
-                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', 
-                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' 
-            },
-            { 
-                level: 2, 
-                name: 'Офис', 
-                cost: 500000, 
-                income: 6, 
-                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png', 
-                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' 
-            },
-            { 
-                level: 3, 
-                name: 'Кибер-люкс', 
-                cost: 1500000, 
-                income: 12, 
-                bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png', 
-                previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png' 
-            }
+            { level: 1, name: 'Стартовая студия', cost: 15000, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
+            { level: 2, name: 'Офис', cost: 500000, income: 6, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' },
+            { level: 3, name: 'Кибер-люкс', cost: 1500000, income: 12, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png' }
         ];
 
         const LEAGUES_CONFIG = [
@@ -379,9 +356,15 @@
             { level: 5, required: 500000 }, { level: 6, required: 1000000 }, { level: 7, required: 5000000 }, { level: 8, required: 10000000 }
         ];
 
+        // Инициализация UI
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
+
+        function showInDevAlert() {
+            tg.HapticFeedback.notificationOccurred('warning');
+            tg.showAlert('🛠 Эта функция сейчас переносится на сервер для защиты от накрутки. Скоро заработает!');
+        }
 
         function showFloatingText(x, y, amount, isRocket) {
             const el = floatingPool[poolIndex]; poolIndex = (poolIndex + 1) % poolSize;
@@ -392,17 +375,9 @@
             setTimeout(() => { el.style.display = 'none'; }, 800);
         }
 
-        function getCurrentUserLeague() { let total = taps + bonus; let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (total >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
+        function getCurrentUserLeague(score) { let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (score >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
-        
-        // Пересчет пассивного дохода на новую систему комнат
-        function calcStudioIncome() { 
-            if (currentRoomLevel === 0) return 0;
-            let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel);
-            return room ? room.income : 0;
-        }
 
-        // Плавная замена цельных картинок
         function updateStudioVisuals() {
             let bgElement = document.getElementById('mainStudioBg');
             if (currentRoomLevel === 0) {
@@ -411,13 +386,13 @@
                 let room = ROOM_LEVELS.find(r => r.level === currentRoomLevel);
                 if (room) bgElement.style.backgroundImage = `url('${room.bgImg}')`;
             }
-            document.getElementById('studioIncomeTotal').innerText = calcStudioIncome().toLocaleString('ru-RU');
+            let income = ROOM_LEVELS.find(r => r.level === currentRoomLevel)?.income || 0;
+            document.getElementById('studioIncomeTotal').innerText = income.toLocaleString('ru-RU');
         }
 
         function openStudioShop() { document.getElementById('shopSheetOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.opacity = '1'; document.getElementById('shopSheet').classList.add('open'); }, 10); renderShopItems(); }
         function closeStudioShop() { document.getElementById('shopSheet').classList.remove('open'); document.getElementById('shopSheetOverlay').style.opacity = '0'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.display = 'none'; }, 300); }
 
-        // Новая витрина без табов
         function renderShopItems() {
             const container = document.getElementById('shopItemsContainer');
             container.innerHTML = '<div class="showcase-grid"></div>';
@@ -438,14 +413,12 @@
                     cardClass += ' locked';
                     btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`;
                 } else if (isNext) {
-                    btnHtml = `<button class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level})">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`;
+                    btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="buyRoomLevel(${room.level}, this)">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`;
                 }
 
                 grid.insertAdjacentHTML('beforeend', `
                     <div class="${cardClass}">
-                        <div class="showcase-img-container">
-                            <img src="${room.previewImg}" class="showcase-img">
-                        </div>
+                        <div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div>
                         <div class="showcase-info">
                             <div class="showcase-title">${room.name} (Ур. ${room.level})</div>
                             <div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>
@@ -456,10 +429,10 @@
             });
         }
 
-        // Обновленная функция покупки для бэкенда
-        function buyRoomLevel(levelId) {
-            let room = ROOM_LEVELS.find(r => r.level === levelId);
-            if (!room) return;
+        // ПОКУПКА КОМНАТ (Через сервер)
+        function buyRoomLevel(levelId, btnElement) {
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
 
             fetch(`${BACKEND_URL}/buy`, { 
                 method: 'POST', 
@@ -469,11 +442,11 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") { 
-                    taps = data.new_taps_balance; 
-                    bonus = data.new_bonus_balance; 
+                    serverTaps = data.new_taps_balance; 
+                    serverBonus = data.new_bonus_balance; 
                     currentRoomLevel = levelId;
                     
-                    updateScore(); 
+                    updateVisualScore(true); 
                     updateStudioVisuals(); 
                     renderShopItems(); 
                     
@@ -481,37 +454,47 @@
                     tg.HapticFeedback.notificationOccurred('success'); 
                 } else { 
                     tg.showAlert(`❌ ${data.error}`); 
+                    btnElement.innerText = originalText; btnElement.disabled = false;
                 }
             }).catch(err => { 
                 tg.showAlert("❌ Ошибка соединения с сервером."); 
+                btnElement.innerText = originalText; btnElement.disabled = false;
             });
         }
 
-        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; }
+        function updateTechGridVisuals() { 
+            document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; 
+            document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; 
+            document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; 
+        }
 
         function openTechModal(type) {
             const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
             if (type === 'multitap') { icon.innerText = "👆"; title.innerText = "Мультитап"; desc.innerText = "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
             else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = "Энергоемкость"; desc.innerText = "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
             else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = "Авто-Бот"; desc.innerText = "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `База: +${autoBotLevel}/сек`; next.innerText = `База: +${autoBotLevel + 1}/сек`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? 'Купить бота' : 'Прокачать'} • ${cost.toLocaleString('ru-RU')} $ROB`; }
-            btn.onclick = () => { buyTechBoost(type); }; document.getElementById('techModal').style.display = 'flex';
+            btn.onclick = () => { buyTechBoost(type, btn); }; document.getElementById('techModal').style.display = 'flex';
         }
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
-        function buyTechBoost(type) {
-            const btn = document.getElementById('techModalBuyBtn'); const originalText = btn.innerText; btn.innerText = "⏳ Покупка..."; btn.disabled = true;
+        // ПОКУПКА БУСТОВ (Через сервер)
+        function buyTechBoost(type, btnElement) {
+            const originalText = btnElement.innerText; 
+            btnElement.innerText = "⏳ Покупка..."; btnElement.disabled = true;
+            
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "tech", item_id: type }) })
             .then(res => res.json())
             .then(data => {
-                btn.innerText = originalText; btn.disabled = false;
+                btnElement.innerText = originalText; btnElement.disabled = false;
                 if (data.status === "success") {
-                    taps = data.new_taps_balance; bonus = data.new_bonus_balance;
+                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
                     if (type === 'multitap') { multitapLevel++; if (tg.CloudStorage) tg.CloudStorage.setItem('multitap_level', multitapLevel.toString()); }
                     else if (type === 'energy') { maxEnergyLevel++; maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500); document.getElementById('maxEnergyUI').innerText = maxEnergy; updateEnergyVisual(); if (tg.CloudStorage) tg.CloudStorage.setItem('max_energy_level', maxEnergyLevel.toString()); }
                     else if (type === 'bot') { autoBotLevel++; if(autoBotLevel === 1) tg.showAlert("🤖 Авто-бот куплен!"); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); }
-                    updateTechGridVisuals(); updateScore(); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
+                    
+                    updateTechGridVisuals(); updateVisualScore(true); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
                 } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Ошибка сети."); });
+            }).catch(err => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Ошибка сети."); });
         }
 
         function renderSkins() {
@@ -520,28 +503,52 @@
                 const isOwned = ownedBaseSkinIds.includes(skin.id); const isEquipped = currentSkinId === skin.id; let btnHTML = ''; let cardClass = 'skin-card';
                 if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
                 else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; } 
-                else { btnHTML = `<button class="skin-btn btn-buy" onclick="buySkin('${skin.id}')">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="buySkin('${skin.id}', this)">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${skin.img}" class="skin-img"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`);
             });
-            ownedAISkins.forEach(skin => {
-                const isEquipped = currentSkinId === skin.id; let cardClass = `skin-card rarity-${skin.rarity}`; let btnHTML = '';
-                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } else { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; }
-                container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${skin.img}" class="skin-img"><div class="skin-name" style="color: ${skin.color}">${skin.name}<br><span style="font-size:11px; color:#fff;">(+${skin.bonus} к тапу)</span></div>${btnHTML}</div>`);
-            });
-            const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || ownedAISkins.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
+            const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
         }
 
-        function generateAISkin() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert('🛠 Нейро-кузница в разработке!\n\nСовсем скоро ты сможешь создавать уникальные ИИ-скины.'); }
-        function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId) || ownedAISkins.find(s => s.id === skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
+        function generateAISkin() { 
+            const btn = document.getElementById('btnGenerateSkin');
+            const orig = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/create-invoice`, { method: 'POST' })
+            .then(res => res.json()).then(data => {
+                btn.innerText = orig; btn.disabled = false;
+                if(data.invoice_url) tg.openInvoice(data.invoice_url, (status) => { if(status === 'paid') tg.showAlert('Оплата прошла! Скин скоро появится в коллекции.'); });
+            }).catch(e => { btn.innerText = orig; btn.disabled = false; });
+        }
+
+        function selectSkin(skinId) { 
+            if (ownedBaseSkinIds.includes(skinId)) { 
+                currentSkinId = skinId; renderSkins(); 
+                if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); 
+                tg.HapticFeedback.selectionChanged(); 
+            } 
+        }
         
-        function buySkin(skinId) { 
-            const skinObj = SKINS.find(s => s.id === skinId); if (!skinObj || ownedBaseSkinIds.includes(skinId)) return; 
+        // ПОКУПКА СКИНОВ (Через сервер)
+        function buySkin(skinId, btnElement) { 
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
+
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: skinId }) })
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") { taps = data.new_taps_balance; bonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Вы купили: ${skinObj.name}!`); } 
-                else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { tg.showAlert("❌ Ошибка соединения с сервером."); });
+                if (data.status === "success") { 
+                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; 
+                    ownedBaseSkinIds.push(skinId); currentSkinId = skinId; 
+                    updateVisualScore(true); renderSkins(); 
+                    if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } 
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                } else { 
+                    tg.showAlert(`❌ ${data.error}`); 
+                    btnElement.innerHTML = originalText; btnElement.disabled = false;
+                }
+            }).catch(err => { 
+                tg.showAlert("❌ Ошибка соединения с сервером."); 
+                btnElement.innerHTML = originalText; btnElement.disabled = false;
+            });
         }
 
         function updateLevelVisuals(totalScore) {
@@ -549,80 +556,39 @@
             document.getElementById('currentLevel').innerText = currentLevelObj.level;
             if (currentLevelObj === nextLevelObj) { document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`; } 
             else { document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required; let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required; document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`; }
-            let league = getCurrentUserLeague(); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
+            let league = getCurrentUserLeague(totalScore); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
             
-            if (currentMySquad !== '') { 
-                document.getElementById('mySquadInfo').style.display = 'block'; 
-                document.getElementById('mySquadNameText').innerText = currentMySquad; 
-            } else {
-                document.getElementById('mySquadInfo').style.display = 'none'; 
-            }
+            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } 
+            else { document.getElementById('mySquadInfo').style.display = 'none'; }
         }
 
-        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); checkDailyStreakStatus(); updateEnergyVisual(); updateDailyQuestVisual(); renderSkins(); updateScore(); }
-        function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; earnedOffline = 0; tg.HapticFeedback.notificationOccurred('success'); }
-        function getDailyRewardAmount(streak) { const rewards = { 1: 100, 2: 200, 3: 500, 4: 1000, 5: 2000, 6: 3500, 7: 5000 }; return rewards[streak] || 100; }
-        
-        function checkDailyStreakStatus() {
-            document.getElementById('dailyStreakText').innerText = dailyStreak; let btn = document.getElementById('btnDailyReward');
-            if (lastClaimDate === todayStr) { btn.innerText = "Забрано ✅"; btn.style.background = "#475569"; btn.style.color = "white"; } 
-            else if (lastClaimDate === yesterdayStr) { let nextStreak = (dailyStreak % 7) + 1; btn.innerText = `Забрать +${getDailyRewardAmount(nextStreak)} $ROB`; } 
-            else { if(lastClaimDate !== "") { dailyStreak = 0; document.getElementById('dailyStreakText').innerText = "0"; } btn.innerText = `Забрать +${getDailyRewardAmount(1)} $ROB`; }
-        }
-
-        function claimDaily() {
-            if (lastClaimDate === todayStr) return; if (lastClaimDate === yesterdayStr) { dailyStreak = (dailyStreak % 7) + 1; } else { dailyStreak = 1; }
-            let reward = getDailyRewardAmount(dailyStreak); bonus += reward; updateScore(); lastClaimDate = todayStr;
-            if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_streak', dailyStreak.toString()); tg.CloudStorage.setItem('last_claim_date', todayStr); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); }
-            checkDailyStreakStatus(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Серия продлена! Получено +${reward} $ROB!`); renderShopItems(); 
-        }
-
-        function updateDailyQuestVisual() {
-            document.getElementById('dailyTapsText').innerText = dailyTaps; document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (dailyTaps / 5000) * 100)}%`; let btn = document.getElementById('btnDailyQuest');
-            if (dailyQuestClaimed) { btn.innerText = "Получено ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white"; } 
-            else if (dailyTaps >= 5000) { btn.innerText = "Забрать 10 000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white"; } 
-            else { btn.innerText = "Выполни цель 🎯"; btn.style.background = "#475569"; btn.disabled = true; }
-        }
-
-        function claimDailyQuest() { if (dailyTaps >= 5000 && !dailyQuestClaimed) { dailyQuestClaimed = true; bonus += 10000; updateScore(); updateDailyQuestVisual(); if (tg.CloudStorage) { tg.CloudStorage.setItem('daily_quest_claimed', 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); } tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎯 Цель выполнена! +10 000 $ROB!`); } }
-
-        function setButtonClaimed(id) { let btn = document.getElementById('btnSponsor' + id); btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.style.boxShadow = "none"; }
+        function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
         function switchLeaderboardTab(tab) {
             currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#38bdf8' : '#1e293b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#38bdf8' : '#1e293b';
             document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
         }
 
-        function generateSquadLink() { 
-            let val = document.getElementById('squadInput').value.trim(); 
-            if(!val) return; 
+        // РАКЕТА (Локальный визуал, сервер корректирует)
+        function activateRocket() {
+            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились!"); return; }
+            if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
+            rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; 
             
-            let btn = document.getElementById('btnCreateSquad');
-            let originalText = btn.innerText;
-            btn.innerText = "⏳ Проверка прав...";
-            btn.disabled = true;
+            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
+            let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
+            let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
+        }
 
-            fetch(`${BACKEND_URL}/create-squad`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData, channel: val })
-            })
+        function generateSquadLink() { 
+            let val = document.getElementById('squadInput').value.trim(); if(!val) return; 
+            let btn = document.getElementById('btnCreateSquad'); const originalText = btn.innerText; btn.innerText = "⏳ Проверка прав..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/create-squad`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, channel: val }) })
             .then(res => res.json())
             .then(data => {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                if(data.status === "success") {
-                    document.getElementById('squadLinkResult').style.display = 'block'; 
-                    document.getElementById('generatedSquadLink').innerText = data.link; 
-                    tg.HapticFeedback.notificationOccurred('success'); 
-                } else {
-                    tg.showAlert(`❌ ${data.error}`);
-                }
-            })
-            .catch(err => {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                tg.showAlert("❌ Ошибка соединения с сервером.");
-            });
+                btn.innerText = originalText; btn.disabled = false;
+                if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } 
+                else { tg.showAlert(`❌ ${data.error}`); }
+            }).catch(err => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Ошибка сервера."); });
         }
 
         function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
@@ -631,204 +597,136 @@
         function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована!"); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Ссылка: " + link); }); } else { tg.showAlert("🔗 Ссылка: " + link); } }
 
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList');
-            listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
-            
-            fetch(`${BACKEND_URL}/leaderboard`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData, tab: currentLbTab })
-            })
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
+            fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
                     listContainer.innerHTML = ''; 
-                    
                     if (data.tab === "players") {
                         data.list.forEach((player, index) => {
-                            const rank = index + 1; 
-                            let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
                             let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);'; 
                             let displayName = player.name + (player.isMe ? " (Вы)" : "");
-                            
-                            listContainer.insertAdjacentHTML('beforeend', `
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}">
-                                    <div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div>
-                                    <div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${displayName}</div>
-                                    <div style="font-weight: bold; color: #38bdf8; font-size: 16px; text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);">${player.score.toLocaleString('ru-RU')}</div>
-                                </div>
-                            `);
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${displayName}</div><div style="font-weight: bold; color: #38bdf8; font-size: 16px; text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);">${player.score.toLocaleString('ru-RU')}</div></div>`);
                         });
                     } else if (data.tab === "squads") {
                         data.list.forEach((squad, index) => {
-                            const rank = index + 1; 
-                            let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            
-                            let isClickable = rank <= 5;
-                            let opacity = isClickable ? '1' : '0.6';
-                            let borderStyle = squad.isMySquad ? '1px solid #38bdf8' : (isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent');
-                            let titleColor = squad.isMySquad ? '#38bdf8' : (isClickable ? '#facc15' : '#94a3b8');
-                            let bgStyle = squad.isMySquad ? 'background: rgba(56, 189, 248, 0.05);' : 'background: rgba(255,255,255,0.05);';
-                            
-                            let actionHtml = isClickable 
-                                ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">Вступить</button>` 
-                                : ''; 
-                            
-                            listContainer.insertAdjacentHTML('beforeend', `
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};">
-                                    <div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div>
-                                    <div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; color: ${titleColor};">
-                                        ${squad.id} ${squad.isMySquad ? '(Ваш)' : ''}<br>
-                                        <span style="font-size: 12px; color: #94a3b8;">👥 ${squad.members} игроков</span><br>
-                                        <span style="font-size: 13px; color: #38bdf8; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span>
-                                    </div>
-                                    <div>${actionHtml}</div>
-                                </div>
-                            `);
+                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #38bdf8' : (isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent'); let titleColor = squad.isMySquad ? '#38bdf8' : (isClickable ? '#facc15' : '#94a3b8'); let bgStyle = squad.isMySquad ? 'background: rgba(56, 189, 248, 0.05);' : 'background: rgba(255,255,255,0.05);'; 
+                            let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">Вступить</button>` : ''; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; color: ${titleColor};">${squad.id} ${squad.isMySquad ? '(Ваш)' : ''}<br><span style="font-size: 12px; color: #94a3b8;">👥 ${squad.members} игроков</span><br><span style="font-size: 13px; color: #38bdf8; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
                         });
                     }
                     if (data.list.length === 0) listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Список пока пуст... Стань первым!</div>';
-                } else {
-                    listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>';
-                }
-            })
-            .catch(err => {
-                listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка соединения</div>';
-            });
+                } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>'; }
+            }).catch(err => { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка соединения</div>'; });
         }
 
-        function updateScore() {
-            let totalScore = taps + bonus; let robux = Math.floor(totalScore / 1000);
-            scoreElement.innerText = totalScore.toLocaleString('ru-RU'); profileScoreElement.innerText = totalScore.toLocaleString('ru-RU'); 
-            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
-            updateLevelVisuals(totalScore); 
+        // ОБНОВЛЕНИЕ БАЛАНСА
+        function updateVisualScore(forceSyncWithServer = false) {
+            if (forceSyncWithServer) {
+                visualScore = serverTaps + serverBonus;
+            }
+            let robux = Math.floor(visualScore / 1000);
+            scoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
+            profileScoreElement.innerText = visualScore.toLocaleString('ru-RU'); 
+            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); 
+            withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
+            updateLevelVisuals(visualScore); 
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-
-        function activateRocket() {
-            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились!"); return; }
-            if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
-            rocketsLeft--; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`; if (tg.CloudStorage) tg.CloudStorage.setItem('rockets_count', rocketsLeft.toString());
-            if (rocketsLeft <= 0) { let btn = document.getElementById('btnActivateRocket'); btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; }
-            isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
-            let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-            let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
-        }
-
-        function saveToCloudStorage() { if (tg.CloudStorage) { tg.CloudStorage.setItem('taps_balance', taps.toString()); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); tg.CloudStorage.setItem('saved_energy', energy.toString()); tg.CloudStorage.setItem('last_leave_time', Math.floor(Date.now() / 1000).toString()); tg.CloudStorage.setItem('daily_taps', dailyTaps.toString()); tg.CloudStorage.setItem('daily_taps_date', todayStr); tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); } }
-
         function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert("🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
-        function claimSponsor(id, channelId, url) { if (sponsorsClaimed[id]) return; let btn = document.getElementById('btnSponsor' + id); tg.openTelegramLink(url); btn.innerText = "Проверяем..."; setTimeout(() => { sponsorsClaimed[id] = true; bonus += 450; updateScore(); setButtonClaimed(id); if (tg.CloudStorage) { tg.CloudStorage.setItem('sponsor_' + id, 'true'); tg.CloudStorage.setItem('bonus_balance', bonus.toString()); } }, 5000); }
         function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
         
+        // СТАРТОВАЯ ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ
+        function finishLoading() { 
+            updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(true);
+            // Делаем первый запрос на синхронизацию для получения точных данных и пассива
+            syncWithServer(true); 
+        }
+
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['taps_balance', 'bonus_balance', 'sponsor_1', 'sponsor_2', 'sponsor_3', 'saved_energy', 'rockets_count', 'last_rocket_date', 'daily_streak', 'last_claim_date', 'daily_taps', 'daily_taps_date', 'daily_quest_claimed', 'multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'owned_ai_skins', 'current_skin', 'current_squad', 'current_room_level'], (err, values) => {
+            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_room_level'], (err, values) => {
                 if (!err && values) {
-                    if (values.taps_balance) taps = parseInt(values.taps_balance, 10) || 0;
-                    if (values.bonus_balance) bonus = parseInt(values.bonus_balance, 10) || 0; 
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
-                    
                     if (values.current_room_level) currentRoomLevel = parseInt(values.current_room_level, 10) || 0;
-                    
                     if (values.owned_skins) { try { ownedBaseSkinIds = JSON.parse(values.owned_skins); } catch(e){} }
-                    if (values.owned_ai_skins) { try { ownedAISkins = JSON.parse(values.owned_ai_skins); } catch(e){} }
                     if (values.current_skin) currentSkinId = values.current_skin;
-
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
-
-                    if (values.last_rocket_date !== todayStr) { rocketsLeft = 3; tg.CloudStorage.setItem('rockets_count', '3'); tg.CloudStorage.setItem('last_rocket_date', todayStr); } 
-                    else { rocketsLeft = values.rockets_count !== undefined ? parseInt(values.rockets_count, 10) : 3; }
-                    
-                    document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    let rocketBtn = document.getElementById('btnActivateRocket');
-                    if (rocketBtn) { if (rocketsLeft <= 0) { rocketBtn.innerText = "Закончились ❌"; rocketBtn.style.background = "#475569"; } else { rocketBtn.innerText = "Запустить Ракету 🚀"; rocketBtn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; } }
-
-                    if (values.daily_taps_date === todayStr) { if (values.daily_taps) dailyTaps = parseInt(values.daily_taps, 10) || 0; if (values.daily_quest_claimed === 'true') dailyQuestClaimed = true; } 
-                    else { dailyTaps = 0; dailyQuestClaimed = false; }
-                    
-                    let savedEnergy = values.saved_energy !== undefined ? parseInt(values.saved_energy, 10) : maxEnergy; if (isNaN(savedEnergy)) savedEnergy = maxEnergy; energy = savedEnergy; 
-                    if (values.daily_streak) dailyStreak = parseInt(values.daily_streak, 10) || 0; if (values.last_claim_date) lastClaimDate = values.last_claim_date;
                 }
                 finishLoading();
             });
         } else { finishLoading(); }
 
+        // ЛОГИКА ТАПА (Сохраняем только клики)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нуле! Используй ракету или подожди."); return; } energy--; updateEnergyVisual(); }
             
-            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || ownedAISkins.find(s => s.id === currentSkinId) || SKINS[0];
+            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let skinBonus = activeSkinObj.bonus || 0;
             let baseEarn = multitapLevel + skinBonus; 
             let earnAmount = isRocketActive ? baseEarn * 5 : baseEarn; 
             
-            taps += earnAmount;
-            let clicksToSend = 1;
-            unsyncedClicks += clicksToSend;
+            // Визуально добавляем баланс для красоты
+            visualScore += earnAmount;
             
-            if (!dailyQuestClaimed) { dailyTaps += earnAmount; updateDailyQuestVisual(); }
-            updateScore(); tg.HapticFeedback.impactOccurred('medium');
+            // Фиксируем физические клики для отправки на сервер (ракета дает умножение кликов для обхода лимита)
+            pendingClicks += (isRocketActive ? 5 : 1);
+            
+            updateVisualScore(); tg.HapticFeedback.impactOccurred('medium');
 
             let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             showFloatingText(x, y, earnAmount, isRocketActive);
         });
 
+        // ВОССТАНОВЛЕНИЕ ЭНЕРГИИ
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
 
-        window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveToCloudStorage(); });
-        tg.onEvent('viewportChanged', (data) => { if (!data.isStateStable) saveToCloudStorage(); });
+        // СЕРВЕРНАЯ СИНХРОНИЗАЦИЯ (Каждые 3 секунды)
+        function syncWithServer(isInitial = false) {
+            let clicksToSend = pendingClicks;
+            pendingClicks = 0; // Сбрасываем сразу, чтобы не потерять новые тапы
 
-        let cloudSyncCounter = 0;
-        setInterval(() => {
-            cloudSyncCounter += 3;
-            if (cloudSyncCounter >= 30) { saveToCloudStorage(); cloudSyncCounter = 0; }
-            
-            if (unsyncedClicks > 0 || calcStudioIncome() > 0) {
-                let clicksToSend = unsyncedClicks;
-                let timeSinceLastSync = Date.now() - lastSyncTime;
-                
-                unsyncedClicks = 0;
-                lastSyncTime = Date.now();
-
-                fetch(`${BACKEND_URL}/sync`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ 
-                        initData: tg.initData, 
-                        clicks: clicksToSend,
-                        elapsed_time_ms: timeSinceLastSync,
-                        studioIncome: calcStudioIncome()
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        if (data.new_taps_balance !== undefined) taps = data.new_taps_balance;
-                        if (data.new_bonus_balance !== undefined) bonus = data.new_bonus_balance;
-                        
-                        if (data.current_squad) {
-                            currentMySquad = data.current_squad;
-                            if (tg.CloudStorage) tg.CloudStorage.setItem('current_squad', currentMySquad);
-                        }
-                        
-                        updateScore();
-                        
-                        if (data.earned_offline > 0) {
-                            document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); 
-                            document.getElementById('offlineModal').style.display = 'flex';
-                        }
-                    } else if (data.error) {
-                        console.error("Ошибка сервера:", data.error);
+            fetch(`${BACKEND_URL}/sync`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData, clicks: clicksToSend })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    serverTaps = data.new_taps_balance;
+                    serverBonus = data.new_bonus_balance;
+                    if (data.current_squad) currentMySquad = data.current_squad;
+                    
+                    // Жесткая синхронизация (сервер - босс)
+                    updateVisualScore(true);
+                    
+                    if (isInitial && data.earned_offline > 0) {
+                        document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); 
+                        document.getElementById('offlineModal').style.display = 'flex';
                     }
-                })
-                .catch(err => { 
-                    unsyncedClicks += clicksToSend; 
-                    console.error("Ошибка сети:", err);
-                });
-            }
-        }, 3000); 
+                }
+            })
+            .catch(err => { 
+                pendingClicks += clicksToSend; // Возвращаем клики если ошибка сети
+            });
+        }
+
+        setInterval(() => { syncWithServer(false); }, 3000); 
+
+        // СПАСЕНИЕ КЛИКОВ ПРИ ВЫХОДЕ ИЗ МИНИ-АППА
+        window.addEventListener('visibilitychange', () => { 
+            if (document.visibilityState === 'hidden' && pendingClicks > 0) { 
+                const payload = JSON.stringify({ initData: tg.initData, clicks: pendingClicks });
+                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload);
+                pendingClicks = 0;
+            } 
+        });
     </script>
 </body>
 </html>
