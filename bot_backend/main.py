@@ -45,7 +45,11 @@ ROOM_LEVELS = {
 
 async def init_db():
     global db_pool
-    db_pool = await asyncpg.create_pool(DATABASE_URL)
+    # Отключаем кэш запросов для идеальной работы с Transaction Pooler
+    db_pool = await asyncpg.create_pool(
+        DATABASE_URL,
+        statement_cache_size=0
+    )
     
     async with db_pool.acquire() as conn:
         # PostgreSQL синтаксис: BIGINT для ID Telegram и DOUBLE PRECISION для времени
