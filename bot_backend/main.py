@@ -43,6 +43,13 @@ ROOM_LEVELS = {
     3: {'cost': 1500000, 'income': 12}
 }
 
+# --- ИСПРАВЛЕННЫЙ ПРАЙС-ЛИСТ АРТЕФАКТОВ ---
+ARTIFACT_COSTS = {
+    'pepe': 50000, 
+    'spotty': 250000, 
+    'durov_cap': 1000000
+}
+
 # --- СЛОВАРЬ ДЛЯ БОТА ---
 TEXTS = {
     'ru': {
@@ -101,7 +108,7 @@ async def init_db():
             daily_quest_claimed INTEGER DEFAULT 0
         )''')
         
-        # Безопасно добавляем колонку языка для старых и новых пользователей
+        # Безопасно добавляем колонку языка
         try:
             await conn.execute("ALTER TABLE users ADD COLUMN language TEXT")
         except asyncpg.exceptions.DuplicateColumnError:
@@ -131,10 +138,8 @@ def get_upgrade_cost(base_cost, current_level):
     power = current_level - 1 if current_level > 0 else 0
     return base_cost * (2 ** power)
 
-SKIN_COSTS = {'coin': 50000, 'diamond': 250000, 'crown': 1000000}
-
 # ==========================================
-# ФУНКЦИИ API (Оставлены без изменений)
+# ФУНКЦИИ API
 # ==========================================
 
 async def sync_api(request):
@@ -296,7 +301,10 @@ async def buy_api(request):
                 elif item_id == "energy": cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1)); column_to_update = "max_energy_level"; new_value = int(user_db['max_energy_level'] or 1) + 1
                 elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
             elif buy_type == "skin":
-                item_id = data.get("item_id"); cost = SKIN_COSTS.get(item_id, 0); owned_skins = json.loads(user_db['owned_skins'] or '[]')
+                item_id = data.get("item_id")
+                # ---> ИСПОЛЬЗУЕМ НОВЫЙ ПРАЙС-ЛИСТ <---
+                cost = ARTIFACT_COSTS.get(item_id, 0) 
+                owned_skins = json.loads(user_db['owned_skins'] or '[]')
                 if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
                 owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
             elif buy_type == "room_upgrade":
@@ -349,21 +357,17 @@ async def leaderboard_api(request):
 async def send_main_menu(message_or_callback, user_id, first_name, lang):
     t = TEXTS.get(lang, TEXTS['ru'])
     
-    # Получаем кол-во рефералов для ссылки
     async with db_pool.acquire() as conn:
         r = await conn.fetchrow("SELECT COUNT(*) as count FROM users WHERE referrer_id = $1", user_id)
         refs_count = r['count'] if r else 0
 
     if await check_subscription(user_id, CHANNEL_RU) or await check_subscription(user_id, CHANNEL_SNG):
-        # Добавляем параметр языка в ссылку мини-приложения
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}&lang={lang}"
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text=t['play_btn'], web_app=WebAppInfo(url=custom_url)))
         
-        # Если это сообщение (от /start)
         if isinstance(message_or_callback, types.Message):
             await message_or_callback.answer_photo(photo=BANNER_GAME, caption=t['welcome_back'].format(name=first_name), reply_markup=builder.as_markup(), parse_mode="HTML")
-        # Если это callback (от кнопки "Я подписался")
         else:
             await message_or_callback.message.delete()
             await bot.send_photo(chat_id=message_or_callback.message.chat.id, photo=BANNER_GAME, caption=t['good'], reply_markup=builder.as_markup(), parse_mode="HTML")
@@ -395,10 +399,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
         user_data = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
         
         if not user_data:
-            # Новый пользователь
             await conn.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES ($1, $2, $3, $4, $5)", user_id, ref_id, first_name, squad_id, current_time if squad_id else 0)
-            
-            # Уведомляем рефовода (если есть) на ЕГО языке
             if ref_id:
                 try: 
                     ref_data = await conn.fetchrow("SELECT language FROM users WHERE user_id = $1", ref_id)
@@ -406,7 +407,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
                     await bot.send_message(ref_id, TEXTS[ref_lang]['new_ref'], parse_mode="HTML")
                 except Exception: pass
                 
-            # Просим выбрать язык
             builder = InlineKeyboardBuilder()
             builder.row(types.InlineKeyboardButton(text="🇷🇺 Русский", callback_data="setlang_ru"),
                         types.InlineKeyboardButton(text="🇬🇧 English", callback_data="setlang_en"))
@@ -420,24 +420,20 @@ async def cmd_start(message: types.Message, command: CommandObject):
 
             lang = user_data['language']
             if not lang:
-                # Если у старого пользователя еще нет языка, просим выбрать
                 builder = InlineKeyboardBuilder()
                 builder.row(types.InlineKeyboardButton(text="🇷🇺 Русский", callback_data="setlang_ru"),
                             types.InlineKeyboardButton(text="🇬🇧 English", callback_data="setlang_en"))
                 await message.answer("🌍 Выберите язык / Choose your language:", reply_markup=builder.as_markup())
                 return
 
-    # Запускаем главное меню
     await send_main_menu(message, user_id, first_name, lang)
 
 @dp.callback_query(F.data.startswith("setlang_"))
 async def process_language(callback: types.CallbackQuery):
     lang = callback.data.split("_")[1]
     user_id = callback.from_user.id
-    
     async with db_pool.acquire() as conn:
         await conn.execute("UPDATE users SET language = $1 WHERE user_id = $2", lang, user_id)
-        
     await callback.message.delete()
     await send_main_menu(callback.message, user_id, callback.from_user.first_name, lang)
 
@@ -447,12 +443,11 @@ async def process_check(callback: types.CallbackQuery):
     async with db_pool.acquire() as conn:
         user_data = await conn.fetchrow("SELECT language FROM users WHERE user_id = $1", user_id)
         lang = user_data['language'] if user_data and user_data['language'] else 'ru'
-        
     await send_main_menu(callback, user_id, callback.from_user.first_name, lang)
 
 async def main():
     await init_db()
-    print("Бот запущен! Мультиязычность активирована.")
+    print("Бот запущен! Ошибки покупок устранены.")
     app = web.Application()
     import aiohttp_cors
     cors = aiohttp_cors.setup(app, defaults={"*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*")})
