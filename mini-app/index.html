@@ -3,132 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RobuxTap</title>
+    <title>RobuxTap Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #0b0f19; background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0b0f19 60%); color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
-        #gameContent { position: absolute; top: 0; left: 0; right: 0; bottom: 70px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; box-sizing: border-box; }
+        * { box-sizing: border-box; }
+        html, body { 
+            width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
+            background-color: #000000; 
+            background-image: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.12) 0%, #000000 70%); 
+            color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            user-select: none; -webkit-tap-highlight-color: transparent; 
+        }
+
+        #gameContent { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 85px; 
+            overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; 
+        }
+
         .screen { display: none; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100%; text-align: center; padding-bottom: 30px; }
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        .bottom-menu { position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background-color: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .menu-btn { background: none; border: none; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 20%; font-weight: bold; }
-        .menu-icon { font-size: 24px; margin-bottom: 4px; }
-        .menu-btn.active { color: #38bdf8; }
+        /* Парящее нижнее меню (Glassmorphism) */
+        .bottom-menu { 
+            position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; 
+            background: rgba(18, 18, 22, 0.75); 
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 24px; display: flex; justify-content: space-around; align-items: center; 
+            z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .menu-btn { background: none; border: none; color: #71717a; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 20%; font-weight: 600; gap: 3px; }
+        .menu-icon { font-size: 20px; }
+        .menu-btn.active { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
 
-        .score-container { font-size: 42px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .robux-estimate { font-size: 22px; color: #facc15; font-weight: bold; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; box-shadow: 0 0 50px rgba(30, 58, 138, 0.6); transition: transform 0.05s; position: relative; z-index: 10; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; }
-        .tap-button:active { transform: scale(0.92); }
-        .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: bold; color: #94a3b8; font-size: 14px; }
-        .energy-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7); border-radius: 6px; transition: width 0.5s ease-out; }
+        /* Премиальный баланс */
+        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .robux-estimate { font-size: 18px; color: #fbbf24; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; }
+
+        /* Кнопка тапа */
+        .tap-button { 
+            width: 230px; height: 230px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); 
+            background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(250, 204, 21, 0.15); 
+            transition: transform 0.05s ease-out; position: relative; z-index: 10; margin: 0 auto; 
+            touch-action: manipulation; -webkit-user-drag: none; 
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .tap-button:active { transform: scale(0.93); }
+
+        /* Энергия */
+        .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: 600; color: #a1a1aa; font-size: 13px; }
+        .energy-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 4px; transition: width 0.3s ease-out; }
         
-        .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 16px; animation: pulse 1s infinite; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .floating-text { position: absolute; color: white; font-size: 38px; font-weight: 900; pointer-events: none; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-140px) scale(1.3) rotate(15deg); } }
+        .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 14px; animation: pulse 1s infinite; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+        /* Вылетающие цифры и искры */
+        .floating-text { position: absolute; color: white; font-size: 40px; font-weight: 900; pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
+        .spark { position: absolute; width: 5px; height: 5px; background: #fbbf24; border-radius: 50%; pointer-events: none; box-shadow: 0 0 10px #fbbf24; animation: scatter 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 999; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.2); } }
+        @keyframes scatter { 0% { opacity: 1; transform: translate(0, 0) scale(1.5); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); } }
         
-        .title { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .task-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
-        .support-btn { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px 30px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: transform 0.1s; box-sizing: border-box; }
-        .support-btn:active { transform: scale(0.95); }
-        .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.7; box-shadow: none; }
-        .level-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid rgba(56, 189, 248, 0.2); text-align: left; }
-        .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; font-weight: bold; }
-        .level-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; }
-        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #facc15, #f59e0b); border-radius: 5px; transition: width 0.4s ease-out; }
+        /* Карточки и блоки */
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .task-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
+        
+        .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; text-decoration: none; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
+        .support-btn:active { transform: scale(0.96); }
+        .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; box-shadow: none; }
+        
+        .level-container { background: rgba(20, 20, 25, 0.7); padding: 16px; border-radius: 20px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid rgba(251, 191, 36, 0.2); text-align: left; }
+        .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; }
+        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.9); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0f172a 80%); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); width: 85%; max-width: 350px; position: relative; }
-        .modal-title { font-size: 22px; font-weight: bold; color: #facc15; margin-bottom: 10px; }
-        .modal-text { font-size: 16px; color: #94a3b8; margin-bottom: 20px; }
-        .modal-reward { font-size: 32px; font-weight: 900; color: #38bdf8; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
-        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+        /* Модальные окна */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: #0f0f14; padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); width: 85%; max-width: 350px; position: relative; }
+        .modal-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: #a1a1aa; margin-bottom: 20px; }
+        .modal-reward { font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
 
-        .studio-container { position: relative; width: 100%; height: 250px; background: #0b0f19; border-radius: 16px; overflow: hidden; border: 2px solid #38bdf8; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        /* Студия */
+        .studio-container { position: relative; width: 100%; height: 220px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
-        .studio-income-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid #38bdf8; padding: 6px 12px; border-radius: 10px; font-weight: bold; color: #facc15; z-index: 10; font-size: 14px; backdrop-filter: blur(4px); }
-        .studio-overlay-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(11, 15, 25, 1), transparent); z-index: 9; }
-        .studio-balance-badge { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; z-index: 10; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
+        .studio-overlay-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0,0,0,1), transparent); z-index: 9; }
+        .studio-balance-badge { position: absolute; bottom: 12px; left: 0; width: 100%; text-align: center; z-index: 10; font-size: 22px; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
 
+        /* Сетка бустов */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
-        .tech-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
+        .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
         .tech-btn:active { transform: scale(0.95); }
-        .tech-icon { font-size: 28px; margin-bottom: 5px; display: block; }
-        .tech-title { font-size: 12px; font-weight: bold; color: #94a3b8; }
-        .tech-lvl { font-size: 14px; font-weight: 900; color: #38bdf8; margin-top: 3px; display: block; }
+        .tech-icon { font-size: 26px; margin-bottom: 4px; display: block; }
+        .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
+        .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
 
-        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s; }
-        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f172a; border-radius: 24px 24px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 2px solid #38bdf8; display: flex; flex-direction: column; }
+        /* Шорт-шит магазина */
+        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
+        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; }
         .sheet.open { bottom: 0; }
-        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; flex-shrink: 0; }
-        .sheet-title { font-size: 20px; font-weight: bold; color: #facc15; }
-        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 28px; cursor: pointer; }
+        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; flex-shrink: 0; }
+        .sheet-title { font-size: 18px; font-weight: 800; color: #fbbf24; }
+        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 26px; cursor: pointer; }
         .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
         
         .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
-        .showcase-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; transition: transform 0.2s; }
-        .showcase-img-container { width: 100%; height: 130px; background: #000; overflow: hidden; position: relative; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
-        .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: transform 0.5s; }
-        .showcase-card:hover .showcase-img { transform: scale(1.03); }
-        .showcase-info { padding: 15px; text-align: left; }
-        .showcase-title { font-size: 18px; font-weight: bold; color: white; margin-bottom: 4px; }
-        .showcase-effect { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 10px; }
-        .showcase-btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.1s; }
-        .showcase-btn:active { transform: scale(0.97); }
+        .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
+        .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+        .showcase-info { padding: 14px; text-align: left; }
+        .showcase-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
+        .showcase-effect { font-size: 13px; color: #10b981; font-weight: 600; margin-bottom: 10px; }
+        .showcase-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
         
-        .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.25; }
-        .showcase-card.locked .showcase-title { color: #64748b; }
-        .showcase-card.bought { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
-        .showcase-card.bought .showcase-img { opacity: 1; }
+        .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.2; }
+        .showcase-card.locked .showcase-title { color: #52525b; }
+        .showcase-card.bought { border-color: #10b981; }
 
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-gray { background: #475569; color: #cbd5e1; cursor: not-allowed; }
+        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
 
-        .squad-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 16px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
-        .squad-input:focus { border-color: #38bdf8; outline: none; }
-        .generator-box { background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.2) 0%, rgba(255,255,255,0.02) 80%); border: 1px solid rgba(168, 85, 247, 0.5); padding: 20px; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(168, 85, 247, 0.1); }
-        .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; box-sizing: border-box; }
-        .skin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .rarity-common { border-color: #94a3b8; } .rarity-rare { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); } .rarity-legendary { border-color: #facc15; box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); animation: goldPulse 2s infinite; }
-        .skin-card.equipped { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(255,255,255,0.02)); }
-        .skin-img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index: 2; }
-        .skin-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: white; z-index: 2; text-align: center; }
-        .skin-btn { width: 100%; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
+        .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: white; font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
+        .squad-input:focus { border-color: #fbbf24; outline: none; }
+        .generator-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(251, 191, 36, 0.3); padding: 20px; border-radius: 20px; margin-bottom: 20px; width: 100%; box-sizing: border-box; text-align: center; }
+        
+        .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
+        .skin-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
+        .skin-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .skin-img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 2; }
+        .skin-name { font-weight: 700; font-size: 13px; margin-bottom: 6px; color: white; z-index: 2; text-align: center; }
+        .skin-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
         .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-select { background: #475569; color: white; }
-        .btn-equipped { background: transparent; color: #38bdf8; border: 1px solid #38bdf8; cursor: default; }
+        .btn-select { background: #27272a; color: white; }
+        .btn-equipped { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; cursor: default; }
 
         .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 12px; font-size: 16px; font-weight: bold; border: none; color: white; background: #1e293b; cursor: pointer; transition: background 0.2s; }
-        .tab-btn.active { background: #38bdf8; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 15px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
+        .tab-btn.active { background: #fbbf24; color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
+
+        /* Переключатель языка */
+        .lang-switch {
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700;
+            font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        }
     </style>
 </head>
 <body>
 
     <div id="offlineModal" class="modal-overlay">
         <div class="modal-content">
-            <div style="font-size: 50px; margin-bottom: 10px;">🤖</div>
-            <div class="modal-title">Студия работала!</div>
-            <div class="modal-text">Пока вас не было, ваш бот собрал пассивный доход:</div>
+            <div style="font-size: 48px; margin-bottom: 10px;">🤖</div>
+            <div class="modal-title" data-i18n="offlineTitle">Студия работала!</div>
+            <div class="modal-text" data-i18n="offlineDesc">Пока вас не было, ваш бот собрал пассивный доход:</div>
             <div class="modal-reward">+<span id="offlineRewardAmount">0</span> $ROB</div>
-            <button class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; box-shadow: none;" onclick="closeOfflineModal()">Круто! Забрать</button>
+            <button class="support-btn" style="width: 100%; box-shadow: none;" onclick="closeOfflineModal()" data-i18n="claim">Круто! Забрать</button>
         </div>
     </div>
 
     <div id="techModal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-modal-btn" onclick="closeTechModal()">×</button>
-            <div id="techModalIcon" style="font-size: 50px; margin-bottom: 10px;">👆</div>
+            <div id="techModalIcon" style="font-size: 48px; margin-bottom: 10px;">👆</div>
             <div id="techModalTitle" class="modal-title">Мультитап</div>
             <div id="techModalDesc" class="modal-text">Увеличивает добычу за 1 тап.</div>
-            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 20px;">
-                <span style="color:#94a3b8; font-size: 14px;">Текущий эффект: <b id="techModalCurrent" style="color:white;">+1</b></span><br>
-                <span style="color:#10b981; font-size: 14px; font-weight: bold;">Следующий: <b id="techModalNext">+2</b></span>
+            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+                <span style="color:#a1a1aa; font-size: 13px;"><span data-i18n="currentEffect">Текущий эффект:</span> <b id="techModalCurrent" style="color:white;">+1</b></span><br>
+                <span style="color:#10b981; font-size: 13px; font-weight: bold;"><span data-i18n="nextEffect">Следующий:</span> <b id="techModalNext">+2</b></span>
             </div>
-            <button id="techModalBuyBtn" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white; width: 100%; margin-top: 0;" onclick="">Прокачать • 2000 $ROB</button>
+            <button id="techModalBuyBtn" class="support-btn" style="width: 100%; margin-top: 0;" onclick="">Прокачать • 2000 $ROB</button>
         </div>
     </div>
 
@@ -136,22 +183,19 @@
         <div class="modal-content" style="max-width: 380px;">
             <button class="close-modal-btn" onclick="closeSquadModal()">×</button>
             <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
-            <div class="modal-title" style="color: #38bdf8; font-size: 20px;">Создать официальный Сквад</div>
+            <div class="modal-title" style="font-size: 18px;" data-i18n="squadTitle">Создать официальный Сквад</div>
             
-            <div style="text-align: left; font-size: 13px; color: #cbd5e1; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;">
-                Чтобы ваш канал попал в Лидерборд, нам нужно убедиться, что вы его администратор.<br><br>
-                <b>Шаг 1:</b> Добавьте бота <b>@grutap_robot</b> в администраторы вашего канала.<br>
-                <b>Шаг 2:</b> 🛡 <b>ОТКЛЮЧИТЕ ВСЕ ПРАВА.</b> Уберите галочки с публикации постов, редактирования, добавления пользователей и т.д.<br><br>
-                <span style="color: #94a3b8; font-size: 12px;"><i>*Боту нужен только сам статус присутствия в списке. В целях безопасности вашего канала мы настоятельно просим ничего боту не разрешать!</i></span>
+            <div style="text-align: left; font-size: 12px; color: #a1a1aa; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
+                Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).
             </div>
 
             <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
-            <button id="btnCreateSquad" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()">Привязать канал</button>
+            <button id="btnCreateSquad" class="support-btn" style="width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()" data-i18n="squadBind">Привязать канал</button>
             
-            <div id="squadLinkResult" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px dashed rgba(56, 189, 248, 0.5);">
-                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 5px;">Ваша официальная ссылка:</div>
-                <div id="generatedSquadLink" style="font-size: 12px; color: #38bdf8; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
-                <button class="support-btn" style="background: #475569; width: 100%; padding: 8px; font-size: 14px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()">📋 Скопировать</button>
+            <div id="squadLinkResult" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.4);">
+                <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 5px;" data-i18n="squadYourLink">Ваша официальная ссылка:</div>
+                <div id="generatedSquadLink" style="font-size: 12px; color: #fbbf24; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
+                <button class="support-btn" style="background: #27272a; color: white; width: 100%; padding: 8px; font-size: 13px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()" data-i18n="copy">📋 Скопировать</button>
             </div>
         </div>
     </div>
@@ -160,7 +204,7 @@
     <div id="shopSheet" class="sheet">
         <div class="sheet-header">
             <button class="sheet-close" onclick="closeStudioShop()">×</button>
-            <div class="sheet-title">🛋 Магазин комнат</div>
+            <div class="sheet-title" data-i18n="shopTitle">🛋 Магазин комнат</div>
         </div>
         <div class="sheet-content">
             <div id="shopItemsContainer"></div>
@@ -168,136 +212,141 @@
     </div>
 
     <div id="gameContent">
+        
         <div id="main" class="screen active">
-            <div id="rocketBadge" class="rocket-badge">🚀 РАКЕТА АКТИВНА! (x5 к тапу) <span id="rocketTimer">15</span>с</div>
-            <div class="score-container"><span id="score">0</span><span style="font-size: 20px; color: #94a3b8; padding-top: 12px; font-weight: bold; margin-left: 5px;">$ROB</span></div>
+            <div id="rocketBadge" class="rocket-badge"><span data-i18n="rocketActive">🚀 РАКЕТА АКТИВНА! (x5 к тапу)</span> <span id="rocketTimer">15</span>s</div>
+            <div class="score-container"><span id="score">0</span><span style="font-size: 18px; color: #a1a1aa; padding-top: 14px; font-weight: 700; margin-left: 4px;">$ROB</span></div>
             <div class="robux-estimate">≈ <span id="robuxScore">0</span> R$</div>
             <div class="tap-button" id="tapBtn"></div>
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
         <div id="profile" class="screen">
-            <div id="userName" style="font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #e2e8f0;">@Username</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px;">
+                <div id="userName" style="font-size: 18px; font-weight: 800; color: #ffffff;">@Username</div>
+                <button class="lang-switch" onclick="toggleLanguage()">🌐 <span id="currentLangLabel">RU</span></button>
+            </div>
             
-            <div id="mySquadInfo" style="display:none; font-size: 14px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(56, 189, 248, 0.3);">Сквад: <b id="mySquadNameText" style="color: white;"></b></div>
+            <div id="mySquadInfo" style="display:none; font-size: 13px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(251, 191, 36, 0.3);"><span data-i18n="squadLabel">Сквад:</span> <b id="mySquadNameText" style="color: white;"></b></div>
 
             <div class="studio-container">
                 <div class="studio-bg" id="mainStudioBg"></div>
-                <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/сек</div>
+                <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/sec</div>
                 <div class="studio-overlay-gradient"></div>
                 <div class="studio-balance-badge"><span id="profileScore">0</span> $ROB</div>
             </div>
 
             <div class="level-container">
                 <div class="level-header">
-                    <span style="color: #facc15;">Уровень <span id="currentLevel">1</span></span>
-                    <span style="color: #94a3b8; font-size: 14px;"><span id="levelProgress">0</span> / <span id="nextLevelGoal">5000</span></span>
+                    <span style="color: #fbbf24;"><span data-i18n="levelLabel">Уровень</span> <span id="currentLevel">1</span></span>
+                    <span style="color: #a1a1aa; font-size: 13px;"><span id="levelProgress">0</span> / <span id="nextLevelGoal">5000</span></span>
                 </div>
                 <div class="level-bar-bg"><div id="levelBar" class="level-bar-fill" style="width: 0%;"></div></div>
             </div>
 
-            <button class="support-btn" style="background: linear-gradient(90deg, #a855f7, #7e22ce); color: white; width: 100%; padding: 18px; font-size: 20px; margin-top: 0; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);" onclick="openStudioShop()">🛋 Обустроить студию</button>
+            <button class="support-btn" style="width: 100%; padding: 16px; font-size: 17px; margin-top: 0; margin-bottom: 15px;" onclick="openStudioShop()" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
 
-            <div class="task-box" style="border: 1px solid rgba(234, 179, 8, 0.3); background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.1) 0%, rgba(255,255,255,0.02) 80%); text-align: center; margin-bottom: 25px;">
-                <b style="font-size: 18px; color: #facc15;">📆 Ежедневная Награда</b><br>
-                <div style="margin-top: 10px; text-align: left;">
-                    <span style="font-size: 14px; color: #94a3b8;">Серия входов: <b id="dailyStreakText" style="color: #38bdf8;">0</b> дней (До +700 $ROB!)</span>
-                    <button id="btnDailyReward" class="support-btn" style="background: linear-gradient(90deg, #eab308, #ca8a04); color: black; padding: 12px; font-size: 16px; margin-top: 10px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
+            <div class="task-box" style="text-align: center; margin-bottom: 20px;">
+                <b style="font-size: 16px; color: #fbbf24;" data-i18n="dailyRewardTitle">📆 Ежедневная Награда</b><br>
+                <div style="margin-top: 8px; text-align: left;">
+                    <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="dailyStreak">Серия входов:</span> <b id="dailyStreakText" style="color: #fbbf24;">0</b> <span data-i18n="days">дней</span></span>
+                    <button id="btnDailyReward" class="support-btn" style="padding: 10px; font-size: 14px; margin-top: 8px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
                 </div>
             </div>
 
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 10px 0 20px 0;"></div>
-            <div class="title" style="font-size: 20px; text-align: left; width: 100%;">Технические Бусты</div>
+            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin: 10px 0 20px 0;"></div>
+            <div class="title" style="font-size: 18px; text-align: left; width: 100%;" data-i18n="techBoosts">Технические Бусты</div>
 
             <div class="tech-grid">
-                <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
-                <div class="tech-btn" onclick="openTechModal('energy')"><span class="tech-icon">🔋</span><span class="tech-title">Энергия</span><span class="tech-lvl" id="gridEnergyLvl">Ур. 1</span></div>
-                <div class="tech-btn" onclick="openTechModal('bot')"><span class="tech-icon">🤖</span><span class="tech-title">Авто-Бот</span><span class="tech-lvl" id="gridBotLvl">Ур. 0</span></div>
+                <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title" data-i18n="multitap">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
+                <div class="tech-btn" onclick="openTechModal('energy')"><span class="tech-icon">🔋</span><span class="tech-title" data-i18n="energy">Энергия</span><span class="tech-lvl" id="gridEnergyLvl">Ур. 1</span></div>
+                <div class="tech-btn" onclick="openTechModal('bot')"><span class="tech-icon">🤖</span><span class="tech-title" data-i18n="autobot">Авто-Бот</span><span class="tech-lvl" id="gridBotLvl">Ур. 0</span></div>
             </div>
 
-            <div class="task-box" style="text-align: center; margin-bottom: 25px;">
-                <b style="font-size: 16px;">🚀 Сверхзвуковая Ракета</b><br>
-                <span style="font-size: 13px; color: #aaa;">Доступно на сегодня: <b id="rocketCount">3/3</b></span>
-                <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; box-shadow: none;" onclick="activateRocket()">Запустить Ракету 🚀</button>
+            <div class="task-box" style="text-align: center; margin-bottom: 20px;">
+                <b style="font-size: 15px;" data-i18n="rocketTitle">🚀 Сверхзвуковая Ракета</b><br>
+                <span style="font-size: 12px; color: #aaa;"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
+                <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; font-size: 14px; margin-top: 8px; box-shadow: none;" onclick="activateRocket()" data-i18n="launchRocket">Запустить Ракету 🚀</button>
             </div>
             
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 15px;">
-                <div style="flex: 1; font-size: 16px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 12px; text-align: center;">Друзей:<br><b><span id="friendsCount">0</span> / 10</b></div>
-                <button style="flex: 1; background: #1e293b; color: #94a3b8; font-size: 16px; font-weight: bold; border-radius: 12px; border: 1px solid #475569; cursor:pointer;" onclick="requestWithdrawEasterEgg()">🔒 Вывести<br><span id="withdrawRobux">0</span> R$</button>
+                <div style="flex: 1; font-size: 14px; color: #a1a1aa; background: rgba(20,20,25,0.7); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.08);"><span data-i18n="friends">Друзей:</span><br><b style="color: white;"><span id="friendsCount">0</span> / 10</b></div>
+                <button style="flex: 1; background: rgba(20,20,25,0.7); color: #a1a1aa; font-size: 14px; font-weight: bold; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); cursor:pointer;" onclick="requestWithdrawEasterEgg()">🔒 <span data-i18n="withdraw">Вывести</span><br><span id="withdrawRobux" style="color: #fbbf24;">0</span> R$</button>
             </div>
-            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn" style="background: transparent; color: #cbd5e1; width: 100%; margin-top: 10px; box-shadow: none; border: 1px solid rgba(255,255,255,0.1);">💬 Связь с менеджером</a>
+            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn" style="background: transparent; color: #a1a1aa; width: 100%; margin-top: 5px; box-shadow: none; border: 1px solid rgba(255,255,255,0.08);" data-i18n="support">💬 Связь с менеджером</a>
         </div>
 
         <div id="tasks" class="screen">
-            <div class="title">Задания</div>
+            <div class="title" data-i18n="tasksTitle">Задания</div>
             
             <div class="task-box" style="text-align: left;">
-                <b style="font-size: 16px; color: #facc15;">🎯 Цель: Сделать 5000 тапов за день</b><br>
-                <span style="font-size: 14px; color: #94a3b8;">Прогресс: <b id="dailyTapsText" style="color: #38bdf8;">0</b> / 5000</span>
-                <div class="level-bar-bg" style="margin-top: 5px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #475569; color: white; padding: 10px 15px; font-size: 14px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()">Выполни цель 🎯</button>
+                <b style="font-size: 15px; color: #fbbf24;" data-i18n="dailyGoalTitle">🎯 Цель: Сделать 5000 тапов за день</b><br>
+                <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="progress">Прогресс:</span> <b id="dailyTapsText" style="color: #fbbf24;">0</b> / 5000</span>
+                <div class="level-bar-bg" style="margin-top: 6px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
+                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; font-size: 13px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
             </div>
 
             <div class="task-box">
-                <b>Спонсоры Grutap</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
-                <button id="btnSponsor1" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')">Подписаться</button>
+                <b>Спонсоры Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor1" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Обновления grubot</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
-                <button id="btnSponsor2" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(2, 'https://t.me/grulvl')">Подписаться</button>
+                <b>Обновления grubot</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor2" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Фанаты Grutap</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
-                <button id="btnSponsor3" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(3, 'https://t.me/grufans')">Подписаться</button>
+                <b>Фанаты Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor3" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Релиз комнат</b><br><span style="color: #38bdf8;">+450 $ROB</span><br>
-                <button id="btnSponsor4" class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="clickSponsor(4, 'https://t.me/gruroom')">Подписаться</button>
+                <b>Релиз комнат</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor4" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(4, 'https://t.me/gruroom')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>10 друзей</b><br><span style="color: #38bdf8;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
-                <button class="support-btn" style="padding: 10px 20px; font-size: 14px; margin-top: 10px;" onclick="inviteFriend()">Ссылка</button>
+                <b data-i18n="tenFriends">10 друзей</b><br><span style="color: #fbbf24;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
+                <button class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="inviteFriend()" data-i18n="inviteLink">Ссылка</button>
             </div>
         </div>
 
         <div id="skins" class="screen">
             <div class="generator-box">
-                <div style="font-size: 24px; font-weight: bold; color: #a855f7; margin-bottom: 5px;">✨ Нейро-Кузница</div>
-                <div style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Сгенерируй уникальный скин ИИ. Чем выше редкость, тем сильнее бонус к клику!</div>
-                <button id="btnGenerateSkin" class="support-btn" style="background: linear-gradient(90deg, #a855f7, #7e22ce); color: white; width: 100%; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" onclick="showNeuroForgeEasterEgg()">Создать Скин (50 ⭐️)</button>
+                <div style="font-size: 22px; font-weight: 800; color: #fbbf24; margin-bottom: 4px;" data-i18n="forgeTitle">✨ Нейро-Кузница</div>
+                <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 12px;" data-i18n="forgeDesc">Сгенерируй уникальный скин ИИ. Чем выше редкость, тем сильнее бонус к клику!</div>
+                <button id="btnGenerateSkin" class="support-btn" style="width: 100%; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);" onclick="showNeuroForgeEasterEgg()" data-i18n="createSkin">Создать Скин (50 ⭐️)</button>
             </div>
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 10px 0 25px 0;"></div>
-            <div class="title" style="font-size: 22px;">Ваша Коллекция</div>
+            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin: 10px 0 20px 0;"></div>
+            <div class="title" style="font-size: 20px;" data-i18n="collectionTitle">Ваша Коллекция</div>
             <div id="skinsContainer" class="skins-grid"></div>
         </div>
 
         <div id="leaderboard" class="screen">
-            <div class="title" style="margin-bottom: 10px;">🏆 Лидерборд</div>
+            <div class="title" style="margin-bottom: 10px;" data-i18n="topTitle">🏆 Лидерборд</div>
             <div class="tabs-container">
-                <button id="tabPlayers" class="tab-btn active" onclick="switchLeaderboardTab('players')">👤 Игроки</button>
-                <button id="tabSquads" class="tab-btn" style="background: #475569;" onclick="switchLeaderboardTab('squads')">📢 Сквады</button>
+                <button id="tabPlayers" class="tab-btn active" onclick="switchLeaderboardTab('players')" data-i18n="tabPlayers">👤 Игроки</button>
+                <button id="tabSquads" class="tab-btn" style="background: #27272a;" onclick="switchLeaderboardTab('squads')" data-i18n="tabSquads">📢 Сквады</button>
             </div>
-            <div id="leagueInfo" style="width: 100%; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
-                <div style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">Ваша лига:</div>
-                <div id="userLeagueName" style="font-size: 24px; font-weight: 900; letter-spacing: 1px;">Загрузка...</div>
+            <div id="leagueInfo" style="width: 100%; background: rgba(20,20,25,0.7); padding: 14px; border-radius: 16px; margin-bottom: 15px; box-sizing: border-box; text-align: center; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="color: #a1a1aa; font-size: 13px; margin-bottom: 4px;" data-i18n="yourLeague">Ваша лига:</div>
+                <div id="userLeagueName" style="font-size: 22px; font-weight: 900; letter-spacing: 1px;">Загрузка...</div>
             </div>
             
             <div id="createSquadContainer" style="display: none; width: 100%;">
-                <button class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); width: 100%; margin-top: 0; margin-bottom: 15px; font-size: 18px; padding: 15px;" onclick="showCreateSquadModal()">🔥 Вывести свой канал в ТОП</button>
+                <button class="support-btn" style="width: 100%; margin-top: 0; margin-bottom: 15px; font-size: 16px; padding: 12px;" onclick="showCreateSquadModal()" data-i18n="topSquadBtn">🔥 Вывести свой канал в ТОП</button>
             </div>
             
             <div id="leaderboardList" style="width: 100%; box-sizing: border-box; padding-bottom: 20px;">
-                <div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>
+                <div style="color: #71717a; padding: 20px;">Загрузка списка лидеров...</div>
             </div>
         </div>
+
     </div>
 
     <div class="bottom-menu">
-        <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span> Игра</button>
-        <button class="menu-btn" onclick="showScreen('profile', this)"><span class="menu-icon">👤</span> Профиль</button>
-        <button class="menu-btn" onclick="showScreen('tasks', this)"><span class="menu-icon">📋</span> Задания</button>
-        <button class="menu-btn" onclick="showScreen('skins', this)"><span class="menu-icon">🎨</span> Скины</button>
-        <button class="menu-btn" onclick="showScreen('leaderboard', this)"><span class="menu-icon">🏆</span> Топ</button>
+        <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span><span data-i18n="navGame">Игра</span></button>
+        <button class="menu-btn" onclick="showScreen('profile', this)"><span class="menu-icon">👤</span><span data-i18n="navProfile">Профиль</span></button>
+        <button class="menu-btn" onclick="showScreen('tasks', this)"><span class="menu-icon">📋</span><span data-i18n="navTasks">Задания</span></button>
+        <button class="menu-btn" onclick="showScreen('skins', this)"><span class="menu-icon">🎨</span><span data-i18n="navSkins">Скины</span></button>
+        <button class="menu-btn" onclick="showScreen('leaderboard', this)"><span class="menu-icon">🏆</span><span data-i18n="navTop">Топ</span></button>
     </div>
 
     <script>
@@ -306,6 +355,70 @@
         
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
         
+        // ==========================================
+        // СЛОВАРЬ МУЛЬТИЯЗЫЧНОСТИ (i18n)
+        // ==========================================
+        const TRANSLATIONS = {
+            ru: {
+                navGame: "Игра", navProfile: "Профиль", navTasks: "Задания", navSkins: "Скины", navTop: "Топ",
+                rocketActive: "🚀 РАКЕТА АКТИВНА! (x5 к тапу)", offlineTitle: "Студия работала!",
+                offlineDesc: "Пока вас не было, ваш бот собрал пассивный доход:", claim: "Круто! Забрать",
+                currentEffect: "Текущий эффект:", nextEffect: "Следующий:", squadTitle: "Создать официальный Сквад",
+                squadRules: "Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).",
+                squadBind: "Привязать канал", squadYourLink: "Ваша официальная ссылка:", copy: "📋 Скопировать",
+                shopTitle: "🛋 Магазин комнат", squadLabel: "Сквад:", levelLabel: "Уровень",
+                upgradeStudio: "🛋 Обустроить студию", dailyRewardTitle: "📆 Ежедневная Награда",
+                dailyStreak: "Серия входов:", days: "дней", techBoosts: "Технические Бусты",
+                multitap: "Мультитап", energy: "Энергия", autobot: "Авто-Бот", rocketTitle: "🚀 Сверхзвуковая Ракета",
+                rocketAvailable: "Доступно:", launchRocket: "Запустить Ракету 🚀", friends: "Друзей:",
+                withdraw: "Вывести", support: "💬 Связь с менеджером", tasksTitle: "Задания",
+                dailyGoalTitle: "🎯 Цель: Сделать 5000 тапов за день", progress: "Прогресс:",
+                claimGoal: "Выполни цель 🎯", subscribe: "Подписаться", tenFriends: "10 друзей",
+                inviteLink: "Ссылка", forgeTitle: "✨ Нейро-Кузница", forgeDesc: "Сгенерируй уникальный скин ИИ.",
+                createSkin: "Создать Скин (50 ⭐️)", collectionTitle: "Ваша Коллекция", topTitle: "🏆 Лидерборд",
+                tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", topSquadBtn: "🔥 Вывести свой канал в ТОП"
+            },
+            en: {
+                navGame: "Game", navProfile: "Profile", navTasks: "Tasks", navSkins: "Skins", navTop: "Top",
+                rocketActive: "🚀 ROCKET ACTIVE! (x5 per tap)", offlineTitle: "Studio was working!",
+                offlineDesc: "While you were away, your bot generated passive income:", claim: "Awesome! Claim",
+                currentEffect: "Current effect:", nextEffect: "Next:", squadTitle: "Create Official Squad",
+                squadRules: "To get into the Leaderboard, add @grutap_robot as an admin to your channel (no permissions needed).",
+                squadBind: "Link Channel", squadYourLink: "Your official link:", copy: "📋 Copy Link",
+                shopTitle: "🛋 Studio Store", squadLabel: "Squad:", levelLabel: "Level",
+                upgradeStudio: "🛋 Upgrade Studio", dailyRewardTitle: "📆 Daily Reward",
+                dailyStreak: "Daily streak:", days: "days", techBoosts: "Tech Boosts",
+                multitap: "Multitap", energy: "Energy", autobot: "Auto-Bot", rocketTitle: "🚀 Supersonic Rocket",
+                rocketAvailable: "Available:", launchRocket: "Launch Rocket 🚀", friends: "Friends:",
+                withdraw: "Withdraw", support: "💬 Contact Support", tasksTitle: "Tasks",
+                dailyGoalTitle: "🎯 Goal: 5000 taps in a day", progress: "Progress:",
+                claimGoal: "Complete Goal 🎯", subscribe: "Subscribe", tenFriends: "10 Friends",
+                inviteLink: "Invite Link", forgeTitle: "✨ Neuro Forge", forgeDesc: "Generate a unique AI skin.",
+                createSkin: "Create Skin (50 ⭐️)", collectionTitle: "Your Collection", topTitle: "🏆 Leaderboard",
+                tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", topSquadBtn: "🔥 Promote Channel to TOP"
+            }
+        };
+
+        // Определяем язык (Параметр ?lang=en ИЛИ язык Telegram ИЛИ 'ru')
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentLang = urlParams.get('lang') || (tg.initDataUnsafe?.user?.language_code === 'en' ? 'en' : 'ru');
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('currentLangLabel').innerText = lang.toUpperCase();
+            const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.innerText = dict[key];
+            });
+        }
+
+        function toggleLanguage() {
+            setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+            tg.HapticFeedback.selectionChanged();
+        }
+
         const scoreElement = document.getElementById('score');
         const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
@@ -315,40 +428,17 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // СЕРВЕРНЫЙ СЕЙФ
-        let serverTaps = 0; 
-        let serverBonus = 0; 
+        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ
+        let serverTaps = 0; let serverBonus = 0; 
+        let pendingStandardClicks = 0; let pendingRocketClicks = 0;
+        let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
         
-        // В КАРМАНЕ (Только что накликали)
-        let pendingStandardClicks = 0; 
-        let pendingRocketClicks = 0;
-        
-        // В ПУТИ (Ждем подтверждения от сервера)
-        let inFlightStandardClicks = 0;
-        let inFlightRocketClicks = 0;
-        
-        let currentLbTab = 'players';
-        let currentMySquad = ''; 
-        
-        let globalDailyStreak = 0;
-        let globalLastClaimDate = "";
-        let globalClaimedSponsors = [];
-        let globalDailyTaps = 0;
-        let globalQuestClaimed = 0;
+        let currentLbTab = 'players'; let currentMySquad = ''; 
+        let globalDailyStreak = 0; let globalLastClaimDate = "";
+        let globalClaimedSponsors = []; let globalDailyTaps = 0; let globalQuestClaimed = 0;
         let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
 
-        const floatingPool = [];
-        let poolIndex = 0;
-        const poolSize = 15;
-        for (let i = 0; i < poolSize; i++) {
-            const el = document.createElement('div');
-            el.classList.add('floating-text'); el.style.display = 'none';
-            gameContent.appendChild(el); floatingPool.push(el);
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
         const refsCount = parseInt(urlParams.get('refs')) || 0;
-        
         let isRocketActive = false; let rocketsLeft = 3;
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
         let currentRoomLevel = 0; let ownedBaseSkinIds = ['default']; let currentSkinId = 'default';
@@ -361,9 +451,9 @@
         ];
 
         const LEAGUES_CONFIG = [
-            { id: 1, name: 'Дерево (Noob)', minScore: 0, color: '#a3a3a3' }, { id: 2, name: 'Бронза (Guest)', minScore: 10000, color: '#cd7f32' },
-            { id: 3, name: 'Серебро (Player)', minScore: 100000, color: '#e2e8f0' }, { id: 4, name: 'Золото (Pro)', minScore: 1000000, color: '#facc15' },
-            { id: 5, name: 'Бриллиант (Hacker)', minScore: 10000000, color: '#38bdf8' }, { id: 6, name: 'Элита (Admin)', minScore: 100000000, color: '#ef4444' }
+            { id: 1, name: 'Wood (Noob)', minScore: 0, color: '#a3a3a3' }, { id: 2, name: 'Bronze (Guest)', minScore: 10000, color: '#cd7f32' },
+            { id: 3, name: 'Silver (Player)', minScore: 100000, color: '#e2e8f0' }, { id: 4, name: 'Gold (Pro)', minScore: 1000000, color: '#fbbf24' },
+            { id: 5, name: 'Diamond (Hacker)', minScore: 10000000, color: '#38bdf8' }, { id: 6, name: 'Elite (Admin)', minScore: 100000000, color: '#ef4444' }
         ];
 
         const SKINS = [
@@ -384,16 +474,27 @@
 
         function showNeuroForgeEasterEgg() {
             tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert('🤫 Скоро ты сделаешь свою кастомную кнопку... 🚀');
+            tg.showAlert(currentLang === 'en' ? '🤫 Custom skins coming soon... 🚀' : '🤫 Скоро ты сделаешь свою кастомную кнопку... 🚀');
         }
 
-        function showFloatingText(x, y, amount, isRocket) {
-            const el = floatingPool[poolIndex]; poolIndex = (poolIndex + 1) % poolSize;
-            el.style.display = 'block'; el.style.animation = 'none'; void el.offsetWidth; 
-            el.style.animation = 'floatUp 0.8s ease-out forwards'; el.innerText = `+${amount}`;
-            el.style.color = isRocket ? '#f59e0b' : 'white'; el.style.textShadow = isRocket ? '0 0 10px #ef4444' : '0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.5)';
-            const randomX = (Math.random() - 0.5) * 60; el.style.left = `${x + randomX - 15}px`; el.style.top = `${y - 40}px`;
-            setTimeout(() => { el.style.display = 'none'; }, 800);
+        // АНИМАЦИЯ: Вылет цифр и золотых искр
+        function showFloatingEffects(x, y, amount, isRocket) {
+            let num = document.createElement('div');
+            num.className = 'floating-text'; num.innerText = `+${amount}`;
+            num.style.left = `${x - 20}px`; num.style.top = `${y - 40}px`;
+            num.style.color = isRocket ? '#f59e0b' : '#ffffff';
+            document.body.appendChild(num);
+            setTimeout(() => num.remove(), 800);
+
+            for(let i = 0; i < 5; i++) {
+                let spark = document.createElement('div');
+                spark.className = 'spark';
+                spark.style.left = x + 'px'; spark.style.top = y + 'px';
+                spark.style.setProperty('--dx', (Math.random() * 100 - 50) + 'px');
+                spark.style.setProperty('--dy', (Math.random() * 100 - 50) + 'px');
+                document.body.appendChild(spark);
+                setTimeout(() => spark.remove(), 600);
+            }
         }
 
         function getCurrentUserLeague(score) { let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (score >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
@@ -416,10 +517,10 @@
             ROOM_LEVELS.forEach(room => {
                 let isBought = currentRoomLevel >= room.level; let isNext = currentRoomLevel + 1 === room.level; let isLocked = room.level > currentRoomLevel + 1;
                 let btnHtml = ''; let cardClass = 'showcase-card';
-                if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>Установлено ✅</button>`; } 
-                else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 Нужен уровень ${room.level - 1}</button>`; } 
-                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="processPurchase(() => buyRoomLevel(${room.level}, this))">Купить за ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
-                grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (Ур. ${room.level})</div><div class="showcase-effect">Пассивный доход: +${room.income} $ROB/сек</div>${btnHtml}</div></div>`);
+                if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>${currentLang === 'en' ? 'Equipped ✅' : 'Установлено ✅'}</button>`; } 
+                else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 ${currentLang === 'en' ? 'Requires Level' : 'Нужен уровень'} ${room.level - 1}</button>`; } 
+                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="processPurchase(() => buyRoomLevel(${room.level}, this))">${currentLang === 'en' ? 'Buy for' : 'Купить за'} ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${room.level})</div><div class="showcase-effect">+${room.income} $ROB/sec</div>${btnHtml}</div></div>`);
             });
         }
 
@@ -427,33 +528,31 @@
             if (pendingStandardClicks > 0 || pendingRocketClicks > 0 || inFlightStandardClicks > 0 || inFlightRocketClicks > 0) {
                 if (pendingStandardClicks > 0 || pendingRocketClicks > 0) syncWithServer(false);
                 setTimeout(() => processPurchase(buyFunction), 500); 
-            } else {
-                buyFunction();
-            }
+            } else { buyFunction(); }
         }
 
         function buyRoomLevel(levelId, btnElement) {
-            const originalText = btnElement.innerText; btnElement.innerText = "⏳ Загрузка..."; btnElement.disabled = true;
+            const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerText = originalText; btnElement.disabled = false; }
-            }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerText = originalText; btnElement.disabled = false; });
+            }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerText = originalText; btnElement.disabled = false; });
         }
 
-        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `Ур. ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `Ур. ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `Ур. ${autoBotLevel}`; }
+        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${autoBotLevel}`; }
 
         function openTechModal(type) {
             const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
-            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = "Мультитап"; desc.innerText = "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = "Энергоемкость"; desc.innerText = "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `Прокачать • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = "Авто-Бот"; desc.innerText = "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `База: +${autoBotLevel}/сек`; next.innerText = `База: +${autoBotLevel + 1}/сек`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? 'Купить бота' : 'Прокачать'} • ${cost.toLocaleString('ru-RU')} $ROB`; }
+            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = currentLang === 'en' ? 'Multitap' : "Мультитап"; desc.innerText = currentLang === 'en' ? 'Increases earn per tap.' : "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = currentLang === 'en' ? 'Energy Capacity' : "Энергоемкость"; desc.innerText = currentLang === 'en' ? 'Increases max energy limit.' : "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = currentLang === 'en' ? 'Auto-Bot' : "Авто-Бот"; desc.innerText = currentLang === 'en' ? 'Gathers passive income while offline (max 3h).' : "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `+${autoBotLevel}/sec`; next.innerText = `+${autoBotLevel + 1}/sec`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? (currentLang === 'en' ? 'Buy Bot' : 'Купить бота') : (currentLang === 'en' ? 'Upgrade' : 'Прокачать')} • ${cost.toLocaleString('ru-RU')} $ROB`; }
             btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
         }
         function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function buyTechBoost(type, btnElement) {
-            const originalText = btnElement.innerText; btnElement.innerText = "⏳ Покупка..."; btnElement.disabled = true;
+            const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "tech", item_id: type }) })
             .then(res => res.json()).then(data => {
                 btnElement.innerText = originalText; btnElement.disabled = false;
@@ -464,16 +563,16 @@
                     else if (type === 'bot') { autoBotLevel++; updateStudioVisuals(); if (tg.CloudStorage) tg.CloudStorage.setItem('bot_level', autoBotLevel.toString()); }
                     updateTechGridVisuals(); updateVisualScore(); tg.HapticFeedback.notificationOccurred('success'); closeTechModal();
                 } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Ошибка сети."); });
+            }).catch(() => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Error."); });
         }
 
         function renderSkins() {
             const container = document.getElementById('skinsContainer'); container.innerHTML = '';
             SKINS.forEach(skin => {
                 const isOwned = ownedBaseSkinIds.includes(skin.id); const isEquipped = currentSkinId === skin.id; let btnHTML = ''; let cardClass = 'skin-card';
-                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">Надето</button>`; } 
-                else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">Выбрать</button>`; } 
-                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="processPurchase(() => buySkin('${skin.id}', this))">Купить<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">${currentLang === 'en' ? 'Equipped' : 'Надето'}</button>`; } 
+                else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">${currentLang === 'en' ? 'Select' : 'Выбрать'}</button>`; } 
+                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="processPurchase(() => buySkin('${skin.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'}<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${skin.img}" class="skin-img"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`);
             });
             const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
@@ -487,7 +586,7 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateVisualScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
-            }).catch(err => { tg.showAlert("❌ Ошибка сервера."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
+            }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
 
         function updateLevelVisuals(totalScore) {
@@ -502,26 +601,26 @@
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
         
         function switchLeaderboardTab(tab) {
-            currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#38bdf8' : '#1e293b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#38bdf8' : '#1e293b';
+            currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#fbbf24' : '#18181b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#fbbf24' : '#18181b';
             document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
         }
 
         function activateRocket() {
-            if (rocketsLeft <= 0) { tg.showAlert("❌ Ракеты закончились на сегодня!"); return; }
-            if (isRocketActive) { tg.showAlert("🚀 Ракета уже летит!"); return; }
+            if (rocketsLeft <= 0) { tg.showAlert(currentLang === 'en' ? "❌ Out of rockets!" : "❌ Ракеты закончились!"); return; }
+            if (isRocketActive) { return; }
             let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
+                    if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
                     else { btn.innerText = origText; btn.disabled = false; }
                     isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
                     let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
                     let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
                     tg.HapticFeedback.notificationOccurred('success');
                 } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = origText; btn.disabled = false; }
-            }).catch(err => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
+            }).catch(() => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Error."); });
         }
 
         function generateSquadLink() { 
@@ -531,16 +630,16 @@
             .then(res => res.json()).then(data => {
                 btn.innerText = originalText; btn.disabled = false;
                 if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(err => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Ошибка."); });
+            }).catch(() => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Error."); });
         }
 
         function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
         function showCreateSquadModal() { document.getElementById('squadModal').style.display = 'flex'; document.getElementById('squadLinkResult').style.display = 'none'; document.getElementById('squadInput').value = ''; }
         function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
-        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Ссылка скопирована!"); closeSquadModal(); }).catch(e => { tg.showAlert("🔗 Ссылка: " + link); }); } else { tg.showAlert("🔗 Ссылка: " + link); } }
+        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Copied!"); closeSquadModal(); }).catch(() => { tg.showAlert("🔗 Link: " + link); }); } else { tg.showAlert("🔗 Link: " + link); } }
 
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Загрузка списка лидеров...</div>';
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading leaders...' : 'Загрузка списка лидеров...'}</div>`;
             fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
@@ -548,36 +647,32 @@
                     if (data.tab === "players") {
                         data.list.forEach((player, index) => {
                             const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let bgStyle = player.isMe ? 'background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.5);' : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);'; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle}"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #38bdf8; font-size: 16px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
+                            let bgStyle = player.isMe ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
                         });
                     } else if (data.tab === "squads") {
                         data.list.forEach((squad, index) => {
                             const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #38bdf8' : (isClickable ? '1px solid rgba(250, 204, 21, 0.3)' : '1px solid transparent'); let titleColor = squad.isMySquad ? '#38bdf8' : (isClickable ? '#facc15' : '#94a3b8'); let bgStyle = squad.isMySquad ? 'background: rgba(56, 189, 248, 0.05);' : 'background: rgba(255,255,255,0.05);'; 
-                            let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 8px 15px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">Вступить</button>` : ''; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 20px; font-weight: 900; color: #64748b; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 16px; margin-left: 10px; color: ${titleColor};">${squad.id} ${squad.isMySquad ? '(Ваш)' : ''}<br><span style="font-size: 12px; color: #94a3b8;">👥 ${squad.members} игроков</span><br><span style="font-size: 13px; color: #38bdf8; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
+                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.08)'; let bgStyle = squad.isMySquad ? 'background: rgba(251, 191, 36, 0.08);' : 'background: rgba(20, 20, 25, 0.7);'; 
+                            let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">${currentLang === 'en' ? 'Join' : 'Вступить'}</button>` : ''; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 14px; margin-left: 10px; color: white;">${squad.id} ${squad.isMySquad ? '(You)' : ''}<br><span style="font-size: 11px; color: #a1a1aa;">👥 ${squad.members} ${currentLang === 'en' ? 'players' : 'игроков'}</span><br><span style="font-size: 12px; color: #fbbf24; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
                         });
                     }
-                    if (data.list.length === 0) listContainer.innerHTML = '<div style="color: #64748b; padding: 20px;">Список пока пуст... Стань первым!</div>';
-                } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Ошибка загрузки топа</div>'; }
+                    if (data.list.length === 0) listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'List is empty...' : 'Список пока пуст...'}</div>`;
+                } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading leaderboard</div>'; }
             });
         }
 
-        // ==========================================
-        // ИСПРАВЛЕННАЯ ЛОГИКА ОТОБРАЖЕНИЯ БАЛАНСА
-        // ==========================================
+        // РАСЧЕТ БАЛАНСА БЕЗ ОТКАТОВ
         function getUnsyncedEarn() {
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let baseEarn = multitapLevel + activeSkinObj.bonus;
             let rocketEarn = baseEarn * 5;
-            // Суммируем всё, что еще не подтверждено сервером
             return (pendingStandardClicks + inFlightStandardClicks) * baseEarn + 
                    (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
         }
 
         function updateVisualScore() {
-            // Баланс = Сейф + В пути + В кармане
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             let robux = Math.floor(currentTotal / 1000);
             
@@ -589,8 +684,8 @@
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-        function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert("🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
-        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("Залетай в RobuxTap! 🚀")}`); }
+        function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert(currentLang === 'en' ? "🤫 You will need them very soon... 🚀" : "🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
+        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
         
         function renderDailyRewardUI() {
             document.getElementById('dailyStreakText').innerText = globalDailyStreak;
@@ -598,16 +693,15 @@
             const todayStr = new Date().toISOString().slice(0, 10);
             
             if (globalLastClaimDate === todayStr) {
-                btn.innerText = "Забрано ✅"; btn.style.background = "#475569"; btn.style.color = "white"; btn.disabled = true;
+                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Забрано ✅"; btn.style.background = "#27272a"; btn.style.color = "#a1a1aa"; btn.disabled = true;
             } else {
                 let nextDay = (globalDailyStreak % 7) + 1;
-                btn.innerText = `Забрать +${nextDay * 100} $ROB`;
-                btn.style.background = "linear-gradient(90deg, #eab308, #ca8a04)"; btn.style.color = "black"; btn.disabled = false;
+                btn.innerText = `${currentLang === 'en' ? 'Claim' : 'Забрать'} +${nextDay * 100} $ROB`;
+                btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000"; btn.disabled = false;
             }
         }
 
         function renderDailyQuestUI() {
-            // Учитываем неподтвержденные очки для прогресс-бара
             let visualDailyTaps = globalDailyTaps + getUnsyncedEarn();
             if (visualDailyTaps > 5000) visualDailyTaps = 5000;
             
@@ -616,11 +710,11 @@
             
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
-                btn.innerText = "Получено ✅"; btn.style.background = "#475569"; btn.disabled = true; btn.style.color = "white";
+                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Получено ✅"; btn.style.background = "#27272a"; btn.disabled = true; btn.style.color = "#a1a1aa";
             } else if (visualDailyTaps >= 5000) {
-                btn.innerText = "Забрать 10 000 $ROB 🎁"; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
+                btn.innerText = `${currentLang === 'en' ? 'Claim' : 'Забрать'} 10 000 $ROB 🎁`; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
             } else {
-                btn.innerText = "Выполни цель 🎯"; btn.style.background = "#475569"; btn.disabled = true;
+                btn.innerText = currentLang === 'en' ? "Complete Goal 🎯" : "Выполни цель 🎯"; btn.style.background = "#27272a"; btn.disabled = true;
             }
         }
 
@@ -631,9 +725,9 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 День ${data.daily_streak} получен! Начислено +${data.reward_received} $ROB!`);
+                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Day ${data.daily_streak}! +${data.reward_received} $ROB!`);
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
-            }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyRewardUI(); });
+            }).catch(() => { tg.showAlert("❌ Error."); renderDailyRewardUI(); });
         }
 
         function claimDailyQuestServer() {
@@ -643,9 +737,9 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalQuestClaimed = 1; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 Цель выполнена! +10 000 $ROB!");
+                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 +10 000 $ROB!");
                 } else { tg.showAlert(`❌ ${data.error}`); renderDailyQuestUI(); }
-            }).catch(() => { tg.showAlert("❌ Ошибка сервера."); renderDailyQuestUI(); });
+            }).catch(() => { tg.showAlert("❌ Error."); renderDailyQuestUI(); });
         }
 
         function renderSponsorsUI() {
@@ -653,11 +747,11 @@
                 let btn = document.getElementById('btnSponsor' + id);
                 if (!btn) continue;
                 if (globalClaimedSponsors.includes(id)) {
-                    btn.innerText = "Выполнено ✅"; btn.style.background = "#475569"; btn.disabled = true;
+                    btn.innerText = currentLang === 'en' ? "Completed ✅" : "Выполнено ✅"; btn.style.background = "#27272a"; btn.disabled = true;
                 } else if (sponsorStates[id] === "clicked") {
-                    btn.innerText = "Проверить 🔄"; btn.style.background = "linear-gradient(90deg, #38bdf8, #0284c7)";
+                    btn.innerText = currentLang === 'en' ? "Verify 🔄" : "Проверить 🔄"; btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000";
                 } else {
-                    btn.innerText = "Подписаться"; btn.style.background = "linear-gradient(90deg, #2563eb, #1d4ed8)"; btn.disabled = false;
+                    btn.innerText = currentLang === 'en' ? "Subscribe" : "Подписаться"; btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000"; btn.disabled = false;
                 }
             }
         }
@@ -674,16 +768,16 @@
                 .then(res => res.json()).then(data => {
                     if (data.status === "success") {
                         globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
-                        updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 Бонус +450 $ROB успешно начислен!");
+                        updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 +450 $ROB!");
                     } else { 
                         tg.showAlert(`❌ ${data.error}`); 
                         sponsorStates[id] = "init"; renderSponsorsUI(); 
                     }
-                }).catch(() => { tg.showAlert("❌ Ошибка сети."); sponsorStates[id] = "init"; renderSponsorsUI(); });
+                }).catch(() => { tg.showAlert("❌ Error."); sponsorStates[id] = "init"; renderSponsorsUI(); });
             }
         }
 
-        function finishLoading() { updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(); syncWithServer(true); }
+        function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(); syncWithServer(true); }
 
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_room_level'], (err, values) => {
@@ -700,15 +794,12 @@
             });
         } else { finishLoading(); }
 
-        // ЗАГРУЖАЕМ ТОЛЬКО В КАРМАН (Физические клики)
+        // ОБРАБОТЧИК КЛИКА (ТАП) С ИСКРАМИ
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.showAlert("⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
+            if (!isRocketActive) { if (energy <= 0) { tg.showAlert(currentLang === 'en' ? "⚡ No energy!" : "⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             
-            if (isRocketActive) {
-                pendingRocketClicks += 1;
-            } else {
-                pendingStandardClicks += 1;
-            }
+            if (isRocketActive) { pendingRocketClicks += 1; } 
+            else { pendingStandardClicks += 1; }
             
             updateVisualScore(); 
             if (globalQuestClaimed !== 1) renderDailyQuestUI();
@@ -717,8 +808,11 @@
             let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
             let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
 
-            let x, y; if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
-            showFloatingText(x, y, earnAmount, isRocketActive);
+            let x, y; 
+            if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
+            else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
+            
+            showFloatingEffects(x, y, earnAmount, isRocketActive);
         });
 
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
@@ -727,7 +821,6 @@
             let stdToSend = pendingStandardClicks; 
             let rktToSend = pendingRocketClicks;
             
-            // ПЕРЕКЛАДЫВАЕМ В ПУТЬ
             inFlightStandardClicks += stdToSend;
             inFlightRocketClicks += rktToSend;
             pendingStandardClicks = 0;
@@ -751,7 +844,6 @@
                     globalDailyTaps = data.daily_taps || 0;
                     globalQuestClaimed = data.daily_quest_claimed || 0;
                     
-                    // СЕРВЕР ПОДТВЕРДИЛ: УДАЛЯЕМ ИЗ ПУТИ
                     inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
                     inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                     
@@ -760,16 +852,16 @@
                     renderSponsorsUI();
 
                     if (data.rockets_left !== undefined) {
-                        rocketsLeft = data.rockets_left; let btn = document.getElementById('btnActivateRocket'); document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                        if (rocketsLeft <= 0) { btn.innerText = "Закончились ❌"; btn.style.background = "#475569"; btn.disabled = true; }
-                        else if (!isRocketActive) { btn.innerText = "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
+                        rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                        let btn = document.getElementById('btnActivateRocket');
+                        if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
+                        else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
                     
                     updateVisualScore();
                     
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 } else {
-                    // ЕСЛИ СЕРВЕР ОТВЕТИЛ ОШИБКОЙ (не success) - ВОЗВРАЩАЕМ В КАРМАН
                     pendingStandardClicks += stdToSend; 
                     pendingRocketClicks += rktToSend; 
                     inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
@@ -777,7 +869,6 @@
                     updateVisualScore();
                 }
             }).catch(() => { 
-                // ОШИБКА ИНТЕРНЕТА: ВОЗВРАЩАЕМ В КАРМАН ДЛЯ ПОВТОРА
                 pendingStandardClicks += stdToSend; 
                 pendingRocketClicks += rktToSend; 
                 inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
