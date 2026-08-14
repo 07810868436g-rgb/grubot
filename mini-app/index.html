@@ -24,7 +24,7 @@
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        /* Парящее нижнее меню (Glassmorphism) */
+        /* Парящее нижнее меню */
         .bottom-menu { 
             position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; 
             background: rgba(18, 18, 22, 0.75); 
@@ -33,24 +33,25 @@
             border-radius: 24px; display: flex; justify-content: space-around; align-items: center; 
             z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .menu-btn { background: none; border: none; color: #71717a; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 20%; font-weight: 600; gap: 3px; }
+        .menu-btn { background: none; border: none; color: #71717a; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 3px; }
         .menu-icon { font-size: 20px; }
         .menu-btn.active { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
 
-        /* Премиальный баланс */
+        /* Баланс */
         .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .robux-estimate { font-size: 18px; color: #fbbf24; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; }
+        .robux-estimate { font-size: 14px; color: #a1a1aa; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
 
         /* Кнопка тапа */
         .tap-button { 
-            width: 230px; height: 230px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); 
-            background-size: cover; background-position: center; border-radius: 50%; cursor: pointer; 
+            width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 50%; cursor: pointer; 
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(250, 204, 21, 0.15); 
             transition: transform 0.05s ease-out; position: relative; z-index: 10; margin: 0 auto; 
             touch-action: manipulation; -webkit-user-drag: none; 
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05); background-color: #0f0f14;
         }
-        .tap-button:active { transform: scale(0.93); }
+        .tap-button:active { transform: scale(0.93) translateY(4px); }
+        .artifact-overlay { position: absolute; top: -10%; right: -10%; width: 100px; height: 100px; pointer-events: none; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8)); z-index: 11; display: none; }
 
         /* Энергия */
         .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: 600; color: #a1a1aa; font-size: 13px; }
@@ -67,33 +68,18 @@
         @keyframes scatter { 0% { opacity: 1; transform: translate(0, 0) scale(1.5); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); } }
         
         /* Карточки и блоки */
-        .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: left; width: 100%; }
         .task-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
         
         .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; text-decoration: none; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
         .support-btn:active { transform: scale(0.96); }
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; box-shadow: none; }
-        
-        .level-container { background: rgba(20, 20, 25, 0.7); padding: 16px; border-radius: 20px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid rgba(251, 191, 36, 0.2); text-align: left; }
-        .level-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
-        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; }
-        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
-
-        /* Модальные окна */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        .modal-content { background: #0f0f14; padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); width: 85%; max-width: 350px; position: relative; }
-        .modal-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 10px; }
-        .modal-text { font-size: 14px; color: #a1a1aa; margin-bottom: 20px; }
-        .modal-reward { font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
-        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
 
         /* Студия */
-        .studio-container { position: relative; width: 100%; height: 220px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
+        .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; z-index: 0; }
         .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
-        .studio-overlay-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0,0,0,1), transparent); z-index: 9; }
-        .studio-balance-badge { position: absolute; bottom: 12px; left: 0; width: 100%; text-align: center; z-index: 10; font-size: 22px; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
-
+        
         /* Сетка бустов */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
         .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
@@ -102,65 +88,49 @@
         .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
         .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
 
-        /* Шорт-шит магазина */
-        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
-        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; }
-        .sheet.open { bottom: 0; }
-        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; flex-shrink: 0; }
-        .sheet-title { font-size: 18px; font-weight: 800; color: #fbbf24; }
-        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 26px; cursor: pointer; }
-        .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
-        
-        .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
-        .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
-        .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-        .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
-        .showcase-info { padding: 14px; text-align: left; }
-        .showcase-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
-        .showcase-effect { font-size: 13px; color: #10b981; font-weight: 600; margin-bottom: 10px; }
-        .showcase-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
-        
-        .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.2; }
-        .showcase-card.locked .showcase-title { color: #52525b; }
-        .showcase-card.bought { border-color: #10b981; }
+        /* Артефакты */
+        .artifacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
+        .artifact-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+        .artifact-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); }
+        .artifact-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: white; }
+        .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; }
+        .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; }
 
+        /* Шорт-шиты, кнопки и переключатели */
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
-
-        .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: white; font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
-        .squad-input:focus { border-color: #fbbf24; outline: none; }
-        .generator-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(251, 191, 36, 0.3); padding: 20px; border-radius: 20px; margin-bottom: 20px; width: 100%; box-sizing: border-box; text-align: center; }
-        
-        .skins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
-        .skin-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
-        .skin-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .skin-img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 2; }
-        .skin-name { font-weight: 700; font-size: 13px; margin-bottom: 6px; color: white; z-index: 2; text-align: center; }
-        .skin-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
-        .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-select { background: #27272a; color: white; }
         .btn-equipped { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; cursor: default; }
 
-        .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 15px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
+        .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
         .tab-btn.active { background: #fbbf24; color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
 
-        /* Переключатель языка */
-        .lang-switch {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700;
-            font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-        }
+        .lang-switch { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        
+        /* Стейкинг */
+        .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(20,20,25,0.7) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; width: 100%; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+        
+        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
+        
+        /* Модалки и Лидерборд */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: #0f0f14; padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); width: 85%; max-width: 350px; position: relative; }
+        .modal-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: #a1a1aa; margin-bottom: 20px; }
+        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <!-- МОДАЛКИ (Офлайн, Бусты) остались без изменений -->
     <div id="offlineModal" class="modal-overlay">
         <div class="modal-content">
             <div style="font-size: 48px; margin-bottom: 10px;">🤖</div>
             <div class="modal-title" data-i18n="offlineTitle">Студия работала!</div>
             <div class="modal-text" data-i18n="offlineDesc">Пока вас не было, ваш бот собрал пассивный доход:</div>
-            <div class="modal-reward">+<span id="offlineRewardAmount">0</span> $ROB</div>
+            <div style="font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px;">+<span id="offlineRewardAmount">0</span> $ROB</div>
             <button class="support-btn" style="width: 100%; box-shadow: none;" onclick="closeOfflineModal()" data-i18n="claim">Круто! Забрать</button>
         </div>
     </div>
@@ -175,87 +145,33 @@
                 <span style="color:#a1a1aa; font-size: 13px;"><span data-i18n="currentEffect">Текущий эффект:</span> <b id="techModalCurrent" style="color:white;">+1</b></span><br>
                 <span style="color:#10b981; font-size: 13px; font-weight: bold;"><span data-i18n="nextEffect">Следующий:</span> <b id="techModalNext">+2</b></span>
             </div>
-            <button id="techModalBuyBtn" class="support-btn" style="width: 100%; margin-top: 0;" onclick="">Прокачать • 2000 $ROB</button>
+            <button id="techModalBuyBtn" class="support-btn" style="width: 100%; margin-top: 0;" onclick="">Прокачать</button>
         </div>
     </div>
 
-    <div id="squadModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 380px;">
-            <button class="close-modal-btn" onclick="closeSquadModal()">×</button>
-            <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
-            <div class="modal-title" style="font-size: 18px;" data-i18n="squadTitle">Создать официальный Сквад</div>
-            
-            <div style="text-align: left; font-size: 12px; color: #a1a1aa; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
-                Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).
-            </div>
-
-            <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
-            <button id="btnCreateSquad" class="support-btn" style="width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()" data-i18n="squadBind">Привязать канал</button>
-            
-            <div id="squadLinkResult" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.4);">
-                <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 5px;" data-i18n="squadYourLink">Ваша официальная ссылка:</div>
-                <div id="generatedSquadLink" style="font-size: 12px; color: #fbbf24; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
-                <button class="support-btn" style="background: #27272a; color: white; width: 100%; padding: 8px; font-size: 13px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()" data-i18n="copy">📋 Скопировать</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shopSheetOverlay" class="sheet-overlay" onclick="closeStudioShop()"></div>
-    <div id="shopSheet" class="sheet">
-        <div class="sheet-header">
-            <button class="sheet-close" onclick="closeStudioShop()">×</button>
-            <div class="sheet-title" data-i18n="shopTitle">🛋 Магазин комнат</div>
-        </div>
-        <div class="sheet-content">
-            <div id="shopItemsContainer"></div>
-        </div>
-    </div>
-
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="gameContent">
         
+        <!-- Вкладка 1: ИГРА -->
         <div id="main" class="screen active">
             <div id="rocketBadge" class="rocket-badge"><span data-i18n="rocketActive">🚀 РАКЕТА АКТИВНА! (x5 к тапу)</span> <span id="rocketTimer">15</span>s</div>
             <div class="score-container"><span id="score">0</span><span style="font-size: 18px; color: #a1a1aa; padding-top: 14px; font-weight: 700; margin-left: 4px;">$ROB</span></div>
-            <div class="robux-estimate">≈ <span id="robuxScore">0</span> R$</div>
-            <div class="tap-button" id="tapBtn"></div>
+            <div class="robux-estimate"><span data-i18n="leagueRank">Рейтинг:</span> #<span id="rankPlaceholder">1543</span></div>
+            <div class="tap-button" id="tapBtn">
+                <img id="activeArtifactOverlay" class="artifact-overlay" src="" alt="Artifact">
+            </div>
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
-        <div id="profile" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px;">
-                <div id="userName" style="font-size: 18px; font-weight: 800; color: #ffffff;">@Username</div>
-                <button class="lang-switch" onclick="toggleLanguage()">🌐 <span id="currentLangLabel">RU</span></button>
-            </div>
+        <!-- Вкладка 2: БИЗНЕС (Студия + Артефакты) -->
+        <div id="business" class="screen">
+            <div class="title" data-i18n="navBusiness">💼 Бизнес (Студия)</div>
             
-            <div id="mySquadInfo" style="display:none; font-size: 13px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(251, 191, 36, 0.3);"><span data-i18n="squadLabel">Сквад:</span> <b id="mySquadNameText" style="color: white;"></b></div>
-
             <div class="studio-container">
                 <div class="studio-bg" id="mainStudioBg"></div>
                 <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/sec</div>
-                <div class="studio-overlay-gradient"></div>
-                <div class="studio-balance-badge"><span id="profileScore">0</span> $ROB</div>
             </div>
-
-            <div class="level-container">
-                <div class="level-header">
-                    <span style="color: #fbbf24;"><span data-i18n="levelLabel">Уровень</span> <span id="currentLevel">1</span></span>
-                    <span style="color: #a1a1aa; font-size: 13px;"><span id="levelProgress">0</span> / <span id="nextLevelGoal">5000</span></span>
-                </div>
-                <div class="level-bar-bg"><div id="levelBar" class="level-bar-fill" style="width: 0%;"></div></div>
-            </div>
-
-            <button class="support-btn" style="width: 100%; padding: 16px; font-size: 17px; margin-top: 0; margin-bottom: 15px;" onclick="openStudioShop()" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
-
-            <div class="task-box" style="text-align: center; margin-bottom: 20px;">
-                <b style="font-size: 16px; color: #fbbf24;" data-i18n="dailyRewardTitle">📆 Ежедневная Награда</b><br>
-                <div style="margin-top: 8px; text-align: left;">
-                    <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="dailyStreak">Серия входов:</span> <b id="dailyStreakText" style="color: #fbbf24;">0</b> <span data-i18n="days">дней</span></span>
-                    <button id="btnDailyReward" class="support-btn" style="padding: 10px; font-size: 14px; margin-top: 8px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
-                </div>
-            </div>
-
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin: 10px 0 20px 0;"></div>
-            <div class="title" style="font-size: 18px; text-align: left; width: 100%;" data-i18n="techBoosts">Технические Бусты</div>
+            <button class="support-btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 0; margin-bottom: 20px;" onclick="tg.showAlert('Магазин комнат скоро откроется!')" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
 
             <div class="tech-grid">
                 <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title" data-i18n="multitap">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
@@ -263,90 +179,88 @@
                 <div class="tech-btn" onclick="openTechModal('bot')"><span class="tech-icon">🤖</span><span class="tech-title" data-i18n="autobot">Авто-Бот</span><span class="tech-lvl" id="gridBotLvl">Ур. 0</span></div>
             </div>
 
-            <div class="task-box" style="text-align: center; margin-bottom: 20px;">
-                <b style="font-size: 15px;" data-i18n="rocketTitle">🚀 Сверхзвуковая Ракета</b><br>
-                <span style="font-size: 12px; color: #aaa;"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
-                <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; font-size: 14px; margin-top: 8px; box-shadow: none;" onclick="activateRocket()" data-i18n="launchRocket">Запустить Ракету 🚀</button>
-            </div>
-            
-            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 15px;">
-                <div style="flex: 1; font-size: 14px; color: #a1a1aa; background: rgba(20,20,25,0.7); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.08);"><span data-i18n="friends">Друзей:</span><br><b style="color: white;"><span id="friendsCount">0</span> / 10</b></div>
-                <button style="flex: 1; background: rgba(20,20,25,0.7); color: #a1a1aa; font-size: 14px; font-weight: bold; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); cursor:pointer;" onclick="requestWithdrawEasterEgg()">🔒 <span data-i18n="withdraw">Вывести</span><br><span id="withdrawRobux" style="color: #fbbf24;">0</span> R$</button>
-            </div>
-            <a href="https://t.me/queen_originaI" target="_blank" class="support-btn" style="background: transparent; color: #a1a1aa; width: 100%; margin-top: 5px; box-shadow: none; border: 1px solid rgba(255,255,255,0.08);" data-i18n="support">💬 Связь с менеджером</a>
+            <div class="title" style="font-size: 18px; margin-top: 10px;" data-i18n="artifactsTitle">🏆 Telegram Артефакты</div>
+            <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px; text-align: left;" data-i18n="artifactsDesc">Экипируйте мемы для глобального буста.</div>
+            <div id="artifactsContainer" class="artifacts-grid"></div>
         </div>
 
-        <div id="tasks" class="screen">
-            <div class="title" data-i18n="tasksTitle">Задания</div>
-            
-            <div class="task-box" style="text-align: left;">
-                <b style="font-size: 15px; color: #fbbf24;" data-i18n="dailyGoalTitle">🎯 Цель: Сделать 5000 тапов за день</b><br>
+        <!-- Вкладка 3: AIRDROP (Задания и Стейкинг) -->
+        <div id="airdrop" class="screen">
+            <div class="title" data-i18n="navAirdrop">🚀 Airdrop</div>
+
+            <div class="staking-box">
+                <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-bottom: 4px;" data-i18n="stakingTitle">🏦 Web3 Инвестиции</div>
+                <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 12px;" data-i18n="stakingDesc">Заморозь монеты на 14 дней и получи +40%.</div>
+                <button class="support-btn btn-green" style="width: 100%; box-shadow: none;" onclick="tg.showAlert(currentLang === 'en' ? 'Staking available in Phase 2!' : 'Стейкинг откроется в Фазе 2!')" data-i18n="stakeBtn">Инвестировать (Скоро)</button>
+            </div>
+
+            <div class="task-box" style="text-align: center; border-color: rgba(251, 191, 36, 0.4);">
+                <b style="font-size: 16px; color: #fbbf24;" data-i18n="dailyRewardTitle">📆 Ежедневная Награда</b><br>
+                <div style="margin-top: 8px; text-align: left;">
+                    <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="dailyStreak">Серия входов:</span> <b id="dailyStreakText" style="color: #fbbf24;">0</b> <span data-i18n="days">дней</span></span>
+                    <button id="btnDailyReward" class="support-btn" style="padding: 10px; font-size: 14px; margin-top: 8px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
+                </div>
+            </div>
+
+            <div class="task-box">
+                <b style="font-size: 15px; color: #fbbf24;" data-i18n="dailyGoalTitle">🎯 Цель: 5000 тапов</b><br>
                 <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="progress">Прогресс:</span> <b id="dailyTapsText" style="color: #fbbf24;">0</b> / 5000</span>
-                <div class="level-bar-bg" style="margin-top: 6px;"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; font-size: 13px; margin-top: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
+                <div class="level-bar-bg"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
+                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
             </div>
 
             <div class="task-box">
                 <b>Спонсоры Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
                 <button id="btnSponsor1" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')" data-i18n="subscribe">Подписаться</button>
             </div>
-            <div class="task-box">
-                <b>Обновления grubot</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
-                <button id="btnSponsor2" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')" data-i18n="subscribe">Подписаться</button>
-            </div>
-            <div class="task-box">
-                <b>Фанаты Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
-                <button id="btnSponsor3" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')" data-i18n="subscribe">Подписаться</button>
-            </div>
-            <div class="task-box">
-                <b>Релиз комнат</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
-                <button id="btnSponsor4" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(4, 'https://t.me/gruroom')" data-i18n="subscribe">Подписаться</button>
-            </div>
+            
             <div class="task-box">
                 <b data-i18n="tenFriends">10 друзей</b><br><span style="color: #fbbf24;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
-                <button class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="inviteFriend()" data-i18n="inviteLink">Ссылка</button>
+                <button class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="inviteFriend()" data-i18n="inviteLink">Пригласить</button>
             </div>
         </div>
 
-        <div id="skins" class="screen">
-            <div class="generator-box">
-                <div style="font-size: 22px; font-weight: 800; color: #fbbf24; margin-bottom: 4px;" data-i18n="forgeTitle">✨ Нейро-Кузница</div>
-                <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 12px;" data-i18n="forgeDesc">Сгенерируй уникальный скин ИИ. Чем выше редкость, тем сильнее бонус к клику!</div>
-                <button id="btnGenerateSkin" class="support-btn" style="width: 100%; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);" onclick="showNeuroForgeEasterEgg()" data-i18n="createSkin">Создать Скин (50 ⭐️)</button>
+        <!-- Вкладка 4: ТОП (Профиль + Лидерборд) -->
+        <div id="top" class="screen">
+            <!-- Блок Профиля -->
+            <div style="background: rgba(20,20,25,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; width: 100%; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div id="userName" style="font-size: 18px; font-weight: 800; color: #ffffff;">@Username</div>
+                    <button class="lang-switch" onclick="toggleLanguage()">🌐 <span id="currentLangLabel">RU</span></button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="text-align: left;">
+                        <div style="color: #a1a1aa; font-size: 12px; margin-bottom: 4px;" data-i18n="yourLeague">Ваша лига:</div>
+                        <div id="userLeagueName" style="font-size: 18px; font-weight: 900;">Diamond</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #a1a1aa; font-size: 12px; margin-bottom: 4px;" data-i18n="balance">Баланс:</div>
+                        <div style="font-size: 18px; font-weight: 900; color: #fbbf24;"><span id="profileScore">0</span> $ROB</div>
+                    </div>
+                </div>
+                <button class="support-btn" style="background: #27272a; color: #a1a1aa; width: 100%; box-shadow: none; font-size: 14px; padding: 12px;" onclick="tg.showAlert(currentLang === 'en' ? 'Withdrawal opens in Phase 2' : 'Вывод откроется в Фазе 2')" data-i18n="withdrawBtn">🔒 Вывести токены (Скоро)</button>
             </div>
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin: 10px 0 20px 0;"></div>
-            <div class="title" style="font-size: 20px;" data-i18n="collectionTitle">Ваша Коллекция</div>
-            <div id="skinsContainer" class="skins-grid"></div>
-        </div>
 
-        <div id="leaderboard" class="screen">
+            <!-- Блок Лидерборда -->
             <div class="title" style="margin-bottom: 10px;" data-i18n="topTitle">🏆 Лидерборд</div>
             <div class="tabs-container">
                 <button id="tabPlayers" class="tab-btn active" onclick="switchLeaderboardTab('players')" data-i18n="tabPlayers">👤 Игроки</button>
                 <button id="tabSquads" class="tab-btn" style="background: #27272a;" onclick="switchLeaderboardTab('squads')" data-i18n="tabSquads">📢 Сквады</button>
             </div>
-            <div id="leagueInfo" style="width: 100%; background: rgba(20,20,25,0.7); padding: 14px; border-radius: 16px; margin-bottom: 15px; box-sizing: border-box; text-align: center; border: 1px solid rgba(255,255,255,0.08);">
-                <div style="color: #a1a1aa; font-size: 13px; margin-bottom: 4px;" data-i18n="yourLeague">Ваша лига:</div>
-                <div id="userLeagueName" style="font-size: 22px; font-weight: 900; letter-spacing: 1px;">Загрузка...</div>
-            </div>
-            
-            <div id="createSquadContainer" style="display: none; width: 100%;">
-                <button class="support-btn" style="width: 100%; margin-top: 0; margin-bottom: 15px; font-size: 16px; padding: 12px;" onclick="showCreateSquadModal()" data-i18n="topSquadBtn">🔥 Вывести свой канал в ТОП</button>
-            </div>
             
             <div id="leaderboardList" style="width: 100%; box-sizing: border-box; padding-bottom: 20px;">
-                <div style="color: #71717a; padding: 20px;">Загрузка списка лидеров...</div>
+                <div style="color: #71717a; padding: 20px;">Загрузка списка...</div>
             </div>
         </div>
 
     </div>
 
+    <!-- ПАРЯЩЕЕ НИЖНЕЕ МЕНЮ (4 Вкладки) -->
     <div class="bottom-menu">
         <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span><span data-i18n="navGame">Игра</span></button>
-        <button class="menu-btn" onclick="showScreen('profile', this)"><span class="menu-icon">👤</span><span data-i18n="navProfile">Профиль</span></button>
-        <button class="menu-btn" onclick="showScreen('tasks', this)"><span class="menu-icon">📋</span><span data-i18n="navTasks">Задания</span></button>
-        <button class="menu-btn" onclick="showScreen('skins', this)"><span class="menu-icon">🎨</span><span data-i18n="navSkins">Скины</span></button>
-        <button class="menu-btn" onclick="showScreen('leaderboard', this)"><span class="menu-icon">🏆</span><span data-i18n="navTop">Топ</span></button>
+        <button class="menu-btn" onclick="showScreen('business', this)"><span class="menu-icon">💼</span><span data-i18n="navBusiness">Бизнес</span></button>
+        <button class="menu-btn" onclick="showScreen('airdrop', this)"><span class="menu-icon">🚀</span><span data-i18n="navAirdrop">Airdrop</span></button>
+        <button class="menu-btn" onclick="showScreen('top', this)"><span class="menu-icon">🏆</span><span data-i18n="navTop">Топ</span></button>
     </div>
 
     <script>
@@ -360,46 +274,39 @@
         // ==========================================
         const TRANSLATIONS = {
             ru: {
-                navGame: "Игра", navProfile: "Профиль", navTasks: "Задания", navSkins: "Скины", navTop: "Топ",
+                navGame: "Игра", navBusiness: "Бизнес", navAirdrop: "Airdrop", navTop: "Топ",
                 rocketActive: "🚀 РАКЕТА АКТИВНА! (x5 к тапу)", offlineTitle: "Студия работала!",
-                offlineDesc: "Пока вас не было, ваш бот собрал пассивный доход:", claim: "Круто! Забрать",
-                currentEffect: "Текущий эффект:", nextEffect: "Следующий:", squadTitle: "Создать официальный Сквад",
-                squadRules: "Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).",
-                squadBind: "Привязать канал", squadYourLink: "Ваша официальная ссылка:", copy: "📋 Скопировать",
-                shopTitle: "🛋 Магазин комнат", squadLabel: "Сквад:", levelLabel: "Уровень",
-                upgradeStudio: "🛋 Обустроить студию", dailyRewardTitle: "📆 Ежедневная Награда",
-                dailyStreak: "Серия входов:", days: "дней", techBoosts: "Технические Бусты",
-                multitap: "Мультитап", energy: "Энергия", autobot: "Авто-Бот", rocketTitle: "🚀 Сверхзвуковая Ракета",
-                rocketAvailable: "Доступно:", launchRocket: "Запустить Ракету 🚀", friends: "Друзей:",
-                withdraw: "Вывести", support: "💬 Связь с менеджером", tasksTitle: "Задания",
-                dailyGoalTitle: "🎯 Цель: Сделать 5000 тапов за день", progress: "Прогресс:",
+                offlineDesc: "Пока вас не было, бот собрал пассивный доход:", claim: "Круто! Забрать",
+                currentEffect: "Текущий эффект:", nextEffect: "Следующий:", 
+                levelLabel: "Уровень", upgradeStudio: "🛋 Обустроить студию", 
+                dailyRewardTitle: "📆 Ежедневная Награда", dailyStreak: "Серия входов:", days: "дней", 
+                multitap: "Мультитап", energy: "Энергия", autobot: "Авто-Бот", 
+                dailyGoalTitle: "🎯 Цель: 5000 тапов", progress: "Прогресс:",
                 claimGoal: "Выполни цель 🎯", subscribe: "Подписаться", tenFriends: "10 друзей",
-                inviteLink: "Ссылка", forgeTitle: "✨ Нейро-Кузница", forgeDesc: "Сгенерируй уникальный скин ИИ.",
-                createSkin: "Создать Скин (50 ⭐️)", collectionTitle: "Ваша Коллекция", topTitle: "🏆 Лидерборд",
-                tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", topSquadBtn: "🔥 Вывести свой канал в ТОП"
+                inviteLink: "Пригласить", topTitle: "🏆 Лидерборд", balance: "Баланс:",
+                tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", 
+                withdrawBtn: "🔒 Вывести токены (Скоро)", leagueRank: "Рейтинг:",
+                artifactsTitle: "🏆 Telegram Артефакты", artifactsDesc: "Экипируйте мемы для глобального буста.",
+                stakingTitle: "🏦 Web3 Инвестиции", stakingDesc: "Заморозь монеты на 14 дней и получи +40%.", stakeBtn: "Инвестировать (Скоро)"
             },
             en: {
-                navGame: "Game", navProfile: "Profile", navTasks: "Tasks", navSkins: "Skins", navTop: "Top",
+                navGame: "Game", navBusiness: "Business", navAirdrop: "Airdrop", navTop: "Top",
                 rocketActive: "🚀 ROCKET ACTIVE! (x5 per tap)", offlineTitle: "Studio was working!",
-                offlineDesc: "While you were away, your bot generated passive income:", claim: "Awesome! Claim",
-                currentEffect: "Current effect:", nextEffect: "Next:", squadTitle: "Create Official Squad",
-                squadRules: "To get into the Leaderboard, add @grutap_robot as an admin to your channel (no permissions needed).",
-                squadBind: "Link Channel", squadYourLink: "Your official link:", copy: "📋 Copy Link",
-                shopTitle: "🛋 Studio Store", squadLabel: "Squad:", levelLabel: "Level",
-                upgradeStudio: "🛋 Upgrade Studio", dailyRewardTitle: "📆 Daily Reward",
-                dailyStreak: "Daily streak:", days: "days", techBoosts: "Tech Boosts",
-                multitap: "Multitap", energy: "Energy", autobot: "Auto-Bot", rocketTitle: "🚀 Supersonic Rocket",
-                rocketAvailable: "Available:", launchRocket: "Launch Rocket 🚀", friends: "Friends:",
-                withdraw: "Withdraw", support: "💬 Contact Support", tasksTitle: "Tasks",
-                dailyGoalTitle: "🎯 Goal: 5000 taps in a day", progress: "Progress:",
+                offlineDesc: "While you were away, your bot generated:", claim: "Awesome! Claim",
+                currentEffect: "Current effect:", nextEffect: "Next:", 
+                levelLabel: "Level", upgradeStudio: "🛋 Upgrade Studio", 
+                dailyRewardTitle: "📆 Daily Reward", dailyStreak: "Daily streak:", days: "days", 
+                multitap: "Multitap", energy: "Energy", autobot: "Auto-Bot", 
+                dailyGoalTitle: "🎯 Goal: 5000 taps", progress: "Progress:",
                 claimGoal: "Complete Goal 🎯", subscribe: "Subscribe", tenFriends: "10 Friends",
-                inviteLink: "Invite Link", forgeTitle: "✨ Neuro Forge", forgeDesc: "Generate a unique AI skin.",
-                createSkin: "Create Skin (50 ⭐️)", collectionTitle: "Your Collection", topTitle: "🏆 Leaderboard",
-                tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", topSquadBtn: "🔥 Promote Channel to TOP"
+                inviteLink: "Invite", topTitle: "🏆 Leaderboard", balance: "Balance:",
+                tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", 
+                withdrawBtn: "🔒 Withdraw Tokens (Soon)", leagueRank: "Rank:",
+                artifactsTitle: "🏆 Telegram Artifacts", artifactsDesc: "Equip memes for global boosts.",
+                stakingTitle: "🏦 Web3 Investments", stakingDesc: "Stake tokens for 14 days and get +40%.", stakeBtn: "Stake (Soon)"
             }
         };
 
-        // Определяем язык (Параметр ?lang=en ИЛИ язык Telegram ИЛИ 'ru')
         const urlParams = new URLSearchParams(window.location.search);
         let currentLang = urlParams.get('lang') || (tg.initDataUnsafe?.user?.language_code === 'en' ? 'en' : 'ru');
 
@@ -407,11 +314,11 @@
             currentLang = lang;
             document.getElementById('currentLangLabel').innerText = lang.toUpperCase();
             const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
-            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) el.innerText = dict[key];
             });
+            renderArtifacts(); // Перерисовка артефактов для перевода кнопок
         }
 
         function toggleLanguage() {
@@ -420,11 +327,8 @@
         }
 
         const scoreElement = document.getElementById('score');
-        const robuxScoreElement = document.getElementById('robuxScore');
         const profileScoreElement = document.getElementById('profileScore');
-        const withdrawRobuxElement = document.getElementById('withdrawRobux');
         const tapBtn = document.getElementById('tapBtn');
-        const gameContent = document.getElementById('gameContent'); 
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
@@ -433,7 +337,7 @@
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
         
-        let currentLbTab = 'players'; let currentMySquad = ''; 
+        let currentLbTab = 'players'; 
         let globalDailyStreak = 0; let globalLastClaimDate = "";
         let globalClaimedSponsors = []; let globalDailyTaps = 0; let globalQuestClaimed = 0;
         let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
@@ -441,57 +345,46 @@
         const refsCount = parseInt(urlParams.get('refs')) || 0;
         let isRocketActive = false; let rocketsLeft = 3;
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
-        let currentRoomLevel = 0; let ownedBaseSkinIds = ['default']; let currentSkinId = 'default';
+        let currentRoomLevel = 0; let ownedArtifactIds = ['default']; let currentArtifactId = 'default';
 
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
-            { level: 1, name: 'Стартовая студия', cost: 15000, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
-            { level: 2, name: 'Офис', cost: 500000, income: 6, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' },
-            { level: 3, name: 'Кибер-люкс', cost: 1500000, income: 12, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png' }
+            { level: 1, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
+            { level: 2, income: 6, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' }
         ];
 
         const LEAGUES_CONFIG = [
-            { id: 1, name: 'Wood (Noob)', minScore: 0, color: '#a3a3a3' }, { id: 2, name: 'Bronze (Guest)', minScore: 10000, color: '#cd7f32' },
-            { id: 3, name: 'Silver (Player)', minScore: 100000, color: '#e2e8f0' }, { id: 4, name: 'Gold (Pro)', minScore: 1000000, color: '#fbbf24' },
-            { id: 5, name: 'Diamond (Hacker)', minScore: 10000000, color: '#38bdf8' }, { id: 6, name: 'Elite (Admin)', minScore: 100000000, color: '#ef4444' }
+            { minScore: 0, name: 'Wood (Noob)', color: '#a3a3a3' }, { minScore: 10000, name: 'Bronze (Guest)', color: '#cd7f32' },
+            { minScore: 100000, name: 'Silver (Player)', color: '#e2e8f0' }, { minScore: 1000000, name: 'Gold (Pro)', color: '#fbbf24' },
+            { minScore: 10000000, name: 'Diamond', color: '#38bdf8' }
         ];
 
-        const SKINS = [
-            { id: 'default', name: 'Базовый', cost: 0, img: 'https://img.icons8.com/fluency/512/roblox.png', bonus: 0 },
-            { id: 'coin', name: 'Монета 3D', cost: 50000, img: 'https://img.icons8.com/3d-fluency/512/coin.png', bonus: 0 },
-            { id: 'diamond', name: 'Кубок', cost: 250000, img: 'https://img.icons8.com/3d-fluency/512/trophy.png', bonus: 0 },
-            { id: 'crown', name: 'Корона', cost: 1000000, img: 'https://img.icons8.com/3d-fluency/512/crown.png', bonus: 0 }
+        // НОВЫЕ ТЕЛЕГРАМ-АРТЕФАКТЫ
+        const ARTIFACTS = [
+            { id: 'default', name: 'Без артефакта', cost: 0, img: '', effectText: '', bonus: 0 },
+            { id: 'pepe', name: 'Жаба Pepe', cost: 50000, img: 'https://img.icons8.com/color/512/pepe-the-frog.png', effectText: '+3 к тапу', bonus: 3 },
+            { id: 'spotty', name: 'Собака Spotty', cost: 250000, img: 'https://img.icons8.com/color/512/dog.png', effectText: '+5 к тапу', bonus: 5 },
+            { id: 'durov_cap', name: 'Кепка Дурова', cost: 1000000, img: 'https://img.icons8.com/color/512/baseball-cap.png', effectText: '+15 к тапу', bonus: 15 }
         ];
 
-        const LEVELS = [
-            { level: 1, required: 0 }, { level: 2, required: 5000 }, { level: 3, required: 25000 }, { level: 4, required: 100000 },
-            { level: 5, required: 500000 }, { level: 6, required: 1000000 }, { level: 7, required: 5000000 }, { level: 8, required: 10000000 }
-        ];
+        const LEVELS = [ { required: 0 }, { required: 5000 }, { required: 25000 }, { required: 100000 }, { required: 500000 }, { required: 1000000 } ];
 
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
-        document.getElementById('friendsCount').innerText = refsCount;
         document.getElementById('taskFriendsCount').innerText = refsCount;
 
-        function showNeuroForgeEasterEgg() {
-            tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert(currentLang === 'en' ? '🤫 Custom skins coming soon... 🚀' : '🤫 Скоро ты сделаешь свою кастомную кнопку... 🚀');
-        }
-
-        // АНИМАЦИЯ: Вылет цифр и золотых искр
-        function showFloatingEffects(x, y, amount, isRocket) {
+        function showFloatingEffects(x, y, amount) {
             let num = document.createElement('div');
             num.className = 'floating-text'; num.innerText = `+${amount}`;
             num.style.left = `${x - 20}px`; num.style.top = `${y - 40}px`;
-            num.style.color = isRocket ? '#f59e0b' : '#ffffff';
             document.body.appendChild(num);
             setTimeout(() => num.remove(), 800);
 
-            for(let i = 0; i < 5; i++) {
+            for(let i = 0; i < 4; i++) {
                 let spark = document.createElement('div');
                 spark.className = 'spark';
                 spark.style.left = x + 'px'; spark.style.top = y + 'px';
-                spark.style.setProperty('--dx', (Math.random() * 100 - 50) + 'px');
-                spark.style.setProperty('--dy', (Math.random() * 100 - 50) + 'px');
+                spark.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+                spark.style.setProperty('--dy', (Math.random() * 80 - 40) + 'px');
                 document.body.appendChild(spark);
                 setTimeout(() => spark.remove(), 600);
             }
@@ -508,21 +401,20 @@
             document.getElementById('studioIncomeTotal').innerText = income.toLocaleString('ru-RU');
         }
 
-        function openStudioShop() { document.getElementById('shopSheetOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.opacity = '1'; document.getElementById('shopSheet').classList.add('open'); }, 10); renderShopItems(); }
-        function closeStudioShop() { document.getElementById('shopSheet').classList.remove('open'); document.getElementById('shopSheetOverlay').style.opacity = '0'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.display = 'none'; }, 300); }
-
-        function renderShopItems() {
-            const container = document.getElementById('shopItemsContainer'); container.innerHTML = '<div class="showcase-grid"></div>';
-            const grid = container.querySelector('.showcase-grid');
-            ROOM_LEVELS.forEach(room => {
-                let isBought = currentRoomLevel >= room.level; let isNext = currentRoomLevel + 1 === room.level; let isLocked = room.level > currentRoomLevel + 1;
-                let btnHtml = ''; let cardClass = 'showcase-card';
-                if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>${currentLang === 'en' ? 'Equipped ✅' : 'Установлено ✅'}</button>`; } 
-                else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 ${currentLang === 'en' ? 'Requires Level' : 'Нужен уровень'} ${room.level - 1}</button>`; } 
-                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="processPurchase(() => buyRoomLevel(${room.level}, this))">${currentLang === 'en' ? 'Buy for' : 'Купить за'} ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
-                grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${room.level})</div><div class="showcase-effect">+${room.income} $ROB/sec</div>${btnHtml}</div></div>`);
-            });
+        function updateTechGridVisuals() { 
+            document.getElementById('gridMultitapLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${multitapLevel}`; 
+            document.getElementById('gridEnergyLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${maxEnergyLevel}`; 
+            document.getElementById('gridBotLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${autoBotLevel}`; 
         }
+
+        function openTechModal(type) {
+            const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
+            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = currentLang === 'en' ? 'Multitap' : "Мультитап"; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = currentLang === 'en' ? 'Energy Capacity' : "Энергоемкость"; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = currentLang === 'en' ? 'Auto-Bot' : "Авто-Бот"; current.innerText = `+${autoBotLevel}/sec`; next.innerText = `+${autoBotLevel + 1}/sec`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? (currentLang === 'en' ? 'Buy Bot' : 'Купить бота') : (currentLang === 'en' ? 'Upgrade' : 'Прокачать')} • ${cost.toLocaleString('ru-RU')} $ROB`; }
+            btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
+        }
+        function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function processPurchase(buyFunction) {
             if (pendingStandardClicks > 0 || pendingRocketClicks > 0 || inFlightStandardClicks > 0 || inFlightRocketClicks > 0) {
@@ -530,26 +422,6 @@
                 setTimeout(() => processPurchase(buyFunction), 500); 
             } else { buyFunction(); }
         }
-
-        function buyRoomLevel(levelId, btnElement) {
-            const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
-            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) })
-            .then(res => res.json()).then(data => {
-                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
-                else { tg.showAlert(`❌ ${data.error}`); btnElement.innerText = originalText; btnElement.disabled = false; }
-            }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerText = originalText; btnElement.disabled = false; });
-        }
-
-        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${autoBotLevel}`; }
-
-        function openTechModal(type) {
-            const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
-            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = currentLang === 'en' ? 'Multitap' : "Мультитап"; desc.innerText = currentLang === 'en' ? 'Increases earn per tap.' : "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = currentLang === 'en' ? 'Energy Capacity' : "Энергоемкость"; desc.innerText = currentLang === 'en' ? 'Increases max energy limit.' : "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = currentLang === 'en' ? 'Auto-Bot' : "Авто-Бот"; desc.innerText = currentLang === 'en' ? 'Gathers passive income while offline (max 3h).' : "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `+${autoBotLevel}/sec`; next.innerText = `+${autoBotLevel + 1}/sec`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? (currentLang === 'en' ? 'Buy Bot' : 'Купить бота') : (currentLang === 'en' ? 'Upgrade' : 'Прокачать')} • ${cost.toLocaleString('ru-RU')} $ROB`; }
-            btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
-        }
-        function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function buyTechBoost(type, btnElement) {
             const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
@@ -566,107 +438,73 @@
             }).catch(() => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Error."); });
         }
 
-        function renderSkins() {
-            const container = document.getElementById('skinsContainer'); container.innerHTML = '';
-            SKINS.forEach(skin => {
-                const isOwned = ownedBaseSkinIds.includes(skin.id); const isEquipped = currentSkinId === skin.id; let btnHTML = ''; let cardClass = 'skin-card';
-                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="skin-btn btn-equipped">${currentLang === 'en' ? 'Equipped' : 'Надето'}</button>`; } 
-                else if (isOwned) { btnHTML = `<button class="skin-btn btn-select" onclick="selectSkin('${skin.id}')">${currentLang === 'en' ? 'Select' : 'Выбрать'}</button>`; } 
-                else { btnHTML = `<button id="btnBuySkin_${skin.id}" class="skin-btn btn-buy" onclick="processPurchase(() => buySkin('${skin.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'}<br>${skin.cost.toLocaleString('ru-RU')} $ROB</button>`; }
-                container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${skin.img}" class="skin-img"><div class="skin-name">${skin.name}</div>${btnHTML}</div>`);
+        function renderArtifacts() {
+            const container = document.getElementById('artifactsContainer'); container.innerHTML = '';
+            ARTIFACTS.forEach(art => {
+                if (art.id === 'default') return; // Пропускаем дефолтный в витрине
+                const isOwned = ownedArtifactIds.includes(art.id); const isEquipped = currentArtifactId === art.id; 
+                let btnHTML = ''; let cardClass = 'artifact-card';
+                if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="artifact-btn btn-equipped">${currentLang === 'en' ? 'Equipped' : 'Надето'}</button>`; } 
+                else if (isOwned) { btnHTML = `<button class="artifact-btn btn-select" onclick="selectArtifact('${art.id}')">${currentLang === 'en' ? 'Equip' : 'Надеть'}</button>`; } 
+                else { btnHTML = `<button class="artifact-btn btn-buy" onclick="processPurchase(() => buyArtifact('${art.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'}<br>${art.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${art.img}" class="artifact-img"><div class="artifact-name">${art.name}</div><div class="artifact-effect">${art.effectText}</div>${btnHTML}</div>`);
             });
-            const activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0]; tapBtn.style.backgroundImage = `url('${activeSkinObj.img}')`;
+
+            // Обновляем визуал на главной кнопке
+            const activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
+            const overlay = document.getElementById('activeArtifactOverlay');
+            if (activeArt.img) { overlay.src = activeArt.img; overlay.style.display = 'block'; } 
+            else { overlay.style.display = 'none'; }
         }
 
-        function selectSkin(skinId) { if (ownedBaseSkinIds.includes(skinId)) { currentSkinId = skinId; renderSkins(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_skin', currentSkinId); tg.HapticFeedback.selectionChanged(); } }
+        function selectArtifact(artId) { if (ownedArtifactIds.includes(artId)) { currentArtifactId = artId; renderArtifacts(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_artifact', currentArtifactId); tg.HapticFeedback.selectionChanged(); } }
         
-        function buySkin(skinId, btnElement) { 
+        function buyArtifact(artId, btnElement) { 
             const originalText = btnElement.innerHTML; btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
-            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: skinId }) })
+            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: artId }) })
             .then(res => res.json()).then(data => {
-                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedBaseSkinIds.push(skinId); currentSkinId = skinId; updateVisualScore(); renderSkins(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedBaseSkinIds)); tg.CloudStorage.setItem('current_skin', currentSkinId); } tg.HapticFeedback.notificationOccurred('success'); } 
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedArtifactIds.push(artId); currentArtifactId = artId; updateVisualScore(); renderArtifacts(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedArtifactIds)); tg.CloudStorage.setItem('current_artifact', currentArtifactId); } tg.HapticFeedback.notificationOccurred('success'); } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
             }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
 
         function updateLevelVisuals(totalScore) {
-            let currentLevelObj = LEVELS[0]; let nextLevelObj = LEVELS[1]; for (let i = 0; i < LEVELS.length; i++) { if (totalScore >= LEVELS[i].required) { currentLevelObj = LEVELS[i]; nextLevelObj = LEVELS[i + 1] || LEVELS[i]; } }
-            document.getElementById('currentLevel').innerText = currentLevelObj.level;
-            if (currentLevelObj === nextLevelObj) { document.getElementById('levelProgress').innerText = "MAX"; document.getElementById('nextLevelGoal').innerText = "MAX"; document.getElementById('levelBar').style.width = `100%`; } 
-            else { document.getElementById('levelProgress').innerText = totalScore; document.getElementById('nextLevelGoal').innerText = nextLevelObj.required; let progressToNext = totalScore - currentLevelObj.required; let pointsNeeded = nextLevelObj.required - currentLevelObj.required; document.getElementById('levelBar').style.width = `${Math.min(100, Math.max(0, (progressToNext / pointsNeeded) * 100))}%`; }
-            let league = getCurrentUserLeague(totalScore); const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color; leagueUi.style.textShadow = `0 0 10px ${league.color}80`;
-            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } else { document.getElementById('mySquadInfo').style.display = 'none'; }
+            let league = getCurrentUserLeague(totalScore); 
+            const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color;
         }
 
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
         
         function switchLeaderboardTab(tab) {
             currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#fbbf24' : '#18181b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#fbbf24' : '#18181b';
-            document.getElementById('leagueInfo').style.display = tab === 'players' ? 'block' : 'none'; document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
+            loadLeaderboard();
         }
 
-        function activateRocket() {
-            if (rocketsLeft <= 0) { tg.showAlert(currentLang === 'en' ? "❌ Out of rockets!" : "❌ Ракеты закончились!"); return; }
-            if (isRocketActive) { return; }
-            let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
-            fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
-            .then(res => res.json()).then(data => {
-                if (data.status === "success") {
-                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
-                    else { btn.innerText = origText; btn.disabled = false; }
-                    isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
-                    let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
-                    let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
-                    tg.HapticFeedback.notificationOccurred('success');
-                } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = origText; btn.disabled = false; }
-            }).catch(() => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Error."); });
-        }
-
-        function generateSquadLink() { 
-            let val = document.getElementById('squadInput').value.trim(); if(!val) return; 
-            let btn = document.getElementById('btnCreateSquad'); const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
-            fetch(`${BACKEND_URL}/create-squad`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, channel: val }) })
-            .then(res => res.json()).then(data => {
-                btn.innerText = originalText; btn.disabled = false;
-                if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(() => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Error."); });
-        }
-
-        function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'leaderboard') loadLeaderboard(); }
-        function showCreateSquadModal() { document.getElementById('squadModal').style.display = 'flex'; document.getElementById('squadLinkResult').style.display = 'none'; document.getElementById('squadInput').value = ''; }
-        function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
-        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Copied!"); closeSquadModal(); }).catch(() => { tg.showAlert("🔗 Link: " + link); }); } else { tg.showAlert("🔗 Link: " + link); } }
+        function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'top') loadLeaderboard(); }
+        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
 
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading leaders...' : 'Загрузка списка лидеров...'}</div>`;
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading...' : 'Загрузка списка...'}</div>`;
             fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     listContainer.innerHTML = ''; 
-                    if (data.tab === "players") {
-                        data.list.forEach((player, index) => {
-                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let bgStyle = player.isMe ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
-                        });
-                    } else if (data.tab === "squads") {
-                        data.list.forEach((squad, index) => {
-                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.08)'; let bgStyle = squad.isMySquad ? 'background: rgba(251, 191, 36, 0.08);' : 'background: rgba(20, 20, 25, 0.7);'; 
-                            let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">${currentLang === 'en' ? 'Join' : 'Вступить'}</button>` : ''; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 14px; margin-left: 10px; color: white;">${squad.id} ${squad.isMySquad ? '(You)' : ''}<br><span style="font-size: 11px; color: #a1a1aa;">👥 ${squad.members} ${currentLang === 'en' ? 'players' : 'игроков'}</span><br><span style="font-size: 12px; color: #fbbf24; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
-                        });
-                    }
-                    if (data.list.length === 0) listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'List is empty...' : 'Список пока пуст...'}</div>`;
+                    data.list.forEach((item, index) => {
+                        const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                        let bgStyle = item.isMe || item.isMySquad ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
+                        let name = data.tab === "players" ? item.name : item.id;
+                        listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${item.score.toLocaleString('ru-RU')}</div></div>`);
+                        // Обновляем позицию игрока на главном экране
+                        if (item.isMe) { document.getElementById('rankPlaceholder').innerText = rank; }
+                    });
                 } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading leaderboard</div>'; }
             });
         }
 
         // РАСЧЕТ БАЛАНСА БЕЗ ОТКАТОВ
         function getUnsyncedEarn() {
-            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
-            let baseEarn = multitapLevel + activeSkinObj.bonus;
+            let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
+            let baseEarn = multitapLevel + activeArt.bonus;
             let rocketEarn = baseEarn * 5;
             return (pendingStandardClicks + inFlightStandardClicks) * baseEarn + 
                    (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
@@ -674,24 +512,17 @@
 
         function updateVisualScore() {
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
-            let robux = Math.floor(currentTotal / 1000);
-            
             scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             profileScoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
-            robuxScoreElement.innerText = robux.toLocaleString('ru-RU'); 
-            withdrawRobuxElement.innerText = robux.toLocaleString('ru-RU');
             updateLevelVisuals(currentTotal); 
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-        function requestWithdrawEasterEgg() { tg.HapticFeedback.notificationOccurred('warning'); tg.showAlert(currentLang === 'en' ? "🤫 You will need them very soon... 🚀" : "🤫 Они тебе совсем скоро очень понадобятся... 🚀"); }
-        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
         
         function renderDailyRewardUI() {
             document.getElementById('dailyStreakText').innerText = globalDailyStreak;
             let btn = document.getElementById('btnDailyReward');
             const todayStr = new Date().toISOString().slice(0, 10);
-            
             if (globalLastClaimDate === todayStr) {
                 btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Забрано ✅"; btn.style.background = "#27272a"; btn.style.color = "#a1a1aa"; btn.disabled = true;
             } else {
@@ -704,10 +535,8 @@
         function renderDailyQuestUI() {
             let visualDailyTaps = globalDailyTaps + getUnsyncedEarn();
             if (visualDailyTaps > 5000) visualDailyTaps = 5000;
-            
             document.getElementById('dailyTapsText').innerText = visualDailyTaps;
             document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (visualDailyTaps / 5000) * 100)}%`;
-            
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
                 btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Получено ✅"; btn.style.background = "#27272a"; btn.disabled = true; btn.style.color = "#a1a1aa";
@@ -719,27 +548,25 @@
         }
 
         function claimDailyServer() {
-            let btn = document.getElementById('btnDailyReward');
-            btn.innerText = "⏳..."; btn.disabled = true;
+            let btn = document.getElementById('btnDailyReward'); btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/daily-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Day ${data.daily_streak}! +${data.reward_received} $ROB!`);
-                } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
-            }).catch(() => { tg.showAlert("❌ Error."); renderDailyRewardUI(); });
+                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success');
+                } else { renderDailyRewardUI(); }
+            }).catch(() => { renderDailyRewardUI(); });
         }
 
         function claimDailyQuestServer() {
-            let btn = document.getElementById('btnDailyQuest');
-            btn.innerText = "⏳..."; btn.disabled = true;
+            let btn = document.getElementById('btnDailyQuest'); btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/claim-daily-quest`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalQuestClaimed = 1; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 +10 000 $ROB!");
-                } else { tg.showAlert(`❌ ${data.error}`); renderDailyQuestUI(); }
-            }).catch(() => { tg.showAlert("❌ Error."); renderDailyQuestUI(); });
+                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success');
+                } else { renderDailyQuestUI(); }
+            }).catch(() => { renderDailyQuestUI(); });
         }
 
         function renderSponsorsUI() {
@@ -758,45 +585,37 @@
 
         function clickSponsor(id, url) {
             let btn = document.getElementById('btnSponsor' + id);
-            if (sponsorStates[id] === "init") {
-                tg.openTelegramLink(url);
-                sponsorStates[id] = "clicked";
-                renderSponsorsUI();
-            } else if (sponsorStates[id] === "clicked") {
+            if (sponsorStates[id] === "init") { tg.openTelegramLink(url); sponsorStates[id] = "clicked"; renderSponsorsUI(); } 
+            else if (sponsorStates[id] === "clicked") {
                 btn.innerText = "⏳..."; btn.disabled = true;
                 fetch(`${BACKEND_URL}/claim-sponsor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, sponsor_id: id }) })
                 .then(res => res.json()).then(data => {
-                    if (data.status === "success") {
-                        globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
-                        updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 +450 $ROB!");
-                    } else { 
-                        tg.showAlert(`❌ ${data.error}`); 
-                        sponsorStates[id] = "init"; renderSponsorsUI(); 
-                    }
+                    if (data.status === "success") { globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance; updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); } 
+                    else { tg.showAlert(`❌ ${data.error}`); sponsorStates[id] = "init"; renderSponsorsUI(); }
                 }).catch(() => { tg.showAlert("❌ Error."); sponsorStates[id] = "init"; renderSponsorsUI(); });
             }
         }
 
-        function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderSkins(); updateVisualScore(); syncWithServer(true); }
+        function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderArtifacts(); updateVisualScore(); syncWithServer(true); }
 
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_skin', 'current_room_level'], (err, values) => {
+            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_artifact', 'current_room_level'], (err, values) => {
                 if (!err && values) {
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
                     if (values.bot_level) autoBotLevel = parseInt(values.bot_level, 10) || 0;
                     if (values.current_room_level) currentRoomLevel = parseInt(values.current_room_level, 10) || 0;
-                    if (values.owned_skins) { try { ownedBaseSkinIds = JSON.parse(values.owned_skins); } catch(e){} }
-                    if (values.current_skin) currentSkinId = values.current_skin;
+                    if (values.owned_skins) { try { ownedArtifactIds = JSON.parse(values.owned_skins); } catch(e){} }
+                    if (values.current_artifact) currentArtifactId = values.current_artifact;
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
                 }
                 finishLoading();
             });
         } else { finishLoading(); }
 
-        // ОБРАБОТЧИК КЛИКА (ТАП) С ИСКРАМИ
+        // ОБРАБОТЧИК КЛИКА (ТАП)
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.showAlert(currentLang === 'en' ? "⚡ No energy!" : "⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
+            if (!isRocketActive) { if (energy <= 0) { tg.HapticFeedback.notificationOccurred('error'); return; } energy--; updateEnergyVisual(); }
             
             if (isRocketActive) { pendingRocketClicks += 1; } 
             else { pendingStandardClicks += 1; }
@@ -805,74 +624,46 @@
             if (globalQuestClaimed !== 1) renderDailyQuestUI();
             
             tg.HapticFeedback.impactOccurred('medium');
-            let activeSkinObj = SKINS.find(s => s.id === currentSkinId) || SKINS[0];
-            let earnAmount = isRocketActive ? (multitapLevel + activeSkinObj.bonus) * 5 : (multitapLevel + activeSkinObj.bonus); 
+            let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
+            let earnAmount = isRocketActive ? (multitapLevel + activeArt.bonus) * 5 : (multitapLevel + activeArt.bonus); 
 
             let x, y; 
             if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
             else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             
-            showFloatingEffects(x, y, earnAmount, isRocketActive);
+            showFloatingEffects(x, y, earnAmount);
         });
 
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
 
         function syncWithServer(isInitial = false) {
-            let stdToSend = pendingStandardClicks; 
-            let rktToSend = pendingRocketClicks;
+            let stdToSend = pendingStandardClicks; let rktToSend = pendingRocketClicks;
+            inFlightStandardClicks += stdToSend; inFlightRocketClicks += rktToSend;
+            pendingStandardClicks = 0; pendingRocketClicks = 0;
             
-            inFlightStandardClicks += stdToSend;
-            inFlightRocketClicks += rktToSend;
-            pendingStandardClicks = 0;
-            pendingRocketClicks = 0;
-            
-            fetch(`${BACKEND_URL}/sync`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData, standard_clicks: stdToSend, rocket_clicks: rktToSend }) 
-            })
+            fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, standard_clicks: stdToSend, rocket_clicks: rktToSend }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    serverTaps = data.new_taps_balance; 
-                    serverBonus = data.new_bonus_balance;
-                    if (data.current_squad) currentMySquad = data.current_squad;
-                    
-                    globalDailyStreak = data.daily_streak || 0;
-                    globalLastClaimDate = data.last_claim_date || "";
+                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
+                    globalDailyStreak = data.daily_streak || 0; globalLastClaimDate = data.last_claim_date || "";
                     try { globalClaimedSponsors = JSON.parse(data.claimed_sponsors || "[]"); } catch(e) { globalClaimedSponsors = []; }
-                    
-                    globalDailyTaps = data.daily_taps || 0;
-                    globalQuestClaimed = data.daily_quest_claimed || 0;
+                    globalDailyTaps = data.daily_taps || 0; globalQuestClaimed = data.daily_quest_claimed || 0;
                     
                     inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
                     inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                     
-                    renderDailyRewardUI();
-                    renderDailyQuestUI();
-                    renderSponsorsUI();
-
-                    if (data.rockets_left !== undefined) {
-                        rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                        let btn = document.getElementById('btnActivateRocket');
-                        if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
-                        else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
-                    }
-                    
+                    renderDailyRewardUI(); renderDailyQuestUI(); renderSponsorsUI();
                     updateVisualScore();
                     
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 } else {
-                    pendingStandardClicks += stdToSend; 
-                    pendingRocketClicks += rktToSend; 
-                    inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
-                    inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
+                    pendingStandardClicks += stdToSend; pendingRocketClicks += rktToSend; 
+                    inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend); inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                     updateVisualScore();
                 }
             }).catch(() => { 
-                pendingStandardClicks += stdToSend; 
-                pendingRocketClicks += rktToSend; 
-                inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend);
-                inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
+                pendingStandardClicks += stdToSend; pendingRocketClicks += rktToSend; 
+                inFlightStandardClicks = Math.max(0, inFlightStandardClicks - stdToSend); inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                 updateVisualScore();
             });
         }
@@ -880,13 +671,10 @@
         setInterval(() => { syncWithServer(false); }, 3000); 
 
         window.addEventListener('visibilitychange', () => { 
-            let totalStd = pendingStandardClicks + inFlightStandardClicks;
-            let totalRkt = pendingRocketClicks + inFlightRocketClicks;
+            let totalStd = pendingStandardClicks + inFlightStandardClicks; let totalRkt = pendingRocketClicks + inFlightRocketClicks;
             if (document.visibilityState === 'hidden' && (totalStd > 0 || totalRkt > 0)) { 
-                const payload = JSON.stringify({ initData: tg.initData, standard_clicks: totalStd, rocket_clicks: totalRkt });
-                navigator.sendBeacon(`${BACKEND_URL}/sync`, payload); 
-                pendingStandardClicks = 0; pendingRocketClicks = 0;
-                inFlightStandardClicks = 0; inFlightRocketClicks = 0;
+                navigator.sendBeacon(`${BACKEND_URL}/sync`, JSON.stringify({ initData: tg.initData, standard_clicks: totalStd, rocket_clicks: totalRkt })); 
+                pendingStandardClicks = 0; pendingRocketClicks = 0; inFlightStandardClicks = 0; inFlightRocketClicks = 0;
             } 
         });
     </script>
