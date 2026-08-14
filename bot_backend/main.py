@@ -11,11 +11,12 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters.command import CommandStart, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import WebAppInfo
-import aiosqlite
+import asyncpg
 from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+DATABASE_URL = os.getenv("DATABASE_URL") # Ссылка на базу Supabase
 
 YOUR_TELEGRAM_ID = None  
 CHANNEL_RU = "@robuxtap_ru"
@@ -34,7 +35,7 @@ BANNER_GAME = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-DB_NAME = 'database.db'
+db_pool = None # Глобальный пул соединений для PostgreSQL
 
 ROOM_LEVELS = {
     1: {'cost': 15000, 'income': 3},
@@ -43,34 +44,36 @@ ROOM_LEVELS = {
 }
 
 async def init_db():
-    async with aiosqlite.connect(DB_NAME) as db:
-        await db.execute('PRAGMA journal_mode=WAL;')
-        await db.execute('''CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            referrer_id INTEGER,
+    global db_pool
+    db_pool = await asyncpg.create_pool(DATABASE_URL)
+    
+    async with db_pool.acquire() as conn:
+        # PostgreSQL синтаксис: BIGINT для ID Telegram и DOUBLE PRECISION для времени
+        await conn.execute('''CREATE TABLE IF NOT EXISTS users (
+            user_id BIGINT PRIMARY KEY,
+            referrer_id BIGINT,
             first_name TEXT DEFAULT 'Игрок',
             username TEXT DEFAULT '',
             squad_id TEXT DEFAULT '',
-            taps_balance INTEGER DEFAULT 0,
-            bonus_balance INTEGER DEFAULT 0,
+            taps_balance BIGINT DEFAULT 0,
+            bonus_balance BIGINT DEFAULT 0,
             multitap_level INTEGER DEFAULT 1,
             bot_level INTEGER DEFAULT 0,
             max_energy_level INTEGER DEFAULT 1,
             current_room_level INTEGER DEFAULT 0,
             owned_skins TEXT DEFAULT '["default"]',
             current_skin TEXT DEFAULT 'default',
-            last_sync_time REAL DEFAULT 0,
-            last_squad_join_time REAL DEFAULT 0,
+            last_sync_time DOUBLE PRECISION DEFAULT 0,
+            last_squad_join_time DOUBLE PRECISION DEFAULT 0,
             rockets_count INTEGER DEFAULT 3,
-            rocket_expires_at REAL DEFAULT 0,
+            rocket_expires_at DOUBLE PRECISION DEFAULT 0,
             last_play_date TEXT DEFAULT '',
             daily_streak INTEGER DEFAULT 0,
             last_claim_date TEXT DEFAULT '',
             claimed_sponsors TEXT DEFAULT '[]',
-            daily_taps INTEGER DEFAULT 0,
+            daily_taps BIGINT DEFAULT 0,
             daily_quest_claimed INTEGER DEFAULT 0
         )''')
-        await db.commit()
 
 def validate_telegram_data(init_data: str, bot_token: str):
     try:
@@ -114,10 +117,8 @@ async def sync_api(request):
         current_time = time.time()
         current_date = time.strftime('%Y-%m-%d')
         
-        async with aiosqlite.connect(DB_NAME) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                user_db = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
                 
             if not user_db: return web.json_response({"error": "User not found"}, status=404)
             
@@ -132,10 +133,10 @@ async def sync_api(request):
                 daily_taps = 0
                 daily_quest_claimed = 0
 
-            # АНТИЧИТ НА ОБЩЕЕ КОЛИЧЕСТВО КЛИКОВ
+            # АНТИЧИТ НА ОБЩЕЕ КОЛИЧЕСТВО КЛИКОВ (Изменен на 30 по твоей просьбе)
             total_clicks_claimed = standard_clicks + rocket_clicks
             elapsed_sec = current_time - user_db['last_sync_time'] if user_db['last_sync_time'] > 0 else 0
-            MAX_CLICKS_PER_SEC = 45
+            MAX_CLICKS_PER_SEC = 30
             safe_time = max(elapsed_sec, 3.0)
             max_possible_clicks = int(MAX_CLICKS_PER_SEC * safe_time)
             
@@ -148,13 +149,11 @@ async def sync_api(request):
             else:
                 valid_standard, valid_rocket = 0, 0
 
-            # 🛠 ИСПРАВЛЕНИЕ РАКЕТЫ: Увеличиваем Grace Period до 8 секунд!
             earned_from_taps = valid_standard * user_db['multitap_level']
             
             if current_time <= user_db['rocket_expires_at'] + 8.0:
                 earned_from_taps += valid_rocket * user_db['multitap_level'] * 5
             else:
-                # Опоздали слишком сильно — считаем без умножения
                 earned_from_taps += valid_rocket * user_db['multitap_level']
                 
             daily_taps += earned_from_taps
@@ -176,12 +175,11 @@ async def sync_api(request):
             new_taps_bal = user_db['taps_balance'] + earned_from_taps
             new_bonus_bal = user_db['bonus_balance'] + earned_passive
             
-            await db.execute('''UPDATE users 
-                              SET taps_balance = ?, bonus_balance = ?, last_sync_time = ?, first_name = ?, username = ?, 
-                                  rockets_count = ?, last_play_date = ?, daily_taps = ?, daily_quest_claimed = ?
-                              WHERE user_id = ?''', 
-                           (new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, user_id))
-            await db.commit()
+            await conn.execute('''UPDATE users 
+                              SET taps_balance = $1, bonus_balance = $2, last_sync_time = $3, first_name = $4, username = $5, 
+                                  rockets_count = $6, last_play_date = $7, daily_taps = $8, daily_quest_claimed = $9
+                              WHERE user_id = $10''', 
+                           new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, user_id)
             
         return web.json_response({
             "status": "success", 
@@ -208,17 +206,15 @@ async def claim_daily_quest_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         user_id = user_data.get("id")
         
-        async with aiosqlite.connect(DB_NAME) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT daily_taps, daily_quest_claimed, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                row = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT daily_taps, daily_quest_claimed, bonus_balance FROM users WHERE user_id = $1", user_id)
             if not row: return web.json_response({"error": "User not found"}, status=404)
             if row['daily_taps'] < 5000: return web.json_response({"error": "Цель еще не выполнена!"}, status=400)
             if row['daily_quest_claimed'] == 1: return web.json_response({"error": "Награда уже получена!"}, status=400)
                 
             new_bonus = row['bonus_balance'] + 10000
-            await db.execute("UPDATE users SET daily_quest_claimed = 1, bonus_balance = ? WHERE user_id = ?", (new_bonus, user_id))
-            await db.commit()
+            await conn.execute("UPDATE users SET daily_quest_claimed = 1, bonus_balance = $1 WHERE user_id = $2", new_bonus, user_id)
+            
             return web.json_response({"status": "success", "new_bonus_balance": new_bonus})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
@@ -233,10 +229,8 @@ async def daily_claim_api(request):
         today_str = datetime.now().strftime('%Y-%m-%d')
         yesterday_str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         
-        async with aiosqlite.connect(DB_NAME) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT daily_streak, last_claim_date, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                row = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT daily_streak, last_claim_date, bonus_balance FROM users WHERE user_id = $1", user_id)
             if not row: return web.json_response({"error": "User not found"}, status=404)
             
             streak = int(row['daily_streak'] or 0)
@@ -248,8 +242,8 @@ async def daily_claim_api(request):
                 
             reward = streak * 100
             new_bonus = int(row['bonus_balance'] or 0) + reward
-            await db.execute("UPDATE users SET daily_streak = ?, last_claim_date = ?, bonus_balance = ? WHERE user_id = ?", (streak, today_str, new_bonus, user_id))
-            await db.commit()
+            await conn.execute("UPDATE users SET daily_streak = $1, last_claim_date = $2, bonus_balance = $3 WHERE user_id = $4", streak, today_str, new_bonus, user_id)
+            
             return web.json_response({"status": "success", "daily_streak": streak, "last_claim_date": today_str, "new_bonus_balance": new_bonus, "reward_received": reward})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
@@ -266,10 +260,8 @@ async def claim_sponsor_api(request):
         channel = SPONSOR_CHANNELS.get(sponsor_id)
         if not channel: return web.json_response({"error": "Неверный ID спонсора"}, status=400)
         
-        async with aiosqlite.connect(DB_NAME) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT claimed_sponsors, bonus_balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                row = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT claimed_sponsors, bonus_balance FROM users WHERE user_id = $1", user_id)
             
             claimed = json.loads(row['claimed_sponsors'] or '[]')
             if sponsor_id in claimed: return web.json_response({"error": "Награда уже получена!"}, status=400)
@@ -279,8 +271,8 @@ async def claim_sponsor_api(request):
                 
             claimed.append(sponsor_id)
             new_bonus = int(row['bonus_balance'] or 0) + 450
-            await db.execute("UPDATE users SET claimed_sponsors = ?, bonus_balance = ? WHERE user_id = ?", (json.dumps(claimed), new_bonus, user_id))
-            await db.commit()
+            await conn.execute("UPDATE users SET claimed_sponsors = $1, bonus_balance = $2 WHERE user_id = $3", json.dumps(claimed), new_bonus, user_id)
+            
             return web.json_response({"status": "success", "claimed_sponsors": json.dumps(claimed), "new_bonus_balance": new_bonus})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
@@ -295,13 +287,12 @@ async def activate_rocket_api(request):
         current_time = time.time()
         current_date = time.strftime('%Y-%m-%d')
 
-        async with aiosqlite.connect(DB_NAME) as db:
-            async with db.execute("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                row = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = $1", user_id)
             
-            r_count = int(row[0]) if row[0] is not None else 3
-            r_exp = float(row[1]) if row[1] is not None else 0
-            last_date = row[2]
+            r_count = int(row['rockets_count']) if row['rockets_count'] is not None else 3
+            r_exp = float(row['rocket_expires_at']) if row['rocket_expires_at'] is not None else 0
+            last_date = row['last_play_date']
             
             if last_date != current_date:
                 r_count = 3
@@ -312,8 +303,8 @@ async def activate_rocket_api(request):
 
             new_count = r_count - 1
             new_exp = current_time + 15
-            await db.execute("UPDATE users SET rockets_count = ?, rocket_expires_at = ?, last_play_date = ? WHERE user_id = ?", (new_count, new_exp, last_date, user_id))
-            await db.commit()
+            await conn.execute("UPDATE users SET rockets_count = $1, rocket_expires_at = $2, last_play_date = $3 WHERE user_id = $4", new_count, new_exp, last_date, user_id)
+            
             return web.json_response({"status": "success", "rockets_left": new_count})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
@@ -326,10 +317,8 @@ async def buy_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         user_id = user_data.get("id")
         
-        async with aiosqlite.connect(DB_NAME) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
-                user_db = await cursor.fetchone()
+        async with db_pool.acquire() as conn:
+            user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
             
             taps_bal = int(user_db['taps_balance'] or 0)
             bonus_bal = int(user_db['bonus_balance'] or 0)
@@ -367,8 +356,7 @@ async def buy_api(request):
             else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
                 
             if column_to_update:
-                await db.execute(f'UPDATE users SET taps_balance = ?, bonus_balance = ?, {column_to_update} = ? WHERE user_id = ?', (new_taps_bal, new_bonus_bal, new_value, user_id))
-                await db.commit()
+                await conn.execute(f'UPDATE users SET taps_balance = $1, bonus_balance = $2, {column_to_update} = $3 WHERE user_id = $4', new_taps_bal, new_bonus_bal, new_value, user_id)
             
             return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
     except Exception as e: return web.json_response({"error": f"Server error: {str(e)}"}, status=500)
@@ -399,15 +387,16 @@ async def leaderboard_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         req_user_id = user_data.get("id")
         
-        async with aiosqlite.connect(DB_NAME) as db:
+        async with db_pool.acquire() as conn:
             if tab == "players":
-                async with db.execute('SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score FROM users ORDER BY score DESC LIMIT 50') as cursor: rows = await cursor.fetchall()
-                players = [{"id": r[0], "name": r[1] or "Аноним", "username": r[2], "score": r[3], "isMe": r[0] == req_user_id} for r in rows]
+                rows = await conn.fetch('SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score FROM users ORDER BY score DESC LIMIT 50')
+                players = [{"id": r['user_id'], "name": r['first_name'] or "Аноним", "username": r['username'], "score": r['score'], "isMe": r['user_id'] == req_user_id} for r in rows]
                 return web.json_response({"status": "success", "list": players, "tab": "players"})
             elif tab == "squads":
-                async with db.execute("SELECT squad_id, COUNT(user_id), SUM(taps_balance + bonus_balance) as ts FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY ts DESC LIMIT 50") as cursor: rows = await cursor.fetchall()
-                async with db.execute("SELECT squad_id FROM users WHERE user_id = ?", (req_user_id,)) as cursor: r = await cursor.fetchone(); us = r[0] if r else ""
-                squads = [{"id": r[0], "members": r[1], "score": r[2], "isMySquad": r[0] == us} for r in rows]
+                rows = await conn.fetch("SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as ts FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY ts DESC LIMIT 50")
+                r = await conn.fetchrow("SELECT squad_id FROM users WHERE user_id = $1", req_user_id) 
+                us = r['squad_id'] if r else ""
+                squads = [{"id": r['squad_id'], "members": r['members'], "score": r['ts'], "isMySquad": r['squad_id'] == us} for r in rows]
                 return web.json_response({"status": "success", "list": squads, "tab": "squads"})
     except Exception: return web.json_response({"error": "Server error"}, status=500)
 
@@ -424,21 +413,20 @@ async def cmd_start(message: types.Message, command: CommandObject):
             if r_id.isdigit() and int(r_id) != user_id: ref_id = int(r_id)
         elif command.args.startswith("squad_"): squad_id = "@" + command.args.split("_")[1]
 
-    async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor: user_data = await cursor.fetchone()
+    async with db_pool.acquire() as conn:
+        user_data = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
         if not user_data:
-            await db.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES (?, ?, ?, ?, ?)", (user_id, ref_id, first_name, squad_id, current_time if squad_id else 0))
-            await db.commit()
+            await conn.execute("INSERT INTO users (user_id, referrer_id, first_name, squad_id, last_squad_join_time) VALUES ($1, $2, $3, $4, $5)", user_id, ref_id, first_name, squad_id, current_time if squad_id else 0)
             if ref_id:
                 try: await bot.send_message(ref_id, "🎉 <b>Новый друг по ссылке!</b>", parse_mode="HTML")
                 except Exception: pass
         else:
-            if squad_id and user_data[4] != squad_id:
-                if current_time - user_data[14] >= 604800 or user_data[14] == 0:
-                    await db.execute("UPDATE users SET squad_id = ?, last_squad_join_time = ? WHERE user_id = ?", (squad_id, current_time, user_id))
-                    await db.commit()
+            if squad_id and user_data['squad_id'] != squad_id:
+                if current_time - user_data['last_squad_join_time'] >= 604800 or user_data['last_squad_join_time'] == 0:
+                    await conn.execute("UPDATE users SET squad_id = $1, last_squad_join_time = $2 WHERE user_id = $3", squad_id, current_time, user_id)
 
-        async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor: refs_count = (await cursor.fetchone())[0]
+        r = await conn.fetchrow("SELECT COUNT(*) as count FROM users WHERE referrer_id = $1", user_id)
+        refs_count = r['count'] if r else 0
 
     if await check_subscription(user_id, CHANNEL_RU) or await check_subscription(user_id, CHANNEL_SNG):
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(current_time)}"
@@ -456,8 +444,10 @@ async def cmd_start(message: types.Message, command: CommandObject):
 async def process_check(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     if await check_subscription(user_id, CHANNEL_RU) or await check_subscription(user_id, CHANNEL_SNG):
-        async with aiosqlite.connect(DB_NAME) as db:
-            async with db.execute("SELECT COUNT(*) FROM users WHERE referrer_id = ?", (user_id,)) as cursor: refs_count = (await cursor.fetchone())[0]
+        async with db_pool.acquire() as conn:
+            r = await conn.fetchrow("SELECT COUNT(*) as count FROM users WHERE referrer_id = $1", user_id)
+            refs_count = r['count'] if r else 0
+            
         custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}"
         game_builder = InlineKeyboardBuilder()
         game_builder.row(types.InlineKeyboardButton(text="🎮 ИГРАТЬ (Tap to Earn)", web_app=WebAppInfo(url=custom_url)))
@@ -468,7 +458,7 @@ async def process_check(callback: types.CallbackQuery):
 
 async def main():
     await init_db()
-    print("Бот запущен!")
+    print("Бот запущен с базой PostgreSQL (Supabase)!")
     app = web.Application()
     import aiohttp_cors
     cors = aiohttp_cors.setup(app, defaults={"*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*")})
