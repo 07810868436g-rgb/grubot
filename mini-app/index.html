@@ -24,7 +24,7 @@
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        /* Парящее нижнее меню */
+        /* Парящее нижнее меню (Glassmorphism) */
         .bottom-menu { 
             position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; 
             background: rgba(18, 18, 22, 0.75); 
@@ -37,14 +37,14 @@
         .menu-icon { font-size: 20px; }
         .menu-btn.active { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
 
-        /* Баланс */
+        /* Премиальный баланс */
         .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .robux-estimate { font-size: 14px; color: #a1a1aa; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
 
         /* Кнопка тапа */
         .tap-button { 
             width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); 
-            background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 50%; cursor: pointer; 
+            background-size: contain; background-position: center; background-repeat: no-repeat; border-radius: 50%; cursor: pointer; 
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(250, 204, 21, 0.15); 
             transition: transform 0.05s ease-out; position: relative; z-index: 10; margin: 0 auto; 
             touch-action: manipulation; -webkit-user-drag: none; 
@@ -74,12 +74,12 @@
         .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; text-decoration: none; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
         .support-btn:active { transform: scale(0.96); }
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; box-shadow: none; }
-
+        
         /* Студия */
         .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; z-index: 0; }
+        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
         .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
-        
+
         /* Сетка бустов */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
         .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
@@ -88,49 +88,80 @@
         .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
         .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
 
-        /* Артефакты */
+        /* Сетка Артефактов */
         .artifacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
-        .artifact-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+        .artifact-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
         .artifact-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); }
-        .artifact-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: white; }
-        .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; }
-        .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; }
+        .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 2; }
+        .artifact-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: white; z-index: 2; text-align: center; }
+        .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; z-index: 2; text-align: center;}
+        .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
 
-        /* Шорт-шиты, кнопки и переключатели */
+        /* Шорт-шиты магазина */
+        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
+        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; }
+        .sheet.open { bottom: 0; }
+        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; flex-shrink: 0; }
+        .sheet-title { font-size: 18px; font-weight: 800; color: #fbbf24; }
+        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 26px; cursor: pointer; }
+        .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
+        
+        .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
+        .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
+        .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+        .showcase-info { padding: 14px; text-align: left; }
+        .showcase-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
+        .showcase-effect { font-size: 13px; color: #10b981; font-weight: 600; margin-bottom: 10px; }
+        .showcase-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
+        
+        .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.2; }
+        .showcase-card.locked .showcase-title { color: #52525b; }
+        .showcase-card.bought { border-color: #10b981; }
+
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
+        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
+        .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-select { background: #27272a; color: white; }
         .btn-equipped { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; cursor: default; }
+
+        .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: white; font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
+        .squad-input:focus { border-color: #fbbf24; outline: none; }
+        
+        /* Стейкинг */
+        .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(20,20,25,0.7) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; width: 100%; box-sizing: border-box; text-align: center; margin-bottom: 15px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
 
         .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
         .tab-btn.active { background: #fbbf24; color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
 
-        .lang-switch { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-        
-        /* Стейкинг */
-        .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(20,20,25,0.7) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; width: 100%; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
-        
-        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
-        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
-        
-        /* Модалки и Лидерборд */
+        /* Переключатель языка */
+        .lang-switch {
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700;
+            font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        /* Модальные окна */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .modal-content { background: #0f0f14; padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); width: 85%; max-width: 350px; position: relative; }
         .modal-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 10px; }
         .modal-text { font-size: 14px; color: #a1a1aa; margin-bottom: 20px; }
+        .modal-reward { font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
+        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+        .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
     </style>
 </head>
 <body>
 
-    <!-- МОДАЛКИ (Офлайн, Бусты) остались без изменений -->
+    <!-- МОДАЛЬНЫЕ ОКНА -->
     <div id="offlineModal" class="modal-overlay">
         <div class="modal-content">
             <div style="font-size: 48px; margin-bottom: 10px;">🤖</div>
             <div class="modal-title" data-i18n="offlineTitle">Студия работала!</div>
             <div class="modal-text" data-i18n="offlineDesc">Пока вас не было, ваш бот собрал пассивный доход:</div>
-            <div style="font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px;">+<span id="offlineRewardAmount">0</span> $ROB</div>
+            <div class="modal-reward">+<span id="offlineRewardAmount">0</span> $ROB</div>
             <button class="support-btn" style="width: 100%; box-shadow: none;" onclick="closeOfflineModal()" data-i18n="claim">Круто! Забрать</button>
         </div>
     </div>
@@ -149,6 +180,35 @@
         </div>
     </div>
 
+    <div id="squadModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 380px;">
+            <button class="close-modal-btn" onclick="closeSquadModal()">×</button>
+            <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
+            <div class="modal-title" style="font-size: 18px;" data-i18n="squadTitle">Создать официальный Сквад</div>
+            <div style="text-align: left; font-size: 12px; color: #a1a1aa; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
+                Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).
+            </div>
+            <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
+            <button id="btnCreateSquad" class="support-btn" style="width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()" data-i18n="squadBind">Привязать канал</button>
+            <div id="squadLinkResult" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.4);">
+                <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 5px;" data-i18n="squadYourLink">Ваша официальная ссылка:</div>
+                <div id="generatedSquadLink" style="font-size: 12px; color: #fbbf24; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
+                <button class="support-btn" style="background: #27272a; color: white; width: 100%; padding: 8px; font-size: 13px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()" data-i18n="copy">📋 Скопировать</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shopSheetOverlay" class="sheet-overlay" onclick="closeStudioShop()"></div>
+    <div id="shopSheet" class="sheet">
+        <div class="sheet-header">
+            <button class="sheet-close" onclick="closeStudioShop()">×</button>
+            <div class="sheet-title" data-i18n="shopTitle">🛋 Магазин комнат</div>
+        </div>
+        <div class="sheet-content">
+            <div id="shopItemsContainer"></div>
+        </div>
+    </div>
+
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="gameContent">
         
@@ -163,15 +223,15 @@
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
-        <!-- Вкладка 2: БИЗНЕС (Студия + Артефакты) -->
+        <!-- Вкладка 2: БИЗНЕС (Студия + Бусты + Артефакты) -->
         <div id="business" class="screen">
-            <div class="title" data-i18n="navBusiness">💼 Бизнес (Студия)</div>
+            <div class="title" data-i18n="navBusiness">💼 Бизнес</div>
             
             <div class="studio-container">
                 <div class="studio-bg" id="mainStudioBg"></div>
                 <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/sec</div>
             </div>
-            <button class="support-btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 0; margin-bottom: 20px;" onclick="tg.showAlert('Магазин комнат скоро откроется!')" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
+            <button class="support-btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 0; margin-bottom: 20px;" onclick="openStudioShop()" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
 
             <div class="tech-grid">
                 <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title" data-i18n="multitap">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
@@ -184,7 +244,7 @@
             <div id="artifactsContainer" class="artifacts-grid"></div>
         </div>
 
-        <!-- Вкладка 3: AIRDROP (Задания и Стейкинг) -->
+        <!-- Вкладка 3: AIRDROP (Стейкинг + Задания) -->
         <div id="airdrop" class="screen">
             <div class="title" data-i18n="navAirdrop">🚀 Airdrop</div>
 
@@ -206,12 +266,30 @@
                 <b style="font-size: 15px; color: #fbbf24;" data-i18n="dailyGoalTitle">🎯 Цель: 5000 тапов</b><br>
                 <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="progress">Прогресс:</span> <b id="dailyTapsText" style="color: #fbbf24;">0</b> / 5000</span>
                 <div class="level-bar-bg"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; width: 100%; box-shadow: none;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
+                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; width: 100%; box-shadow: none; margin-top: 10px;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
+            </div>
+            
+            <div class="task-box" style="text-align: center;">
+                <b style="font-size: 15px;" data-i18n="rocketTitle">🚀 Сверхзвуковая Ракета</b><br>
+                <span style="font-size: 12px; color: #a1a1aa;"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
+                <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; font-size: 14px; margin-top: 8px; box-shadow: none;" onclick="activateRocket()" data-i18n="launchRocket">Запустить Ракету 🚀</button>
             </div>
 
             <div class="task-box">
                 <b>Спонсоры Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
                 <button id="btnSponsor1" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')" data-i18n="subscribe">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Обновления grubot</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor2" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')" data-i18n="subscribe">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Фанаты Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor3" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')" data-i18n="subscribe">Подписаться</button>
+            </div>
+            <div class="task-box">
+                <b>Релиз комнат</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <button id="btnSponsor4" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(4, 'https://t.me/gruroom')" data-i18n="subscribe">Подписаться</button>
             </div>
             
             <div class="task-box">
@@ -238,6 +316,7 @@
                         <div style="font-size: 18px; font-weight: 900; color: #fbbf24;"><span id="profileScore">0</span> $ROB</div>
                     </div>
                 </div>
+                <div id="mySquadInfo" style="display:none; font-size: 13px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(251, 191, 36, 0.3);"><span data-i18n="squadLabel">Сквад:</span> <b id="mySquadNameText" style="color: white;"></b></div>
                 <button class="support-btn" style="background: #27272a; color: #a1a1aa; width: 100%; box-shadow: none; font-size: 14px; padding: 12px;" onclick="tg.showAlert(currentLang === 'en' ? 'Withdrawal opens in Phase 2' : 'Вывод откроется в Фазе 2')" data-i18n="withdrawBtn">🔒 Вывести токены (Скоро)</button>
             </div>
 
@@ -246,6 +325,10 @@
             <div class="tabs-container">
                 <button id="tabPlayers" class="tab-btn active" onclick="switchLeaderboardTab('players')" data-i18n="tabPlayers">👤 Игроки</button>
                 <button id="tabSquads" class="tab-btn" style="background: #27272a;" onclick="switchLeaderboardTab('squads')" data-i18n="tabSquads">📢 Сквады</button>
+            </div>
+            
+            <div id="createSquadContainer" style="display: none; width: 100%;">
+                <button class="support-btn" style="width: 100%; margin-top: 0; margin-bottom: 15px; font-size: 16px; padding: 12px;" onclick="showCreateSquadModal()" data-i18n="topSquadBtn">🔥 Вывести свой канал в ТОП</button>
             </div>
             
             <div id="leaderboardList" style="width: 100%; box-sizing: border-box; padding-bottom: 20px;">
@@ -277,32 +360,40 @@
                 navGame: "Игра", navBusiness: "Бизнес", navAirdrop: "Airdrop", navTop: "Топ",
                 rocketActive: "🚀 РАКЕТА АКТИВНА! (x5 к тапу)", offlineTitle: "Студия работала!",
                 offlineDesc: "Пока вас не было, бот собрал пассивный доход:", claim: "Круто! Забрать",
-                currentEffect: "Текущий эффект:", nextEffect: "Следующий:", 
-                levelLabel: "Уровень", upgradeStudio: "🛋 Обустроить студию", 
-                dailyRewardTitle: "📆 Ежедневная Награда", dailyStreak: "Серия входов:", days: "дней", 
-                multitap: "Мультитап", energy: "Энергия", autobot: "Авто-Бот", 
+                currentEffect: "Текущий эффект:", nextEffect: "Следующий:", squadTitle: "Создать официальный Сквад",
+                squadRules: "Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).",
+                squadBind: "Привязать канал", squadYourLink: "Ваша официальная ссылка:", copy: "📋 Скопировать",
+                shopTitle: "🛋 Магазин комнат", squadLabel: "Сквад:", levelLabel: "Уровень",
+                upgradeStudio: "🛋 Обустроить студию", dailyRewardTitle: "📆 Ежедневная Награда",
+                dailyStreak: "Серия входов:", days: "дней", techBoosts: "Технические Бусты",
+                multitap: "Мультитап", energy: "Энергия", autobot: "Авто-Бот", rocketTitle: "🚀 Сверхзвуковая Ракета",
+                rocketAvailable: "Доступно:", launchRocket: "Запустить Ракету 🚀", friends: "Друзей:",
+                withdrawBtn: "🔒 Вывести токены (Скоро)", support: "💬 Связь с менеджером", tasksTitle: "Задания",
                 dailyGoalTitle: "🎯 Цель: 5000 тапов", progress: "Прогресс:",
                 claimGoal: "Выполни цель 🎯", subscribe: "Подписаться", tenFriends: "10 друзей",
                 inviteLink: "Пригласить", topTitle: "🏆 Лидерборд", balance: "Баланс:",
-                tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", 
-                withdrawBtn: "🔒 Вывести токены (Скоро)", leagueRank: "Рейтинг:",
-                artifactsTitle: "🏆 Telegram Артефакты", artifactsDesc: "Экипируйте мемы для глобального буста.",
+                tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", topSquadBtn: "🔥 Вывести свой канал в ТОП",
+                leagueRank: "Рейтинг:", artifactsTitle: "🏆 Telegram Артефакты", artifactsDesc: "Экипируйте мемы для глобального буста.",
                 stakingTitle: "🏦 Web3 Инвестиции", stakingDesc: "Заморозь монеты на 14 дней и получи +40%.", stakeBtn: "Инвестировать (Скоро)"
             },
             en: {
                 navGame: "Game", navBusiness: "Business", navAirdrop: "Airdrop", navTop: "Top",
                 rocketActive: "🚀 ROCKET ACTIVE! (x5 per tap)", offlineTitle: "Studio was working!",
                 offlineDesc: "While you were away, your bot generated:", claim: "Awesome! Claim",
-                currentEffect: "Current effect:", nextEffect: "Next:", 
-                levelLabel: "Level", upgradeStudio: "🛋 Upgrade Studio", 
-                dailyRewardTitle: "📆 Daily Reward", dailyStreak: "Daily streak:", days: "days", 
-                multitap: "Multitap", energy: "Energy", autobot: "Auto-Bot", 
+                currentEffect: "Current effect:", nextEffect: "Next:", squadTitle: "Create Official Squad",
+                squadRules: "To get into the Leaderboard, add @grutap_robot as an admin to your channel (no permissions needed).",
+                squadBind: "Link Channel", squadYourLink: "Your official link:", copy: "📋 Copy Link",
+                shopTitle: "🛋 Studio Store", squadLabel: "Squad:", levelLabel: "Level",
+                upgradeStudio: "🛋 Upgrade Studio", dailyRewardTitle: "📆 Daily Reward",
+                dailyStreak: "Daily streak:", days: "days", techBoosts: "Tech Boosts",
+                multitap: "Multitap", energy: "Energy", autobot: "Auto-Bot", rocketTitle: "🚀 Supersonic Rocket",
+                rocketAvailable: "Available:", launchRocket: "Launch Rocket 🚀", friends: "Friends:",
+                withdrawBtn: "🔒 Withdraw Tokens (Soon)", support: "💬 Contact Support", tasksTitle: "Tasks",
                 dailyGoalTitle: "🎯 Goal: 5000 taps", progress: "Progress:",
                 claimGoal: "Complete Goal 🎯", subscribe: "Subscribe", tenFriends: "10 Friends",
                 inviteLink: "Invite", topTitle: "🏆 Leaderboard", balance: "Balance:",
-                tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", 
-                withdrawBtn: "🔒 Withdraw Tokens (Soon)", leagueRank: "Rank:",
-                artifactsTitle: "🏆 Telegram Artifacts", artifactsDesc: "Equip memes for global boosts.",
+                tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", topSquadBtn: "🔥 Promote Channel to TOP",
+                leagueRank: "Rank:", artifactsTitle: "🏆 Telegram Artifacts", artifactsDesc: "Equip memes for global boosts.",
                 stakingTitle: "🏦 Web3 Investments", stakingDesc: "Stake tokens for 14 days and get +40%.", stakeBtn: "Stake (Soon)"
             }
         };
@@ -318,7 +409,7 @@
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) el.innerText = dict[key];
             });
-            renderArtifacts(); // Перерисовка артефактов для перевода кнопок
+            renderArtifacts(); 
         }
 
         function toggleLanguage() {
@@ -337,7 +428,7 @@
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
         
-        let currentLbTab = 'players'; 
+        let currentLbTab = 'players'; let currentMySquad = ''; 
         let globalDailyStreak = 0; let globalLastClaimDate = "";
         let globalClaimedSponsors = []; let globalDailyTaps = 0; let globalQuestClaimed = 0;
         let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
@@ -349,8 +440,9 @@
 
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
-            { level: 1, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
-            { level: 2, income: 6, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' }
+            { level: 1, name: 'Стартовая студия', cost: 15000, income: 3, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/1lvl.png' },
+            { level: 2, name: 'Офис', cost: 500000, income: 6, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/2lvl.png' },
+            { level: 3, name: 'Кибер-люкс', cost: 1500000, income: 12, bgImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png', previewImg: 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/3lvl.png' }
         ];
 
         const LEAGUES_CONFIG = [
@@ -359,7 +451,7 @@
             { minScore: 10000000, name: 'Diamond', color: '#38bdf8' }
         ];
 
-        // НОВЫЕ ТЕЛЕГРАМ-АРТЕФАКТЫ
+        // ТЕЛЕГРАМ АРТЕФАКТЫ (Заменяют скины)
         const ARTIFACTS = [
             { id: 'default', name: 'Без артефакта', cost: 0, img: '', effectText: '', bonus: 0 },
             { id: 'pepe', name: 'Жаба Pepe', cost: 50000, img: 'https://img.icons8.com/color/512/pepe-the-frog.png', effectText: '+3 к тапу', bonus: 3 },
@@ -372,10 +464,11 @@
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('taskFriendsCount').innerText = refsCount;
 
-        function showFloatingEffects(x, y, amount) {
+        function showFloatingEffects(x, y, amount, isRocket) {
             let num = document.createElement('div');
             num.className = 'floating-text'; num.innerText = `+${amount}`;
             num.style.left = `${x - 20}px`; num.style.top = `${y - 40}px`;
+            num.style.color = isRocket ? '#f59e0b' : '#ffffff';
             document.body.appendChild(num);
             setTimeout(() => num.remove(), 800);
 
@@ -401,20 +494,21 @@
             document.getElementById('studioIncomeTotal').innerText = income.toLocaleString('ru-RU');
         }
 
-        function updateTechGridVisuals() { 
-            document.getElementById('gridMultitapLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${multitapLevel}`; 
-            document.getElementById('gridEnergyLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${maxEnergyLevel}`; 
-            document.getElementById('gridBotLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${autoBotLevel}`; 
-        }
+        function openStudioShop() { document.getElementById('shopSheetOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.opacity = '1'; document.getElementById('shopSheet').classList.add('open'); }, 10); renderShopItems(); }
+        function closeStudioShop() { document.getElementById('shopSheet').classList.remove('open'); document.getElementById('shopSheetOverlay').style.opacity = '0'; setTimeout(() => { document.getElementById('shopSheetOverlay').style.display = 'none'; }, 300); }
 
-        function openTechModal(type) {
-            const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
-            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = currentLang === 'en' ? 'Multitap' : "Мультитап"; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = currentLang === 'en' ? 'Energy Capacity' : "Энергоемкость"; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
-            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = currentLang === 'en' ? 'Auto-Bot' : "Авто-Бот"; current.innerText = `+${autoBotLevel}/sec`; next.innerText = `+${autoBotLevel + 1}/sec`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? (currentLang === 'en' ? 'Buy Bot' : 'Купить бота') : (currentLang === 'en' ? 'Upgrade' : 'Прокачать')} • ${cost.toLocaleString('ru-RU')} $ROB`; }
-            btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
+        function renderShopItems() {
+            const container = document.getElementById('shopItemsContainer'); container.innerHTML = '<div class="showcase-grid"></div>';
+            const grid = container.querySelector('.showcase-grid');
+            ROOM_LEVELS.forEach(room => {
+                let isBought = currentRoomLevel >= room.level; let isNext = currentRoomLevel + 1 === room.level; let isLocked = room.level > currentRoomLevel + 1;
+                let btnHtml = ''; let cardClass = 'showcase-card';
+                if (isBought) { cardClass += ' bought'; btnHtml = `<button class="showcase-btn btn-gray" disabled>${currentLang === 'en' ? 'Equipped ✅' : 'Установлено ✅'}</button>`; } 
+                else if (isLocked) { cardClass += ' locked'; btnHtml = `<button class="showcase-btn btn-gray" disabled>🔒 ${currentLang === 'en' ? 'Requires Level' : 'Нужен уровень'} ${room.level - 1}</button>`; } 
+                else if (isNext) { btnHtml = `<button id="btnBuyRoom${room.level}" class="showcase-btn btn-green" onclick="processPurchase(() => buyRoomLevel(${room.level}, this))">${currentLang === 'en' ? 'Buy for' : 'Купить за'} ${room.cost.toLocaleString('ru-RU')} $ROB</button>`; }
+                grid.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><div class="showcase-img-container"><img src="${room.previewImg}" class="showcase-img"></div><div class="showcase-info"><div class="showcase-title">${room.name} (${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${room.level})</div><div class="showcase-effect">+${room.income} $ROB/sec</div>${btnHtml}</div></div>`);
+            });
         }
-        function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function processPurchase(buyFunction) {
             if (pendingStandardClicks > 0 || pendingRocketClicks > 0 || inFlightStandardClicks > 0 || inFlightRocketClicks > 0) {
@@ -422,6 +516,26 @@
                 setTimeout(() => processPurchase(buyFunction), 500); 
             } else { buyFunction(); }
         }
+
+        function buyRoomLevel(levelId, btnElement) {
+            const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
+            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "room_upgrade", level: levelId }) })
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; currentRoomLevel = levelId; updateVisualScore(); updateStudioVisuals(); renderShopItems(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_room_level', currentRoomLevel.toString()); tg.HapticFeedback.notificationOccurred('success'); } 
+                else { tg.showAlert(`❌ ${data.error}`); btnElement.innerText = originalText; btnElement.disabled = false; }
+            }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerText = originalText; btnElement.disabled = false; });
+        }
+
+        function updateTechGridVisuals() { document.getElementById('gridMultitapLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${multitapLevel}`; document.getElementById('gridEnergyLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${maxEnergyLevel}`; document.getElementById('gridBotLvl').innerText = `${currentLang === 'en' ? 'Lvl' : 'Ур.'} ${autoBotLevel}`; }
+
+        function openTechModal(type) {
+            const title = document.getElementById('techModalTitle'); const desc = document.getElementById('techModalDesc'); const icon = document.getElementById('techModalIcon'); const current = document.getElementById('techModalCurrent'); const next = document.getElementById('techModalNext'); const btn = document.getElementById('techModalBuyBtn');
+            if (type === 'multitap') { icon.innerText = "👆"; title.innerText = currentLang === 'en' ? 'Multitap' : "Мультитап"; desc.innerText = currentLang === 'en' ? 'Increases earn per tap.' : "Увеличивает добычу за 1 тап."; current.innerText = `+${multitapLevel}`; next.innerText = `+${multitapLevel + 1}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, multitapLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'energy') { icon.innerText = "🔋"; title.innerText = currentLang === 'en' ? 'Energy Capacity' : "Энергоемкость"; desc.innerText = currentLang === 'en' ? 'Increases max energy limit.' : "Увеличивает запас энергии."; current.innerText = `${maxEnergy}`; next.innerText = `${1000 + (maxEnergyLevel * 500)}`; btn.innerText = `${currentLang === 'en' ? 'Upgrade' : 'Прокачать'} • ${getUpgradeCost(2000, maxEnergyLevel).toLocaleString('ru-RU')} $ROB`; } 
+            else if (type === 'bot') { icon.innerText = "🤖"; title.innerText = currentLang === 'en' ? 'Auto-Bot' : "Авто-Бот"; desc.innerText = currentLang === 'en' ? 'Gathers passive income while offline (max 3h).' : "Студия приносит доход пока вы офлайн (макс 3 часа)."; current.innerText = `+${autoBotLevel}/sec`; next.innerText = `+${autoBotLevel + 1}/sec`; let cost = autoBotLevel === 0 ? 5000 : getUpgradeCost(5000, autoBotLevel + 1); btn.innerText = `${autoBotLevel === 0 ? (currentLang === 'en' ? 'Buy Bot' : 'Купить бота') : (currentLang === 'en' ? 'Upgrade' : 'Прокачать')} • ${cost.toLocaleString('ru-RU')} $ROB`; }
+            btn.onclick = () => { processPurchase(() => buyTechBoost(type, btn)); }; document.getElementById('techModal').style.display = 'flex';
+        }
+        function closeTechModal() { document.getElementById('techModal').style.display = 'none'; }
 
         function buyTechBoost(type, btnElement) {
             const originalText = btnElement.innerText; btnElement.innerText = "⏳..."; btnElement.disabled = true;
@@ -438,23 +552,21 @@
             }).catch(() => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Error."); });
         }
 
+        // ОТРИСОВКА АРТЕФАКТОВ
         function renderArtifacts() {
             const container = document.getElementById('artifactsContainer'); container.innerHTML = '';
             ARTIFACTS.forEach(art => {
-                if (art.id === 'default') return; // Пропускаем дефолтный в витрине
-                const isOwned = ownedArtifactIds.includes(art.id); const isEquipped = currentArtifactId === art.id; 
-                let btnHTML = ''; let cardClass = 'artifact-card';
+                if (art.id === 'default') return; // Прячем пустой артефакт из витрины
+                const isOwned = ownedArtifactIds.includes(art.id); const isEquipped = currentArtifactId === art.id; let btnHTML = ''; let cardClass = 'artifact-card';
                 if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="artifact-btn btn-equipped">${currentLang === 'en' ? 'Equipped' : 'Надето'}</button>`; } 
                 else if (isOwned) { btnHTML = `<button class="artifact-btn btn-select" onclick="selectArtifact('${art.id}')">${currentLang === 'en' ? 'Equip' : 'Надеть'}</button>`; } 
                 else { btnHTML = `<button class="artifact-btn btn-buy" onclick="processPurchase(() => buyArtifact('${art.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'}<br>${art.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${art.img}" class="artifact-img"><div class="artifact-name">${art.name}</div><div class="artifact-effect">${art.effectText}</div>${btnHTML}</div>`);
             });
-
-            // Обновляем визуал на главной кнопке
+            // Наложение артефакта на монету
             const activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             const overlay = document.getElementById('activeArtifactOverlay');
-            if (activeArt.img) { overlay.src = activeArt.img; overlay.style.display = 'block'; } 
-            else { overlay.style.display = 'none'; }
+            if (activeArt.img) { overlay.src = activeArt.img; overlay.style.display = 'block'; } else { overlay.style.display = 'none'; }
         }
 
         function selectArtifact(artId) { if (ownedArtifactIds.includes(artId)) { currentArtifactId = artId; renderArtifacts(); if (tg.CloudStorage) tg.CloudStorage.setItem('current_artifact', currentArtifactId); tg.HapticFeedback.selectionChanged(); } }
@@ -471,32 +583,71 @@
         function updateLevelVisuals(totalScore) {
             let league = getCurrentUserLeague(totalScore); 
             const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color;
+            if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } else { document.getElementById('mySquadInfo').style.display = 'none'; }
         }
 
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
         
         function switchLeaderboardTab(tab) {
             currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#fbbf24' : '#18181b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#fbbf24' : '#18181b';
-            loadLeaderboard();
+            document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
+        }
+
+        function activateRocket() {
+            if (rocketsLeft <= 0) { tg.showAlert(currentLang === 'en' ? "❌ Out of rockets!" : "❌ Ракеты закончились!"); return; }
+            if (isRocketActive) { return; }
+            let btn = document.getElementById('btnActivateRocket'); const origText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
+                    else { btn.innerText = origText; btn.disabled = false; }
+                    isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
+                    let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
+                    let countdown = setInterval(() => { timeLeft--; document.getElementById('rocketTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdown); isRocketActive = false; document.getElementById('rocketBadge').style.display = 'none'; } }, 1000);
+                    tg.HapticFeedback.notificationOccurred('success');
+                } else { tg.showAlert(`❌ ${data.error}`); btn.innerText = origText; btn.disabled = false; }
+            }).catch(() => { btn.innerText = origText; btn.disabled = false; tg.showAlert("❌ Error."); });
+        }
+
+        function generateSquadLink() { 
+            let val = document.getElementById('squadInput').value.trim(); if(!val) return; 
+            let btn = document.getElementById('btnCreateSquad'); const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            fetch(`${BACKEND_URL}/create-squad`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, channel: val }) })
+            .then(res => res.json()).then(data => {
+                btn.innerText = originalText; btn.disabled = false;
+                if(data.status === "success") { document.getElementById('squadLinkResult').style.display = 'block'; document.getElementById('generatedSquadLink').innerText = data.link; tg.HapticFeedback.notificationOccurred('success'); } else { tg.showAlert(`❌ ${data.error}`); }
+            }).catch(() => { btn.innerText = originalText; btn.disabled = false; tg.showAlert("❌ Error."); });
         }
 
         function showScreen(screenId, btnElement) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); if (screenId === 'top') loadLeaderboard(); }
-        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
+        function showCreateSquadModal() { document.getElementById('squadModal').style.display = 'flex'; document.getElementById('squadLinkResult').style.display = 'none'; document.getElementById('squadInput').value = ''; }
+        function closeSquadModal() { document.getElementById('squadModal').style.display = 'none'; }
+        function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Copied!"); closeSquadModal(); }).catch(() => { tg.showAlert("🔗 Link: " + link); }); } else { tg.showAlert("🔗 Link: " + link); } }
 
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading...' : 'Загрузка списка...'}</div>`;
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading leaders...' : 'Загрузка списка лидеров...'}</div>`;
             fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     listContainer.innerHTML = ''; 
-                    data.list.forEach((item, index) => {
-                        const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                        let bgStyle = item.isMe || item.isMySquad ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
-                        let name = data.tab === "players" ? item.name : item.id;
-                        listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${item.score.toLocaleString('ru-RU')}</div></div>`);
-                        // Обновляем позицию игрока на главном экране
-                        if (item.isMe) { document.getElementById('rankPlaceholder').innerText = rank; }
-                    });
+                    if (data.tab === "players") {
+                        data.list.forEach((player, index) => {
+                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                            let bgStyle = player.isMe ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
+                            if(player.isMe) document.getElementById('rankPlaceholder').innerText = rank;
+                        });
+                    } else if (data.tab === "squads") {
+                        data.list.forEach((squad, index) => {
+                            const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
+                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.08)'; let bgStyle = squad.isMySquad ? 'background: rgba(251, 191, 36, 0.08);' : 'background: rgba(20, 20, 25, 0.7);'; 
+                            let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 6px 12px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">${currentLang === 'en' ? 'Join' : 'Вступить'}</button>` : ''; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 14px; margin-left: 10px; color: white;">${squad.id} ${squad.isMySquad ? '(You)' : ''}<br><span style="font-size: 11px; color: #a1a1aa;">👥 ${squad.members} ${currentLang === 'en' ? 'players' : 'игроков'}</span><br><span style="font-size: 12px; color: #fbbf24; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
+                        });
+                    }
+                    if (data.list.length === 0) listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'List is empty...' : 'Список пока пуст...'}</div>`;
                 } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading leaderboard</div>'; }
             });
         }
@@ -518,11 +669,13 @@
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
+        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
         
         function renderDailyRewardUI() {
             document.getElementById('dailyStreakText').innerText = globalDailyStreak;
             let btn = document.getElementById('btnDailyReward');
             const todayStr = new Date().toISOString().slice(0, 10);
+            
             if (globalLastClaimDate === todayStr) {
                 btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Забрано ✅"; btn.style.background = "#27272a"; btn.style.color = "#a1a1aa"; btn.disabled = true;
             } else {
@@ -535,8 +688,10 @@
         function renderDailyQuestUI() {
             let visualDailyTaps = globalDailyTaps + getUnsyncedEarn();
             if (visualDailyTaps > 5000) visualDailyTaps = 5000;
+            
             document.getElementById('dailyTapsText').innerText = visualDailyTaps;
             document.getElementById('dailyTapsBar').style.width = `${Math.min(100, (visualDailyTaps / 5000) * 100)}%`;
+            
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
                 btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Получено ✅"; btn.style.background = "#27272a"; btn.disabled = true; btn.style.color = "#a1a1aa";
@@ -548,25 +703,27 @@
         }
 
         function claimDailyServer() {
-            let btn = document.getElementById('btnDailyReward'); btn.innerText = "⏳..."; btn.disabled = true;
+            let btn = document.getElementById('btnDailyReward');
+            btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/daily-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalDailyStreak = data.daily_streak; globalLastClaimDate = data.last_claim_date; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success');
-                } else { renderDailyRewardUI(); }
-            }).catch(() => { renderDailyRewardUI(); });
+                    updateVisualScore(); renderDailyRewardUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`🎉 Day ${data.daily_streak}! +${data.reward_received} $ROB!`);
+                } else { tg.showAlert(`❌ ${data.error}`); renderDailyRewardUI(); }
+            }).catch(() => { tg.showAlert("❌ Error."); renderDailyRewardUI(); });
         }
 
         function claimDailyQuestServer() {
-            let btn = document.getElementById('btnDailyQuest'); btn.innerText = "⏳..."; btn.disabled = true;
+            let btn = document.getElementById('btnDailyQuest');
+            btn.innerText = "⏳..."; btn.disabled = true;
             fetch(`${BACKEND_URL}/claim-daily-quest`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     globalQuestClaimed = 1; serverBonus = data.new_bonus_balance;
-                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success');
-                } else { renderDailyQuestUI(); }
-            }).catch(() => { renderDailyQuestUI(); });
+                    updateVisualScore(); renderDailyQuestUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎯 +10 000 $ROB!");
+                } else { tg.showAlert(`❌ ${data.error}`); renderDailyQuestUI(); }
+            }).catch(() => { tg.showAlert("❌ Error."); renderDailyQuestUI(); });
         }
 
         function renderSponsorsUI() {
@@ -585,13 +742,16 @@
 
         function clickSponsor(id, url) {
             let btn = document.getElementById('btnSponsor' + id);
-            if (sponsorStates[id] === "init") { tg.openTelegramLink(url); sponsorStates[id] = "clicked"; renderSponsorsUI(); } 
-            else if (sponsorStates[id] === "clicked") {
+            if (sponsorStates[id] === "init") {
+                tg.openTelegramLink(url); sponsorStates[id] = "clicked"; renderSponsorsUI();
+            } else if (sponsorStates[id] === "clicked") {
                 btn.innerText = "⏳..."; btn.disabled = true;
                 fetch(`${BACKEND_URL}/claim-sponsor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, sponsor_id: id }) })
                 .then(res => res.json()).then(data => {
-                    if (data.status === "success") { globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance; updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); } 
-                    else { tg.showAlert(`❌ ${data.error}`); sponsorStates[id] = "init"; renderSponsorsUI(); }
+                    if (data.status === "success") {
+                        globalClaimedSponsors.push(id); serverBonus = data.new_bonus_balance;
+                        updateVisualScore(); renderSponsorsUI(); tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🎉 +450 $ROB!");
+                    } else { tg.showAlert(`❌ ${data.error}`); sponsorStates[id] = "init"; renderSponsorsUI(); }
                 }).catch(() => { tg.showAlert("❌ Error."); sponsorStates[id] = "init"; renderSponsorsUI(); });
             }
         }
@@ -613,9 +773,9 @@
             });
         } else { finishLoading(); }
 
-        // ОБРАБОТЧИК КЛИКА (ТАП)
+        // ОБРАБОТЧИК КЛИКА (ТАП) С ИСКРАМИ И АРТЕФАКТАМИ
         tapBtn.addEventListener('click', (e) => {
-            if (!isRocketActive) { if (energy <= 0) { tg.HapticFeedback.notificationOccurred('error'); return; } energy--; updateEnergyVisual(); }
+            if (!isRocketActive) { if (energy <= 0) { tg.showAlert(currentLang === 'en' ? "⚡ No energy!" : "⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             
             if (isRocketActive) { pendingRocketClicks += 1; } 
             else { pendingStandardClicks += 1; }
@@ -631,7 +791,7 @@
             if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
             else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
             
-            showFloatingEffects(x, y, earnAmount);
+            showFloatingEffects(x, y, earnAmount, isRocketActive);
         });
 
         setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
@@ -645,6 +805,7 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance;
+                    if (data.current_squad) currentMySquad = data.current_squad;
                     globalDailyStreak = data.daily_streak || 0; globalLastClaimDate = data.last_claim_date || "";
                     try { globalClaimedSponsors = JSON.parse(data.claimed_sponsors || "[]"); } catch(e) { globalClaimedSponsors = []; }
                     globalDailyTaps = data.daily_taps || 0; globalQuestClaimed = data.daily_quest_claimed || 0;
@@ -653,8 +814,14 @@
                     inFlightRocketClicks = Math.max(0, inFlightRocketClicks - rktToSend);
                     
                     renderDailyRewardUI(); renderDailyQuestUI(); renderSponsorsUI();
+
+                    if (data.rockets_left !== undefined) {
+                        rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                        let btn = document.getElementById('btnActivateRocket');
+                        if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
+                        else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
+                    }
                     updateVisualScore();
-                    
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 } else {
                     pendingStandardClicks += stdToSend; pendingRocketClicks += rktToSend; 
