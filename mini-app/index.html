@@ -225,8 +225,8 @@
             <div style="font-size: 40px; margin-bottom: 10px;">🔥</div>
             <div style="font-size: 24px; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">Турбина остановлена!</div>
             <div style="font-size: 16px; color: #a1a1aa; margin-bottom: 25px;">Вы нафармили: <b style="color: white; font-size: 22px;" id="turbineFinalScore">0</b> $ROB</div>
-            <button class="support-btn" style="width: 100%; background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000; margin-bottom: 12px; margin-top: 0; font-size: 16px;" onclick="claimAndShareTurbine()">Похвастаться в Stories 📸</button>
-            <button class="support-btn" style="width: 100%; background: #27272a; color: #a1a1aa; box-shadow: none; margin-top: 0;" onclick="claimAndExitTurbine()">Забрать и выйти</button>
+            <button id="btnTurbineShare" class="support-btn" style="width: 100%; background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000; margin-bottom: 12px; margin-top: 0; font-size: 16px;" onclick="claimAndShareTurbine()">Похвастаться в Stories 📸</button>
+            <button id="btnTurbineExit" class="support-btn" style="width: 100%; background: #27272a; color: #a1a1aa; box-shadow: none; margin-top: 0;" onclick="claimAndExitTurbine(false)">Забрать и выйти</button>
         </div>
     </div>
 
@@ -508,11 +508,10 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ
+        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ (Симуляция полностью удалена)
         let serverTaps = 0; let serverBonus = 0; 
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
-        let localSimulatedBonus = 0; // Для PvP и Турбины
         
         let currentLbTab = 'players'; let currentMySquad = ''; 
         let globalDailyStreak = 0; let globalLastClaimDate = "";
@@ -527,7 +526,7 @@
         // ИНТЕГРАЦИЯ PREMIUM ДЛЯ ТУРБИНЫ
         let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
         let maxTurbineCharges = isPremium ? 5 : 3;
-        let currentTurbineCharges = maxTurbineCharges; // Временно локально
+        let currentTurbineCharges = maxTurbineCharges; 
 
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
@@ -740,6 +739,7 @@
             });
         }
 
+        // РАСЧЕТ БАЛАНСА
         function getUnsyncedEarn() {
             let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             let baseEarn = multitapLevel + activeArt.bonus;
@@ -748,8 +748,9 @@
                    (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
         }
 
+        // ВАЖНО: Мы удалили localSimulatedBonus, баланс теперь строго с сервера!
         function updateVisualScore() {
-            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             profileScoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             updateLevelVisuals(currentTotal); 
@@ -872,7 +873,7 @@
         }
 
         // ==========================================
-        // 🎙️ АУДИО-МАЙНИНГ (ТУРБИНА WEB3) + PREMIUM ЛИМИТЫ
+        // 🎙️ АУДИО-МАЙНИНГ С ЗАПРОСОМ НА БЭКЕНД
         // ==========================================
         let audioContext, analyser, microphone, javascriptNode;
         let turbineActive = false; let turbineScore = 0; let turbineTimer = 10; let turbineInterval;
@@ -885,8 +886,7 @@
             
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                currentTurbineCharges--;
-                document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+                // Мы не отнимаем заряд визуально сразу, сервер отнимет его при успешном клейме.
                 
                 document.getElementById('turbineArena').style.display = 'flex';
                 document.getElementById('turbineActiveState').style.display = 'block';
@@ -933,26 +933,54 @@
             stream.getTracks().forEach(track => track.stop());
             if(audioContext) audioContext.close(); 
             
-            // Вызываем промежуточный экран добровольного шеринга
             document.getElementById('turbineActiveState').style.display = 'none';
             document.getElementById('turbineResultState').style.display = 'block';
             document.getElementById('turbineFinalScore').innerText = turbineScore.toLocaleString('ru-RU');
         }
 
-        function claimAndExitTurbine() {
-            localSimulatedBonus += turbineScore; 
-            updateVisualScore();
-            document.getElementById('turbineArena').style.display = 'none';
-            tg.HapticFeedback.notificationOccurred('success');
+        // ОТПРАВЛЯЕМ ДАННЫЕ НА СЕРВЕР И ЗАКРЫВАЕМ
+        function claimAndExitTurbine(share = false) {
+            let btn1 = document.getElementById('btnTurbineExit');
+            let btn2 = document.getElementById('btnTurbineShare');
+            if(btn1) btn1.disabled = true;
+            if(btn2) btn2.disabled = true;
+
+            fetch(`${BACKEND_URL}/turbine-claim`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData, amount: turbineScore }) 
+            }).then(res => res.json()).then(data => {
+                if(btn1) btn1.disabled = false;
+                if(btn2) btn2.disabled = false;
+
+                if (data.status === "success") {
+                    serverBonus = data.new_bonus_balance;
+                    currentTurbineCharges = data.turbine_charges;
+                    maxTurbineCharges = data.max_charges;
+                    document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+                    updateVisualScore();
+                    document.getElementById('turbineArena').style.display = 'none';
+                    tg.HapticFeedback.notificationOccurred('success');
+                    if(share) {
+                        shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`);
+                    }
+                } else { 
+                    tg.showAlert(`❌ ${data.error}`); 
+                    document.getElementById('turbineArena').style.display = 'none'; 
+                }
+            }).catch(() => { 
+                if(btn1) btn1.disabled = false;
+                if(btn2) btn2.disabled = false;
+                tg.showAlert("❌ Ошибка сервера."); document.getElementById('turbineArena').style.display = 'none'; 
+            });
         }
 
         function claimAndShareTurbine() {
-            claimAndExitTurbine();
-            shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`);
+            claimAndExitTurbine(true);
         }
 
         // ==========================================
-        // ⚔️ PVP-АРЕНА (ПЕРЕТЯГИВАНИЕ КАНАТА) С КАСТОМНОЙ СТАВКОЙ
+        // ⚔️ PVP-АРЕНА С ЗАПРОСОМ НА БЭКЕНД
         // ==========================================
         let pvpBet = 10000; let pvpMode = 'touch';
         let pvpTimer = 15; let pvpInterval;
@@ -966,7 +994,7 @@
         }
 
         function setPvPBetPercent(pct) {
-            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             let calcAmount = Math.floor(currentTotal * pct);
             document.getElementById('pvpBetInput').value = calcAmount > 0 ? calcAmount : 0;
         }
@@ -977,11 +1005,9 @@
             pvpBet = parseInt(document.getElementById('pvpBetInput').value) || 0;
             if (pvpBet < 100) { tg.showAlert("Минимальная ставка 100 $ROB!"); return; }
 
-            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             if (currentTotal < pvpBet) { tg.showAlert("Мало денег на балансе!"); return; }
             
-            localSimulatedBonus -= pvpBet; // Заморозка ставки
-            updateVisualScore(); 
             closePvPModal();
             tg.showAlert("Ищем противника...");
             setTimeout(() => initBattle(), 2000);
@@ -1013,7 +1039,7 @@
 
             pvpInterval = setInterval(() => {
                 pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
-                moveRope(-1); // Виртуальный противник (бот) тянет на себя каждую секунду
+                moveRope(-1); // Бот тянет на себя
                 if(pvpTimer <= 0) endBattle();
             }, 1000);
         }
@@ -1027,21 +1053,35 @@
             document.getElementById('pvpTop').style.flexBasis = `${100 - myPos}%`;
         }
 
+        // ОТПРАВЛЯЕМ РЕЗУЛЬТАТЫ ДУЭЛИ НА СЕРВЕР
         function endBattle(forceLose = false) {
             clearInterval(pvpInterval);
             if(pvpMode === 'voice' && audioContext) { audioContext.close(); }
             document.getElementById('pvpArena').style.display = 'none';
             
-            if(!forceLose && myPos > 50) {
-                let winAmount = Math.floor(pvpBet * 1.95); // 5% сжигание 
-                localSimulatedBonus += winAmount; 
-                updateVisualScore();
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert(`🎉 ПОБЕДА! Ты перетянул канат и выиграл ${winAmount.toLocaleString('ru-RU')} $ROB!`);
-            } else {
-                tg.HapticFeedback.notificationOccurred('error');
-                tg.showAlert("💀 ПОРАЖЕНИЕ. Противник оказался сильнее. Ставка сгорела.");
-            }
+            let isWin = !forceLose && myPos > 50;
+            
+            fetch(`${BACKEND_URL}/pvp-result`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ initData: tg.initData, bet: pvpBet, is_win: isWin }) 
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    serverTaps = data.new_taps_balance;
+                    serverBonus = data.new_bonus_balance;
+                    updateVisualScore();
+                    
+                    if (isWin) {
+                        let displayWin = Math.floor(pvpBet * 1.95);
+                        tg.HapticFeedback.notificationOccurred('success');
+                        tg.showAlert(`🎉 ПОБЕДА! Вы выиграли ${displayWin.toLocaleString('ru-RU')} $ROB!`);
+                        shareResult(`⚔️ Я только что вынес противника на Арене и забрал банк! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
+                    } else {
+                        tg.HapticFeedback.notificationOccurred('error');
+                        tg.showAlert("💀 ПОРАЖЕНИЕ. Противник оказался сильнее. Ставка сгорела.");
+                    }
+                } else { tg.showAlert(`❌ ${data.error}`); }
+            }).catch(() => { tg.showAlert("❌ Ошибка соединения с сервером."); });
         }
 
         // ОБРАБОТЧИК КЛИКА (ТАП)
@@ -1065,8 +1105,7 @@
             showFloatingEffects(x, y, earnAmount, isRocketActive);
         });
 
-        setInterval(() => { if (energy < maxEnergy && !isRocketActive) { energy = Math.min(maxEnergy, energy + 1); updateEnergyVisual(); } }, 1000);
-
+        // СИНХРОНИЗАЦИЯ (добавлен запрос зарядов турбины)
         function syncWithServer(isInitial = false) {
             let stdToSend = pendingStandardClicks; let rktToSend = pendingRocketClicks;
             inFlightStandardClicks += stdToSend; inFlightRocketClicks += rktToSend;
@@ -1092,6 +1131,13 @@
                         if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
                         else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
+
+                    if (data.turbine_charges !== undefined) {
+                        currentTurbineCharges = data.turbine_charges;
+                        maxTurbineCharges = data.max_charges;
+                        document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+                    }
+
                     updateVisualScore();
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 } else {

@@ -43,14 +43,12 @@ ROOM_LEVELS = {
     3: {'cost': 1500000, 'income': 12}
 }
 
-# --- ИСПРАВЛЕННЫЙ ПРАЙС-ЛИСТ АРТЕФАКТОВ ---
 ARTIFACT_COSTS = {
     'pepe': 50000, 
     'spotty': 250000, 
     'durov_cap': 1000000
 }
 
-# --- СЛОВАРЬ ДЛЯ БОТА ---
 TEXTS = {
     'ru': {
         'welcome': "👋 <b>Привет, {name}!</b>\n\n🔒 Подпишись на наши каналы для доступа к игре:",
@@ -78,7 +76,6 @@ TEXTS = {
 
 async def init_db():
     global db_pool
-    # Отключаем кэш запросов для идеальной работы с Transaction Pooler
     db_pool = await asyncpg.create_pool(DATABASE_URL, statement_cache_size=0)
     
     async with db_pool.acquire() as conn:
@@ -108,11 +105,14 @@ async def init_db():
             daily_quest_claimed INTEGER DEFAULT 0
         )''')
         
-        # Безопасно добавляем колонку языка
-        try:
-            await conn.execute("ALTER TABLE users ADD COLUMN language TEXT")
-        except asyncpg.exceptions.DuplicateColumnError:
-            pass
+        try: await conn.execute("ALTER TABLE users ADD COLUMN language TEXT")
+        except asyncpg.exceptions.DuplicateColumnError: pass
+
+        try: await conn.execute("ALTER TABLE users ADD COLUMN turbine_charges INTEGER")
+        except asyncpg.exceptions.DuplicateColumnError: pass
+
+        try: await conn.execute("ALTER TABLE users ADD COLUMN last_turbine_date TEXT DEFAULT ''")
+        except asyncpg.exceptions.DuplicateColumnError: pass
 
 def validate_telegram_data(init_data: str, bot_token: str):
     try:
@@ -139,7 +139,7 @@ def get_upgrade_cost(base_cost, current_level):
     return base_cost * (2 ** power)
 
 # ==========================================
-# ФУНКЦИИ API
+# ФУНКЦИИ API (ОБНОВЛЕННЫЕ ДЛЯ PVP И ТУРБИНЫ)
 # ==========================================
 
 async def sync_api(request):
@@ -149,6 +149,9 @@ async def sync_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
             
         user_id = user_data.get("id")
+        is_premium = user_data.get("is_premium", False)
+        max_turbine_charges = 5 if is_premium else 3
+
         standard_clicks = data.get("standard_clicks", 0)
         rocket_clicks = data.get("rocket_clicks", 0)
         first_name = user_data.get("first_name", "Игрок")
@@ -165,8 +168,16 @@ async def sync_api(request):
             daily_taps = user_db['daily_taps']
             daily_quest_claimed = user_db['daily_quest_claimed']
             
+            turbine_charges = user_db.get('turbine_charges')
+            if turbine_charges is None: turbine_charges = max_turbine_charges
+            last_turbine_date = user_db.get('last_turbine_date', '')
+
             if last_play_date != current_date:
                 rockets_count = 3; last_play_date = current_date; daily_taps = 0; daily_quest_claimed = 0
+
+            if last_turbine_date != current_date:
+                turbine_charges = max_turbine_charges
+                last_turbine_date = current_date
 
             total_clicks_claimed = standard_clicks + rocket_clicks
             elapsed_sec = current_time - user_db['last_sync_time'] if user_db['last_sync_time'] > 0 else 0
@@ -206,17 +217,98 @@ async def sync_api(request):
             
             await conn.execute('''UPDATE users 
                               SET taps_balance = $1, bonus_balance = $2, last_sync_time = $3, first_name = $4, username = $5, 
-                                  rockets_count = $6, last_play_date = $7, daily_taps = $8, daily_quest_claimed = $9
-                              WHERE user_id = $10''', 
-                           new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, user_id)
+                                  rockets_count = $6, last_play_date = $7, daily_taps = $8, daily_quest_claimed = $9,
+                                  turbine_charges = $10, last_turbine_date = $11
+                              WHERE user_id = $12''', 
+                           new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, turbine_charges, last_turbine_date, user_id)
             
         return web.json_response({
             "status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal,
             "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": user_db['squad_id'], 
             "rockets_left": rockets_count, "daily_streak": user_db['daily_streak'], "last_claim_date": user_db['last_claim_date'],
-            "claimed_sponsors": user_db['claimed_sponsors'], "daily_taps": daily_taps, "daily_quest_claimed": daily_quest_claimed
+            "claimed_sponsors": user_db['claimed_sponsors'], "daily_taps": daily_taps, "daily_quest_claimed": daily_quest_claimed,
+            "turbine_charges": turbine_charges, "max_charges": max_turbine_charges
         })
     except Exception as e: return web.json_response({"error": f"Server error"}, status=500)
+
+async def turbine_claim_api(request):
+    try:
+        data = await request.json()
+        user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
+        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+        
+        user_id = user_data.get("id")
+        earned = int(data.get("amount", 0))
+        is_premium = user_data.get("is_premium", False)
+        max_charges = 5 if is_premium else 3
+        current_date = time.strftime('%Y-%m-%d')
+        
+        if earned < 0 or earned > 250000:
+            return web.json_response({"error": "Invalid amount"}, status=400)
+
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT turbine_charges, last_turbine_date, bonus_balance FROM users WHERE user_id = $1", user_id)
+            if not row: return web.json_response({"error": "User not found"}, status=404)
+            
+            charges = row['turbine_charges'] if row['turbine_charges'] is not None else max_charges
+            last_date = row['last_turbine_date']
+            
+            if last_date != current_date:
+                charges = max_charges
+                last_date = current_date
+                
+            if charges <= 0:
+                return web.json_response({"error": "Заряды турбины исчерпаны!"}, status=400)
+                
+            new_charges = charges - 1
+            new_bonus = row['bonus_balance'] + earned
+            
+            await conn.execute("UPDATE users SET turbine_charges = $1, last_turbine_date = $2, bonus_balance = $3 WHERE user_id = $4", 
+                               new_charges, last_date, new_bonus, user_id)
+            
+            return web.json_response({"status": "success", "new_bonus_balance": new_bonus, "turbine_charges": new_charges, "max_charges": max_charges})
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
+
+async def pvp_result_api(request):
+    try:
+        data = await request.json()
+        user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
+        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+        
+        user_id = user_data.get("id")
+        bet = int(data.get("bet", 0))
+        is_win = data.get("is_win", False)
+        
+        if bet < 100: return web.json_response({"error": "Минимальная ставка 100 $ROB!"}, status=400)
+
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT taps_balance, bonus_balance FROM users WHERE user_id = $1", user_id)
+            if not row: return web.json_response({"error": "User not found"}, status=404)
+            
+            taps_bal = row['taps_balance']
+            bonus_bal = row['bonus_balance']
+            total_bal = taps_bal + bonus_bal
+            
+            if total_bal < bet:
+                return web.json_response({"error": "Недостаточно средств!"}, status=400)
+                
+            if is_win:
+                profit = int(bet * 0.95)
+                new_bonus = bonus_bal + profit
+                new_taps = taps_bal
+            else:
+                loss = bet
+                if bonus_bal >= loss:
+                    new_bonus = bonus_bal - loss
+                    new_taps = taps_bal
+                else:
+                    remainder = loss - bonus_bal
+                    new_bonus = 0
+                    new_taps = taps_bal - remainder
+                    
+            await conn.execute("UPDATE users SET taps_balance = $1, bonus_balance = $2 WHERE user_id = $3", new_taps, new_bonus, user_id)
+            return web.json_response({"status": "success", "new_taps_balance": new_taps, "new_bonus_balance": new_bonus})
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def claim_daily_quest_api(request):
     try:
@@ -302,7 +394,6 @@ async def buy_api(request):
                 elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
             elif buy_type == "skin":
                 item_id = data.get("item_id")
-                # ---> ИСПОЛЬЗУЕМ НОВЫЙ ПРАЙС-ЛИСТ <---
                 cost = ARTIFACT_COSTS.get(item_id, 0) 
                 owned_skins = json.loads(user_db['owned_skins'] or '[]')
                 if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
@@ -447,7 +538,7 @@ async def process_check(callback: types.CallbackQuery):
 
 async def main():
     await init_db()
-    print("Бот запущен! Ошибки покупок устранены.")
+    print("Бот запущен! Добавлен Бэкенд для PvP и Турбины.")
     app = web.Application()
     import aiohttp_cors
     cors = aiohttp_cors.setup(app, defaults={"*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*")})
@@ -460,6 +551,10 @@ async def main():
     cors.add(app.router.add_post('/api/claim-daily-quest', claim_daily_quest_api))
     cors.add(app.router.add_post('/api/create-squad', create_squad_api))
     cors.add(app.router.add_post('/api/leaderboard', leaderboard_api))
+    
+    # НОВЫЕ РОУТЫ
+    cors.add(app.router.add_post('/api/turbine-claim', turbine_claim_api))
+    cors.add(app.router.add_post('/api/pvp-result', pvp_result_api))
     
     runner = web.AppRunner(app)
     await runner.setup()
