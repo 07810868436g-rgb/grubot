@@ -24,7 +24,7 @@
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        /* Парящее нижнее меню (Glassmorphism) */
+        /* Парящее нижнее меню */
         .bottom-menu { 
             position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; 
             background: rgba(18, 18, 22, 0.75); 
@@ -61,26 +61,28 @@
         .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 14px; animation: pulse 1s infinite; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
-        /* Вылетающие цифры и искры */
+        /* Вылетающие цифры */
         .floating-text { position: absolute; color: white; font-size: 40px; font-weight: 900; pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         .spark { position: absolute; width: 5px; height: 5px; background: #fbbf24; border-radius: 50%; pointer-events: none; box-shadow: 0 0 10px #fbbf24; animation: scatter 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 999; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.2); } }
         @keyframes scatter { 0% { opacity: 1; transform: translate(0, 0) scale(1.5); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); } }
         
-        /* Карточки и блоки */
+        /* Карточки и кнопки */
         .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: left; width: 100%; }
         .task-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
-        
-        .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; text-decoration: none; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
+        .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
         .support-btn:active { transform: scale(0.96); }
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; box-shadow: none; }
+        .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
+        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
+        .btn-danger { background: linear-gradient(90deg, #ef4444, #dc2626); color: white; }
         
         /* Студия */
         .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; z-index: 0; transition: background-image 0.5s ease-in-out; }
+        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; z-index: 0; }
         .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
 
-        /* Сетка бустов */
+        /* Сетка бустов и Артефакты */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
         .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
         .tech-btn:active { transform: scale(0.95); }
@@ -88,8 +90,7 @@
         .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
         .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
 
-        /* Сетка Артефактов */
-        .artifacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
+        .artifacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .artifact-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
         .artifact-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
         .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 2; }
@@ -97,7 +98,7 @@
         .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; z-index: 2; text-align: center;}
         .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
 
-        /* Шорт-шиты магазина */
+        /* Магазин комнат */
         .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
         .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; }
         .sheet.open { bottom: 0; }
@@ -105,7 +106,6 @@
         .sheet-title { font-size: 18px; font-weight: 800; color: #fbbf24; }
         .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 26px; cursor: pointer; }
         .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
-        
         .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
         .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
         .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
@@ -114,33 +114,20 @@
         .showcase-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
         .showcase-effect { font-size: 13px; color: #10b981; font-weight: 600; margin-bottom: 10px; }
         .showcase-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
-        
         .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.2; }
         .showcase-card.locked .showcase-title { color: #52525b; }
         .showcase-card.bought { border-color: #10b981; }
 
-        .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
-        .btn-buy { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-select { background: #27272a; color: white; }
-        .btn-equipped { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; cursor: default; }
-
         .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: white; font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
         .squad-input:focus { border-color: #fbbf24; outline: none; }
         
-        /* Стейкинг */
         .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(20,20,25,0.7) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; width: 100%; box-sizing: border-box; text-align: center; margin-bottom: 15px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
 
         .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
         .tab-btn.active { background: #fbbf24; color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
 
-        /* Переключатель языка */
-        .lang-switch {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700;
-            font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-        }
+        .lang-switch { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 
         /* Модальные окна */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
@@ -152,10 +139,12 @@
         .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
         .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
 
-        /* НОВЫЙ ИНТЕРФЕЙС: PVP Арена */
-        .btn-danger { background: linear-gradient(90deg, #ef4444, #dc2626); color: white; }
+        /* PVP Арена & Панель Ставок */
         .pvp-select-btn { border: 1px solid rgba(255,255,255,0.1); background: rgba(20,20,25,0.8); color: white; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
         .pvp-select-btn.active { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+        .pvp-bet-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #fbbf24; background: rgba(0,0,0,0.5); color: #fbbf24; font-size: 20px; font-weight: 900; text-align: center; box-sizing: border-box; margin-bottom: 10px; }
+        .pvp-bet-input:focus { outline: none; box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+
         .battle-arena { display: flex; flex-direction: column; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 5000; background: #000; display: none; }
         .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: flex-basis 0.2s ease-out; }
         .battle-top { background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%); }
@@ -164,29 +153,38 @@
         .battle-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; position: absolute; opacity: 0.5; }
         .battle-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 32px; font-weight: 900; z-index: 20; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 
-        /* НОВЫЙ ИНТЕРФЕЙС: Аудио Турбина */
+        /* Аудио Турбина */
         .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
-        .turbine-circle { width: 200px; height: 200px; border-radius: 50%; border: 10px solid #333; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px #000, 0 0 50px rgba(239, 68, 68, 0.2); transition: 0.1s; }
+        .turbine-circle { width: 200px; height: 200px; border-radius: 50%; border: 10px solid #333; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px #000, 0 0 50px rgba(239, 68, 68, 0.2); transition: 0.1s; margin: 0 auto; }
         .turbine-inner { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0%, transparent 0%); position: absolute; top:0; left:0; opacity: 0.8; }
         .turbine-text { font-size: 48px; font-weight: 900; color: white; z-index: 10; text-shadow: 0 0 15px rgba(255,255,255,0.5); }
-        .turbine-info { font-size: 16px; color: #a1a1aa; margin-top: 30px; font-weight: bold; }
+        .turbine-info { font-size: 16px; color: #a1a1aa; margin-top: 30px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
     <!-- МОДАЛКА: ВЫБОР PVP -->
     <div id="pvpSetupModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="padding: 20px;">
             <button class="close-modal-btn" onclick="closePvPModal()">×</button>
             <div class="modal-title" style="font-size: 22px; color: #ef4444;" data-i18n="pvpTitle">⚔️ Арена Дуэлей</div>
-            <div class="modal-text" style="font-size: 13px;" data-i18n="pvpDesc">Победитель забирает банк (комиссия сети 5%).</div>
+            <div class="modal-text" style="font-size: 13px;" data-i18n="pvpDesc">Победитель забирает банк (комиссия 5%).</div>
             
-            <div style="text-align: left; font-weight: bold; margin-bottom: 5px; font-size: 14px;">1. Ставка ($ROB):</div>
-            <button class="pvp-select-btn bet-btn active" onclick="selectPvPBet(10000, this)">10 000</button>
-            <button class="pvp-select-btn bet-btn" onclick="selectPvPBet(100000, this)">100 000</button>
-            <button class="pvp-select-btn bet-btn" onclick="selectPvPBet(1000000, this)">1 000 000</button>
+            <div style="text-align: left; font-weight: bold; margin-bottom: 8px; font-size: 14px;">1. Ставка ($ROB):</div>
+            <input type="number" id="pvpBetInput" class="pvp-bet-input" value="10000" min="100">
+            
+            <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0;" onclick="setPvPBet(10000)">10k</button>
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0;" onclick="setPvPBet(100000)">100k</button>
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0;" onclick="setPvPBet(1000000)">1M</button>
+            </div>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0;" onclick="setPvPBetPercent(0.25)">25%</button>
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0;" onclick="setPvPBetPercent(0.50)">50%</button>
+                <button class="pvp-select-btn bet-btn" style="padding: 8px; font-size: 12px; margin-bottom: 0; background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444;" onclick="setPvPBetPercent(1.0)">MAX</button>
+            </div>
 
-            <div style="text-align: left; font-weight: bold; margin: 15px 0 5px 0; font-size: 14px;">2. Оружие:</div>
+            <div style="text-align: left; font-weight: bold; margin: 15px 0 5px 0; font-size: 14px;">2. Режим боя:</div>
             <button class="pvp-select-btn mode-btn active" onclick="selectPvPMode('touch', this)">👆 Классика (Тапы)</button>
             <button class="pvp-select-btn mode-btn" onclick="selectPvPMode('voice', this)">🎙️ Крик-Баттл (Голос)</button>
 
@@ -211,18 +209,28 @@
 
     <!-- ИНТЕРФЕЙС АУДИО-МАЙНИНГА (Турбина) -->
     <div id="turbineArena" class="turbine-modal">
-        <div class="modal-title" style="font-size: 28px; color: #ef4444; margin-bottom: 5px;">Турбина Web3 🚀</div>
-        <div style="color: #a1a1aa; margin-bottom: 30px;">Дуй в микрофон или кричи!</div>
-        
-        <div class="turbine-circle" id="turbineCircle">
-            <div class="turbine-inner" id="turbineFill"></div>
-            <div class="turbine-text" id="turbineTimer">10</div>
+        <!-- Режим активной турбины -->
+        <div id="turbineActiveState" style="text-align: center;">
+            <div class="modal-title" style="font-size: 28px; color: #ef4444; margin-bottom: 5px;">Турбина Web3 🚀</div>
+            <div style="color: #a1a1aa; margin-bottom: 30px;">Дуй в микрофон или кричи!</div>
+            <div class="turbine-circle" id="turbineCircle">
+                <div class="turbine-inner" id="turbineFill"></div>
+                <div class="turbine-text" id="turbineTimer">10</div>
+            </div>
+            <div class="turbine-info">Нафармлено: <span id="turbineScore" style="color: #fbbf24; font-size: 24px;">0</span> $ROB</div>
         </div>
 
-        <div class="turbine-info">Нафармлено: <span id="turbineScore" style="color: #fbbf24; font-size: 24px;">0</span> $ROB</div>
+        <!-- Режим результатов (Добровольный шеринг) -->
+        <div id="turbineResultState" style="display: none; text-align: center; width: 100%; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 20px; max-width: 350px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🔥</div>
+            <div style="font-size: 24px; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">Турбина остановлена!</div>
+            <div style="font-size: 16px; color: #a1a1aa; margin-bottom: 25px;">Вы нафармили: <b style="color: white; font-size: 22px;" id="turbineFinalScore">0</b> $ROB</div>
+            <button class="support-btn" style="width: 100%; background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000; margin-bottom: 12px; margin-top: 0; font-size: 16px;" onclick="claimAndShareTurbine()">Похвастаться в Stories 📸</button>
+            <button class="support-btn" style="width: 100%; background: #27272a; color: #a1a1aa; box-shadow: none; margin-top: 0;" onclick="claimAndExitTurbine()">Забрать и выйти</button>
+        </div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <!-- МОДАЛЬНЫЕ ОКНА БАЗОВЫЕ -->
     <div id="offlineModal" class="modal-overlay">
         <div class="modal-content">
             <div style="font-size: 48px; margin-bottom: 10px;">🤖</div>
@@ -290,7 +298,7 @@
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
-        <!-- Вкладка 2: БИЗНЕС (Студия + Бусты + Артефакты) -->
+        <!-- Вкладка 2: БИЗНЕС -->
         <div id="business" class="screen">
             <div class="title" data-i18n="navBusiness">💼 Бизнес</div>
             
@@ -311,13 +319,14 @@
             <div id="artifactsContainer" class="artifacts-grid"></div>
         </div>
 
-        <!-- Вкладка 3: AIRDROP (Стейкинг + Задания) -->
+        <!-- Вкладка 3: AIRDROP -->
         <div id="airdrop" class="screen">
             <div class="title" data-i18n="navAirdrop">🚀 Airdrop</div>
 
             <div class="task-box" style="text-align: center; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1);">
                 <b style="font-size: 16px; color: #ef4444;">🎙️ Аудио-Майнинг</b><br>
                 <span style="font-size: 12px; color: #a1a1aa;">Шуми в микрофон, чтобы фармить!</span>
+                <div style="font-size: 14px; font-weight: bold; color: #fbbf24; margin-top: 8px;">🔋 Зарядов: <span id="turbineChargesUI">...</span></div>
                 <button class="support-btn btn-danger" style="width: 100%; padding: 10px; margin-top: 10px; box-shadow: none;" onclick="startAudioTurbine()">Запустить Турбину 🚀</button>
             </div>
 
@@ -371,9 +380,8 @@
             </div>
         </div>
 
-        <!-- Вкладка 4: ТОП (Профиль + Лидерборд) -->
+        <!-- Вкладка 4: ТОП -->
         <div id="top" class="screen">
-            <!-- Блок Профиля -->
             <div style="background: rgba(20,20,25,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; width: 100%; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div id="userName" style="font-size: 18px; font-weight: 800; color: #ffffff;">@Username</div>
@@ -411,10 +419,9 @@
                 <div style="color: #71717a; padding: 20px;">Загрузка списка...</div>
             </div>
         </div>
-
     </div>
 
-    <!-- ПАРЯЩЕЕ НИЖНЕЕ МЕНЮ (4 Вкладки) -->
+    <!-- ПАРЯЩЕЕ МЕНЮ -->
     <div class="bottom-menu">
         <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span><span data-i18n="navGame">Игра</span></button>
         <button class="menu-btn" onclick="showScreen('business', this)"><span class="menu-icon">💼</span><span data-i18n="navBusiness">Бизнес</span></button>
@@ -429,7 +436,7 @@
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
         
         // ==========================================
-        // СЛОВАРЬ МУЛЬТИЯЗЫЧНОСТИ (i18n)
+        // СЛОВАРЬ (i18n)
         // ==========================================
         const TRANSLATIONS = {
             ru: {
@@ -437,7 +444,7 @@
                 rocketActive: "🚀 РАКЕТА АКТИВНА! (x5 к тапу)", offlineTitle: "Студия работала!",
                 offlineDesc: "Пока вас не было, бот собрал пассивный доход:", claim: "Круто! Забрать",
                 currentEffect: "Текущий эффект:", nextEffect: "Следующий:", squadTitle: "Создать официальный Сквад",
-                squadRules: "Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).",
+                squadRules: "Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала.",
                 squadBind: "Привязать канал", squadYourLink: "Ваша официальная ссылка:", copy: "📋 Скопировать",
                 shopTitle: "🛋 Магазин комнат", squadLabel: "Сквад:", levelLabel: "Уровень",
                 upgradeStudio: "🛋 Обустроить студию", dailyRewardTitle: "📆 Ежедневная Награда",
@@ -458,7 +465,7 @@
                 rocketActive: "🚀 ROCKET ACTIVE! (x5 per tap)", offlineTitle: "Studio was working!",
                 offlineDesc: "While you were away, your bot generated:", claim: "Awesome! Claim",
                 currentEffect: "Current effect:", nextEffect: "Next:", squadTitle: "Create Official Squad",
-                squadRules: "To get into the Leaderboard, add @grutap_robot as an admin to your channel (no permissions needed).",
+                squadRules: "To get into the Leaderboard, add @grutap_robot as an admin to your channel.",
                 squadBind: "Link Channel", squadYourLink: "Your official link:", copy: "📋 Copy Link",
                 shopTitle: "🛋 Studio Store", squadLabel: "Squad:", levelLabel: "Level",
                 upgradeStudio: "🛋 Upgrade Studio", dailyRewardTitle: "📆 Daily Reward",
@@ -505,7 +512,7 @@
         let serverTaps = 0; let serverBonus = 0; 
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
-        let localSimulatedBonus = 0; // Локальный сейф для симуляции PvP и Аудио-майнинга
+        let localSimulatedBonus = 0; // Для PvP и Турбины
         
         let currentLbTab = 'players'; let currentMySquad = ''; 
         let globalDailyStreak = 0; let globalLastClaimDate = "";
@@ -516,6 +523,11 @@
         let isRocketActive = false; let rocketsLeft = 3;
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
         let currentRoomLevel = 0; let ownedArtifactIds = ['default']; let currentArtifactId = 'default';
+
+        // ИНТЕГРАЦИЯ PREMIUM ДЛЯ ТУРБИНЫ
+        let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
+        let maxTurbineCharges = isPremium ? 5 : 3;
+        let currentTurbineCharges = maxTurbineCharges; // Временно локально
 
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
@@ -530,7 +542,6 @@
             { minScore: 10000000, name: 'Diamond', color: '#38bdf8' }
         ];
 
-        // ТЕЛЕГРАМ АРТЕФАКТЫ (Заменяют скины)
         const ARTIFACTS = [
             { id: 'default', name: 'Без артефакта', cost: 0, img: '', effectText: '', bonus: 0 },
             { id: 'pepe', name: 'Жаба Pepe', cost: 50000, img: 'https://img.icons8.com/color/512/pepe-the-frog.png', effectText: '+3 к тапу', bonus: 3 },
@@ -538,10 +549,9 @@
             { id: 'durov_cap', name: 'Кепка Дурова', cost: 1000000, img: 'https://img.icons8.com/color/512/baseball-cap.png', effectText: '+15 к тапу', bonus: 15 }
         ];
 
-        const LEVELS = [ { required: 0 }, { required: 5000 }, { required: 25000 }, { required: 100000 }, { required: 500000 }, { required: 1000000 } ];
-
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('taskFriendsCount').innerText = refsCount;
+        document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
 
         function showFloatingEffects(x, y, amount, isRocket) {
             let num = document.createElement('div');
@@ -635,14 +645,13 @@
         function renderArtifacts() {
             const container = document.getElementById('artifactsContainer'); container.innerHTML = '';
             ARTIFACTS.forEach(art => {
-                if (art.id === 'default') return; // Прячем пустой артефакт из витрины
+                if (art.id === 'default') return; 
                 const isOwned = ownedArtifactIds.includes(art.id); const isEquipped = currentArtifactId === art.id; let btnHTML = ''; let cardClass = 'artifact-card';
                 if (isEquipped) { cardClass += ' equipped'; btnHTML = `<button class="artifact-btn btn-equipped">${currentLang === 'en' ? 'Equipped' : 'Надето'}</button>`; } 
                 else if (isOwned) { btnHTML = `<button class="artifact-btn btn-select" onclick="selectArtifact('${art.id}')">${currentLang === 'en' ? 'Equip' : 'Надеть'}</button>`; } 
                 else { btnHTML = `<button class="artifact-btn btn-buy" onclick="processPurchase(() => buyArtifact('${art.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'}<br>${art.cost.toLocaleString('ru-RU')} $ROB</button>`; }
                 container.insertAdjacentHTML('beforeend', `<div class="${cardClass}"><img src="${art.img}" class="artifact-img"><div class="artifact-name">${art.name}</div><div class="artifact-effect">${art.effectText}</div>${btnHTML}</div>`);
             });
-            // Наложение артефакта на монету
             const activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             const overlay = document.getElementById('activeArtifactOverlay');
             if (activeArt.img) { overlay.src = activeArt.img; overlay.style.display = 'block'; } else { overlay.style.display = 'none'; }
@@ -731,7 +740,6 @@
             });
         }
 
-        // РАСЧЕТ БАЛАНСА БЕЗ ОТКАТОВ
         function getUnsyncedEarn() {
             let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             let baseEarn = multitapLevel + activeArt.bonus;
@@ -741,7 +749,6 @@
         }
 
         function updateVisualScore() {
-            // ВАЖНО: Добавлена localSimulatedBonus для тестирования новых функций до внедрения в бэкенд!
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
             scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             profileScoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
@@ -865,15 +872,26 @@
         }
 
         // ==========================================
-        // 🎙️ АУДИО-МАЙНИНГ (ТУРБИНА WEB3)
+        // 🎙️ АУДИО-МАЙНИНГ (ТУРБИНА WEB3) + PREMIUM ЛИМИТЫ
         // ==========================================
         let audioContext, analyser, microphone, javascriptNode;
         let turbineActive = false; let turbineScore = 0; let turbineTimer = 10; let turbineInterval;
 
         async function startAudioTurbine() {
+            if (currentTurbineCharges <= 0) {
+                tg.showAlert(`❌ Заряды исчерпаны!\n\nОбычные: 3 в день\nPremium: 5 в день.\n\nВозвращайтесь завтра!`);
+                return;
+            }
+            
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                currentTurbineCharges--;
+                document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+                
                 document.getElementById('turbineArena').style.display = 'flex';
+                document.getElementById('turbineActiveState').style.display = 'block';
+                document.getElementById('turbineResultState').style.display = 'none';
+                
                 turbineScore = 0; turbineTimer = 10; document.getElementById('turbineScore').innerText = '0';
                 turbineActive = true;
                 
@@ -914,16 +932,27 @@
             clearInterval(turbineInterval); turbineActive = false;
             stream.getTracks().forEach(track => track.stop());
             if(audioContext) audioContext.close(); 
-            document.getElementById('turbineArena').style.display = 'none';
             
+            // Вызываем промежуточный экран добровольного шеринга
+            document.getElementById('turbineActiveState').style.display = 'none';
+            document.getElementById('turbineResultState').style.display = 'block';
+            document.getElementById('turbineFinalScore').innerText = turbineScore.toLocaleString('ru-RU');
+        }
+
+        function claimAndExitTurbine() {
             localSimulatedBonus += turbineScore; 
             updateVisualScore();
+            document.getElementById('turbineArena').style.display = 'none';
             tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        function claimAndShareTurbine() {
+            claimAndExitTurbine();
             shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`);
         }
 
         // ==========================================
-        // ⚔️ PVP-АРЕНА (ПЕРЕТЯГИВАНИЕ КАНАТА)
+        // ⚔️ PVP-АРЕНА (ПЕРЕТЯГИВАНИЕ КАНАТА) С КАСТОМНОЙ СТАВКОЙ
         // ==========================================
         let pvpBet = 10000; let pvpMode = 'touch';
         let pvpTimer = 15; let pvpInterval;
@@ -932,10 +961,22 @@
         function openPvPModal() { document.getElementById('pvpSetupModal').style.display = 'flex'; }
         function closePvPModal() { document.getElementById('pvpSetupModal').style.display = 'none'; }
         
-        function selectPvPBet(amount, btn) { pvpBet = amount; document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+        function setPvPBet(amount) {
+            document.getElementById('pvpBetInput').value = amount;
+        }
+
+        function setPvPBetPercent(pct) {
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
+            let calcAmount = Math.floor(currentTotal * pct);
+            document.getElementById('pvpBetInput').value = calcAmount > 0 ? calcAmount : 0;
+        }
+
         function selectPvPMode(mode, btn) { pvpMode = mode; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 
         function startPvPSearch() {
+            pvpBet = parseInt(document.getElementById('pvpBetInput').value) || 0;
+            if (pvpBet < 100) { tg.showAlert("Минимальная ставка 100 $ROB!"); return; }
+
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
             if (currentTotal < pvpBet) { tg.showAlert("Мало денег на балансе!"); return; }
             
@@ -992,19 +1033,18 @@
             document.getElementById('pvpArena').style.display = 'none';
             
             if(!forceLose && myPos > 50) {
-                let winAmount = pvpBet * 1.95; 
+                let winAmount = Math.floor(pvpBet * 1.95); // 5% сжигание 
                 localSimulatedBonus += winAmount; 
                 updateVisualScore();
                 tg.HapticFeedback.notificationOccurred('success');
                 tg.showAlert(`🎉 ПОБЕДА! Ты перетянул канат и выиграл ${winAmount.toLocaleString('ru-RU')} $ROB!`);
-                shareResult(`⚔️ Я только что вынес противника на Арене и забрал банк! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
             } else {
                 tg.HapticFeedback.notificationOccurred('error');
                 tg.showAlert("💀 ПОРАЖЕНИЕ. Противник оказался сильнее. Ставка сгорела.");
             }
         }
 
-        // ОБРАБОТЧИК КЛИКА (ТАП) С ИСКРАМИ И АРТЕФАКТАМИ
+        // ОБРАБОТЧИК КЛИКА (ТАП)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert(currentLang === 'en' ? "⚡ No energy!" : "⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
             
