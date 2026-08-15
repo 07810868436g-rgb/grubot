@@ -67,8 +67,9 @@
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.2); } }
         @keyframes scatter { 0% { opacity: 1; transform: translate(0, 0) scale(1.5); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); } }
         
-        /* Карточки и кнопки */
+        /* Базовые компоненты UI */
         .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: left; width: 100%; }
+        .subtitle { font-size: 14px; color: #a1a1aa; margin-bottom: 25px; text-align: left; width: 100%; }
         .task-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
         .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
         .support-btn:active { transform: scale(0.96); }
@@ -76,17 +77,37 @@
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
         .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
         .btn-danger { background: linear-gradient(90deg, #ef4444, #dc2626); color: white; }
+        .section-label { font-size: 14px; font-weight: 800; color: #a1a1aa; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; text-align: left; width: 100%; }
         
+        /* КАРТОЧКИ КАТЕГОРИЙ (БУТИКИ БИЗНЕСА) */
+        .category-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; }
+        .category-card:active { transform: scale(0.96); }
+        .category-card:hover { border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 5px 20px rgba(251, 191, 36, 0.1); }
+        .category-icon { font-size: 42px; margin-right: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+        .category-info { flex-grow: 1; text-align: left; }
+        .category-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .category-desc { font-size: 13px; color: #a1a1aa; line-height: 1.3; }
+        .category-arrow { font-size: 20px; color: #fbbf24; font-weight: bold; margin-left: 10px; }
+
+        /* ВСПЛЫВАЮЩИЕ ОКНА (ШОРТ-ШИТЫ) ДЛЯ ПАПОК БИЗНЕСА */
+        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
+        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 90%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); }
+        .sheet.open { bottom: 0; }
+        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; flex-shrink: 0; }
+        .sheet-title { font-size: 20px; font-weight: 900; color: #fbbf24; }
+        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 28px; cursor: pointer; padding: 0; line-height: 1; }
+        .sheet-content { padding: 20px; overflow-y: auto; padding-bottom: 50px; }
+
         /* Студия */
         .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; z-index: 0; }
+        .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; z-index: 0; transition: background-image 0.5s ease-in-out; }
         .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
 
         /* Сетка бустов и Артефакты */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
         .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
         .tech-btn:active { transform: scale(0.95); }
-        .tech-icon { font-size: 26px; margin-bottom: 4px; display: block; }
+        .tech-icon { font-size: 26px; margin-bottom: 4px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
         .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
         .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
 
@@ -98,14 +119,17 @@
         .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; z-index: 2; text-align: center;}
         .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
 
-        /* Магазин комнат */
-        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
-        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 85%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; }
-        .sheet.open { bottom: 0; }
-        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; flex-shrink: 0; }
-        .sheet-title { font-size: 18px; font-weight: 800; color: #fbbf24; }
-        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 26px; cursor: pointer; }
-        .sheet-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 50px; }
+        /* Карточки стилей Арены */
+        .arena-style-card { background: rgba(20,20,25,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 18px; margin-bottom: 15px; text-align: left; position: relative; overflow: hidden; }
+        .arena-style-card.equipped { border-color: #fbbf24; background: rgba(251, 191, 36, 0.08); }
+        .style-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .style-name { font-size: 16px; font-weight: 800; color: white; z-index: 2; position: relative; }
+        .style-price { font-size: 14px; font-weight: 800; color: #10b981; z-index: 2; position: relative; }
+        .style-desc { font-size: 13px; color: #a1a1aa; margin-bottom: 15px; line-height: 1.4; z-index: 2; position: relative; }
+
+        /* Магазин комнат (высший z-index для перекрытия папок) */
+        #shopSheetOverlay { z-index: 3005; }
+        #shopSheet { z-index: 3006; }
         .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
         .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
         .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
@@ -152,6 +176,13 @@
         .battle-divider { height: 6px; width: 100%; background: #fbbf24; position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; box-shadow: 0 0 20px #fbbf24; transition: top 0.2s ease-out; }
         .battle-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; position: absolute; opacity: 0.5; }
         .battle-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 32px; font-weight: 900; z-index: 20; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+
+        /* УНИКАЛЬНЫЙ ЭКРАН РЕЗУЛЬТАТОВ PVP (НОВОЕ) */
+        .pvp-result-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: background 0.5s ease; text-align: center; }
+        .pvp-res-icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)); }
+        .pvp-res-title { font-size: 36px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .pvp-res-desc { font-size: 16px; color: #a1a1aa; margin-bottom: 30px; font-weight: bold; }
+        .pvp-res-amount { font-size: 42px; font-weight: 900; margin-bottom: 40px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
         /* Аудио Турбина */
         .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
@@ -207,9 +238,18 @@
         <div id="pvpDivider" class="battle-divider" style="top: 50%;"></div>
     </div>
 
+    <!-- ЭКРАН РЕЗУЛЬТАТОВ БОЯ (КАСТОМНЫЙ) -->
+    <div id="pvpResultScreen" class="pvp-result-overlay">
+        <div id="pvpResultIcon" class="pvp-res-icon">🐸</div>
+        <div id="pvpResultTitle" class="pvp-res-title">ГГ, ИЗИ!</div>
+        <div id="pvpResultDesc" class="pvp-res-desc">Банк твой</div>
+        <div id="pvpResultAmount" class="pvp-res-amount">+ 0 $ROB</div>
+        <button id="btnPvPShare" class="support-btn" style="width: 100%; max-width: 350px; background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000; margin-bottom: 15px; font-size: 16px;" onclick="closePvPResult(true)">Похвастаться в Stories 📸</button>
+        <button id="btnPvPExit" class="support-btn" style="width: 100%; max-width: 350px; background: #27272a; color: #a1a1aa; box-shadow: none; margin-top: 0;" onclick="closePvPResult(false)">Забрать и выйти</button>
+    </div>
+
     <!-- ИНТЕРФЕЙС АУДИО-МАЙНИНГА (Турбина) -->
     <div id="turbineArena" class="turbine-modal">
-        <!-- Режим активной турбины -->
         <div id="turbineActiveState" style="text-align: center;">
             <div class="modal-title" style="font-size: 28px; color: #ef4444; margin-bottom: 5px;">Турбина Web3 🚀</div>
             <div style="color: #a1a1aa; margin-bottom: 30px;">Дуй в микрофон или кричи!</div>
@@ -219,8 +259,6 @@
             </div>
             <div class="turbine-info">Нафармлено: <span id="turbineScore" style="color: #fbbf24; font-size: 24px;">0</span> $ROB</div>
         </div>
-
-        <!-- Режим результатов (Добровольный шеринг) -->
         <div id="turbineResultState" style="display: none; text-align: center; width: 100%; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 20px; max-width: 350px;">
             <div style="font-size: 40px; margin-bottom: 10px;">🔥</div>
             <div style="font-size: 24px; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">Турбина остановлена!</div>
@@ -261,7 +299,7 @@
             <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
             <div class="modal-title" style="font-size: 18px;" data-i18n="squadTitle">Создать официальный Сквад</div>
             <div style="text-align: left; font-size: 12px; color: #a1a1aa; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
-                Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала (без прав).
+                Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала.
             </div>
             <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
             <button id="btnCreateSquad" class="support-btn" style="width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()" data-i18n="squadBind">Привязать канал</button>
@@ -273,6 +311,56 @@
         </div>
     </div>
 
+    <!-- ВСПЛЫВАЮЩИЕ ПАПКИ (ШОРТ-ШИТЫ) БИЗНЕСА -->
+    <div id="globalOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
+
+    <!-- ПАПКА 1: НЕДВИЖИМОСТЬ -->
+    <div id="sheet-realestate" class="sheet">
+        <div class="sheet-header">
+            <button class="sheet-close" onclick="closeAllSheets()">×</button>
+            <div class="sheet-title" data-i18n="catRealEstate">🏢 Недвижимость</div>
+        </div>
+        <div class="sheet-content">
+            <div class="studio-container">
+                <div class="studio-bg" id="mainStudioBg"></div>
+                <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/sec</div>
+            </div>
+            <button class="support-btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 0; margin-bottom: 20px;" onclick="openStudioShop()" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
+        </div>
+    </div>
+
+    <!-- ПАПКА 2: ТЕХНОЛОГИИ -->
+    <div id="sheet-tech" class="sheet">
+        <div class="sheet-header">
+            <button class="sheet-close" onclick="closeAllSheets()">×</button>
+            <div class="sheet-title" data-i18n="catTech">⚙️ Технологии</div>
+        </div>
+        <div class="sheet-content">
+            <div class="tech-grid">
+                <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title" data-i18n="multitap">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
+                <div class="tech-btn" onclick="openTechModal('energy')"><span class="tech-icon">🔋</span><span class="tech-title" data-i18n="energy">Энергия</span><span class="tech-lvl" id="gridEnergyLvl">Ур. 1</span></div>
+                <div class="tech-btn" onclick="openTechModal('bot')"><span class="tech-icon">🤖</span><span class="tech-title" data-i18n="autobot">Авто-Бот</span><span class="tech-lvl" id="gridBotLvl">Ур. 0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПАПКА 3: КАСТОМИЗАЦИЯ -->
+    <div id="sheet-custom" class="sheet">
+        <div class="sheet-header">
+            <button class="sheet-close" onclick="closeAllSheets()">×</button>
+            <div class="sheet-title" data-i18n="catCustom">💎 Кастомизация</div>
+        </div>
+        <div class="sheet-content">
+            <div class="section-label" data-i18n="artifactsTitle">🏆 Telegram Артефакты</div>
+            <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px; text-align: left;" data-i18n="artifactsDesc">Экипируйте мемы для глобального буста.</div>
+            <div id="artifactsContainer" class="artifacts-grid"></div>
+
+            <div class="section-label" style="margin-top: 30px;" data-i18n="arenaStylesTitle">⚔️ Стили Арены (PvP)</div>
+            <div id="arenaStylesContainer"></div> <!-- Сюда загружаются стили арен -->
+        </div>
+    </div>
+
+    <!-- МАГАЗИН КОМНАТ -->
     <div id="shopSheetOverlay" class="sheet-overlay" onclick="closeStudioShop()"></div>
     <div id="shopSheet" class="sheet">
         <div class="sheet-header">
@@ -298,25 +386,37 @@
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
-        <!-- Вкладка 2: БИЗНЕС -->
+        <!-- Вкладка 2: БИЗНЕС (Обновлена на категории) -->
         <div id="business" class="screen">
             <div class="title" data-i18n="navBusiness">💼 Бизнес</div>
-            
-            <div class="studio-container">
-                <div class="studio-bg" id="mainStudioBg"></div>
-                <div class="studio-income-badge">+<span id="studioIncomeTotal">0</span> $ROB/sec</div>
-            </div>
-            <button class="support-btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 0; margin-bottom: 20px;" onclick="openStudioShop()" data-i18n="upgradeStudio">🛋 Обустроить студию</button>
+            <div class="subtitle" data-i18n="businessSubtitle">Инвестируйте в свое развитие</div>
 
-            <div class="tech-grid">
-                <div class="tech-btn" onclick="openTechModal('multitap')"><span class="tech-icon">👆</span><span class="tech-title" data-i18n="multitap">Мультитап</span><span class="tech-lvl" id="gridMultitapLvl">Ур. 1</span></div>
-                <div class="tech-btn" onclick="openTechModal('energy')"><span class="tech-icon">🔋</span><span class="tech-title" data-i18n="energy">Энергия</span><span class="tech-lvl" id="gridEnergyLvl">Ур. 1</span></div>
-                <div class="tech-btn" onclick="openTechModal('bot')"><span class="tech-icon">🤖</span><span class="tech-title" data-i18n="autobot">Авто-Бот</span><span class="tech-lvl" id="gridBotLvl">Ур. 0</span></div>
+            <div class="category-card" onclick="openSheet('sheet-realestate')">
+                <div class="category-icon">🏢</div>
+                <div class="category-info">
+                    <div class="category-title" data-i18n="catRealEstate">Недвижимость</div>
+                    <div class="category-desc" data-i18n="catRealEstateDesc">Пассивный доход и прокачка ваших студий</div>
+                </div>
+                <div class="category-arrow">›</div>
             </div>
 
-            <div class="title" style="font-size: 18px; margin-top: 10px;" data-i18n="artifactsTitle">🏆 Telegram Артефакты</div>
-            <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px; text-align: left;" data-i18n="artifactsDesc">Экипируйте мемы для глобального буста.</div>
-            <div id="artifactsContainer" class="artifacts-grid"></div>
+            <div class="category-card" onclick="openSheet('sheet-tech')">
+                <div class="category-icon">⚙️</div>
+                <div class="category-info">
+                    <div class="category-title" data-i18n="catTech">Технологии</div>
+                    <div class="category-desc" data-i18n="catTechDesc">Мультитап, Энергия, Авто-Бот</div>
+                </div>
+                <div class="category-arrow">›</div>
+            </div>
+
+            <div class="category-card" onclick="openSheet('sheet-custom')">
+                <div class="category-icon">💎</div>
+                <div class="category-info">
+                    <div class="category-title" data-i18n="catCustom">Кастомизация</div>
+                    <div class="category-desc" data-i18n="catCustomDesc">Telegram мемы, Стили Арены, Флекс</div>
+                </div>
+                <div class="category-arrow">›</div>
+            </div>
         </div>
 
         <!-- Вкладка 3: AIRDROP -->
@@ -458,7 +558,10 @@
                 tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", topSquadBtn: "🔥 Вывести свой канал в ТОП",
                 leagueRank: "Рейтинг:", artifactsTitle: "🏆 Telegram Артефакты", artifactsDesc: "Экипируйте мемы для глобального буста.",
                 stakingTitle: "🏦 Web3 Инвестиции", stakingDesc: "Заморозь монеты на 14 дней и получи +40%.", stakeBtn: "Инвестировать (Скоро)",
-                pvpTitle: "⚔️ Арена Дуэлей", pvpDesc: "Победитель забирает банк (комиссия сети 5%).", findOpponent: "Найти противника 🔍"
+                pvpTitle: "⚔️ Арена Дуэлей", pvpDesc: "Победитель забирает банк (комиссия сети 5%).", findOpponent: "Найти противника 🔍",
+                businessSubtitle: "Инвестируйте в свое развитие", catRealEstate: "🏢 Недвижимость", catRealEstateDesc: "Пассивный доход и прокачка ваших студий",
+                catTech: "⚙️ Технологии", catTechDesc: "Мультитап, Энергия, Авто-Бот", catCustom: "💎 Кастомизация", catCustomDesc: "Telegram мемы, Стили Арены, Флекс",
+                arenaStylesTitle: "⚔️ Стили Арены (PvP)"
             },
             en: {
                 navGame: "Game", navBusiness: "Business", navAirdrop: "Airdrop", navTop: "Top",
@@ -479,7 +582,10 @@
                 tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", topSquadBtn: "🔥 Promote Channel to TOP",
                 leagueRank: "Rank:", artifactsTitle: "🏆 Telegram Artifacts", artifactsDesc: "Equip memes for global boosts.",
                 stakingTitle: "🏦 Web3 Investments", stakingDesc: "Stake tokens for 14 days and get +40%.", stakeBtn: "Stake (Soon)",
-                pvpTitle: "⚔️ Duel Arena", pvpDesc: "Winner takes the bank (5% network fee).", findOpponent: "Find Opponent 🔍"
+                pvpTitle: "⚔️ Duel Arena", pvpDesc: "Winner takes the bank (5% network fee).", findOpponent: "Find Opponent 🔍",
+                businessSubtitle: "Invest in your progress", catRealEstate: "🏢 Real Estate", catRealEstateDesc: "Passive income and studio upgrades",
+                catTech: "⚙️ Technologies", catTechDesc: "Multitap, Energy, Auto-Bot", catCustom: "💎 Customization", catCustomDesc: "Telegram memes, Arena Styles, Flex",
+                arenaStylesTitle: "⚔️ Arena Styles (PvP)"
             }
         };
 
@@ -495,6 +601,7 @@
                 if (dict[key]) el.innerText = dict[key];
             });
             renderArtifacts(); 
+            renderArenaStyles(); // Отрисовываем стили при смене языка
         }
 
         function toggleLanguage() {
@@ -508,7 +615,7 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ (Симуляция полностью удалена)
+        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ
         let serverTaps = 0; let serverBonus = 0; 
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
@@ -527,6 +634,16 @@
         let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
         let maxTurbineCharges = isPremium ? 5 : 3;
         let currentTurbineCharges = maxTurbineCharges; 
+
+        // ИНТЕГРАЦИЯ СТИЛЕЙ АРЕНЫ
+        let ownedArenaThemes = ['meme'];
+        let currentArenaTheme = 'meme';
+
+        const ARENA_THEMES = [
+            { id: 'meme', name: '🐸 Мемная Драма', cost: 0, desc: 'Классика Telegram. Плачущий Пепе при поражении и дождь из денег при победе.', color: 'transparent', borderColor: '#fbbf24', textColor: '#fbbf24' },
+            { id: 'crypto', name: '📈 Крипто-Биржа', cost: 1000000, desc: 'Строгий PnL интерфейс. Японские свечи, выбивающие противника, и биржевые статусы.', color: 'linear-gradient(90deg, #10b981, #059669)', borderColor: 'transparent', textColor: 'white' },
+            { id: 'cyber', name: '💥 Кибер-Арена', cost: 5000000, desc: 'Эксклюзив для хайроллеров. Экран противника разлетается на пиксели, неоновое FATALITY.', color: 'linear-gradient(90deg, #ef4444, #dc2626)', borderColor: 'rgba(239, 68, 68, 0.4)', textColor: 'white', extraStyle: 'background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.1), rgba(20,20,25,0.9));' }
+        ];
 
         const BASE_ROOM_BG = 'https://raw.githubusercontent.com/07810868436g-rgb/grubot/main/0lvl.png';
         const ROOM_LEVELS = [
@@ -573,6 +690,23 @@
 
         function getCurrentUserLeague(score) { let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (score >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
+
+        // ==========================================
+        // ЛОГИКА ШОРТ-ШИТОВ (ПАПОК БИЗНЕСА)
+        // ==========================================
+        function openSheet(sheetId) {
+            document.getElementById('globalOverlay').style.display = 'block';
+            setTimeout(() => { 
+                document.getElementById('globalOverlay').style.opacity = '1';
+                document.getElementById(sheetId).classList.add('open'); 
+            }, 10);
+        }
+        
+        function closeAllSheets() {
+            document.querySelectorAll('.sheet:not(#shopSheet)').forEach(sheet => sheet.classList.remove('open'));
+            document.getElementById('globalOverlay').style.opacity = '0';
+            setTimeout(() => { document.getElementById('globalOverlay').style.display = 'none'; }, 300);
+        }
 
         function updateStudioVisuals() {
             let bgElement = document.getElementById('mainStudioBg');
@@ -640,7 +774,7 @@
             }).catch(() => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Error."); });
         }
 
-        // ОТРИСОВКА АРТЕФАКТОВ
+        // ОТРИСОВКА АРТЕФАКТОВ В КАТЕГОРИИ КАСТОМИЗАЦИИ
         function renderArtifacts() {
             const container = document.getElementById('artifactsContainer'); container.innerHTML = '';
             ARTIFACTS.forEach(art => {
@@ -663,6 +797,74 @@
             fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "skin", item_id: artId }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") { serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; ownedArtifactIds.push(artId); currentArtifactId = artId; updateVisualScore(); renderArtifacts(); if (tg.CloudStorage) { tg.CloudStorage.setItem('owned_skins', JSON.stringify(ownedArtifactIds)); tg.CloudStorage.setItem('current_artifact', currentArtifactId); } tg.HapticFeedback.notificationOccurred('success'); } 
+                else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
+            }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
+        }
+
+        // ==========================================
+        // ОТРИСОВКА СТИЛЕЙ АРЕНЫ (МАГАЗИН В БИЗНЕСЕ)
+        // ==========================================
+        function renderArenaStyles() {
+            const container = document.getElementById('arenaStylesContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            ARENA_THEMES.forEach(theme => {
+                const isOwned = ownedArenaThemes.includes(theme.id); 
+                const isEquipped = currentArenaTheme === theme.id; 
+                
+                let btnHTML = '';
+                let cardClass = isEquipped ? 'arena-style-card equipped' : 'arena-style-card';
+                let extraCSS = theme.extraStyle ? theme.extraStyle : '';
+                
+                if (isEquipped) { 
+                    btnHTML = `<button class="support-btn" style="padding: 10px; background: transparent; border: 1px solid #fbbf24; color: #fbbf24; box-shadow: none;">${currentLang === 'en' ? 'Equipped ✅' : 'Выбрано ✅'}</button>`; 
+                } 
+                else if (isOwned) { 
+                    btnHTML = `<button class="support-btn" style="padding: 10px; background: #27272a; color: white; box-shadow: none;" onclick="selectArenaTheme('${theme.id}')">${currentLang === 'en' ? 'Equip' : 'Применить'}</button>`; 
+                } 
+                else { 
+                    btnHTML = `<button class="support-btn" style="padding: 10px; background: ${theme.color}; color: ${theme.textColor}; border: ${theme.borderColor === 'transparent' ? 'none' : '1px solid ' + theme.borderColor};" onclick="processPurchase(() => buyArenaTheme('${theme.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'} ${theme.cost === 0 ? '' : theme.cost.toLocaleString('ru-RU')}</button>`; 
+                }
+                
+                let priceText = theme.cost === 0 ? (currentLang === 'en' ? 'Free' : 'Бесплатно') : theme.cost.toLocaleString('ru-RU') + ' $ROB';
+                let priceColor = theme.id === 'cyber' ? '#ef4444' : (theme.id === 'meme' ? '#a1a1aa' : '#10b981');
+                
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="${cardClass}" style="${extraCSS}">
+                        <div class="style-header">
+                            <div class="style-name">${theme.name}</div>
+                            <div class="style-price" style="color: ${priceColor};">${priceText}</div>
+                        </div>
+                        <div class="style-desc">${theme.desc}</div>
+                        ${btnHTML}
+                    </div>
+                `);
+            });
+        }
+
+        function selectArenaTheme(themeId) { 
+            if (ownedArenaThemes.includes(themeId)) { 
+                currentArenaTheme = themeId; 
+                renderArenaStyles(); 
+                if (tg.CloudStorage) tg.CloudStorage.setItem('current_arena_theme', currentArenaTheme); 
+                tg.HapticFeedback.selectionChanged(); 
+            } 
+        }
+
+        function buyArenaTheme(themeId, btnElement) { 
+            const originalText = btnElement.innerHTML; btnElement.innerHTML = "⏳..."; btnElement.disabled = true;
+            fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "arena_theme", item_id: themeId }) })
+            .then(res => res.json()).then(data => {
+                if (data.status === "success") { 
+                    serverTaps = data.new_taps_balance; serverBonus = data.new_bonus_balance; 
+                    ownedArenaThemes.push(themeId); 
+                    currentArenaTheme = themeId; 
+                    updateVisualScore(); 
+                    renderArenaStyles(); 
+                    if (tg.CloudStorage) { tg.CloudStorage.setItem('current_arena_theme', currentArenaTheme); } 
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                } 
                 else { tg.showAlert(`❌ ${data.error}`); btnElement.innerHTML = originalText; btnElement.disabled = false; }
             }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
@@ -748,7 +950,6 @@
                    (pendingRocketClicks + inFlightRocketClicks) * rocketEarn;
         }
 
-        // ВАЖНО: Мы удалили localSimulatedBonus, баланс теперь строго с сервера!
         function updateVisualScore() {
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
@@ -844,10 +1045,10 @@
             }
         }
 
-        function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderArtifacts(); updateVisualScore(); syncWithServer(true); }
+        function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderArtifacts(); renderArenaStyles(); updateVisualScore(); syncWithServer(true); }
 
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_artifact', 'current_room_level'], (err, values) => {
+            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_artifact', 'current_room_level', 'current_arena_theme'], (err, values) => {
                 if (!err && values) {
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
@@ -855,6 +1056,7 @@
                     if (values.current_room_level) currentRoomLevel = parseInt(values.current_room_level, 10) || 0;
                     if (values.owned_skins) { try { ownedArtifactIds = JSON.parse(values.owned_skins); } catch(e){} }
                     if (values.current_artifact) currentArtifactId = values.current_artifact;
+                    if (values.current_arena_theme) currentArenaTheme = values.current_arena_theme;
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
                 }
                 finishLoading();
@@ -883,11 +1085,8 @@
                 tg.showAlert(`❌ Заряды исчерпаны!\n\nОбычные: 3 в день\nPremium: 5 в день.\n\nВозвращайтесь завтра!`);
                 return;
             }
-            
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // Мы не отнимаем заряд визуально сразу, сервер отнимет его при успешном клейме.
-                
                 document.getElementById('turbineArena').style.display = 'flex';
                 document.getElementById('turbineActiveState').style.display = 'block';
                 document.getElementById('turbineResultState').style.display = 'none';
@@ -919,12 +1118,10 @@
                         document.getElementById('turbineScore').innerText = turbineScore.toLocaleString('ru-RU'); 
                     }
                 }
-
                 turbineInterval = setInterval(() => {
                     turbineTimer--; document.getElementById('turbineTimer').innerText = turbineTimer;
                     if(turbineTimer <= 0) endAudioTurbine(stream);
                 }, 1000);
-
             } catch (err) { tg.showAlert("Нужен доступ к микрофону!"); }
         }
 
@@ -932,27 +1129,20 @@
             clearInterval(turbineInterval); turbineActive = false;
             stream.getTracks().forEach(track => track.stop());
             if(audioContext) audioContext.close(); 
-            
             document.getElementById('turbineActiveState').style.display = 'none';
             document.getElementById('turbineResultState').style.display = 'block';
             document.getElementById('turbineFinalScore').innerText = turbineScore.toLocaleString('ru-RU');
         }
 
-        // ОТПРАВЛЯЕМ ДАННЫЕ НА СЕРВЕР И ЗАКРЫВАЕМ
         function claimAndExitTurbine(share = false) {
             let btn1 = document.getElementById('btnTurbineExit');
             let btn2 = document.getElementById('btnTurbineShare');
-            if(btn1) btn1.disabled = true;
-            if(btn2) btn2.disabled = true;
+            if(btn1) btn1.disabled = true; if(btn2) btn2.disabled = true;
 
             fetch(`${BACKEND_URL}/turbine-claim`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData, amount: turbineScore }) 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, amount: turbineScore }) 
             }).then(res => res.json()).then(data => {
-                if(btn1) btn1.disabled = false;
-                if(btn2) btn2.disabled = false;
-
+                if(btn1) btn1.disabled = false; if(btn2) btn2.disabled = false;
                 if (data.status === "success") {
                     serverBonus = data.new_bonus_balance;
                     currentTurbineCharges = data.turbine_charges;
@@ -961,26 +1151,18 @@
                     updateVisualScore();
                     document.getElementById('turbineArena').style.display = 'none';
                     tg.HapticFeedback.notificationOccurred('success');
-                    if(share) {
-                        shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`);
-                    }
-                } else { 
-                    tg.showAlert(`❌ ${data.error}`); 
-                    document.getElementById('turbineArena').style.display = 'none'; 
-                }
+                    if(share) { shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`); }
+                } else { tg.showAlert(`❌ ${data.error}`); document.getElementById('turbineArena').style.display = 'none'; }
             }).catch(() => { 
-                if(btn1) btn1.disabled = false;
-                if(btn2) btn2.disabled = false;
+                if(btn1) btn1.disabled = false; if(btn2) btn2.disabled = false;
                 tg.showAlert("❌ Ошибка сервера."); document.getElementById('turbineArena').style.display = 'none'; 
             });
         }
 
-        function claimAndShareTurbine() {
-            claimAndExitTurbine(true);
-        }
+        function claimAndShareTurbine() { claimAndExitTurbine(true); }
 
         // ==========================================
-        // ⚔️ PVP-АРЕНА С ЗАПРОСОМ НА БЭКЕНД
+        // ⚔️ PVP-АРЕНА С КАСТОМНЫМИ ЭКРАНАМИ
         // ==========================================
         let pvpBet = 10000; let pvpMode = 'touch';
         let pvpTimer = 15; let pvpInterval;
@@ -989,9 +1171,7 @@
         function openPvPModal() { document.getElementById('pvpSetupModal').style.display = 'flex'; }
         function closePvPModal() { document.getElementById('pvpSetupModal').style.display = 'none'; }
         
-        function setPvPBet(amount) {
-            document.getElementById('pvpBetInput').value = amount;
-        }
+        function setPvPBet(amount) { document.getElementById('pvpBetInput').value = amount; }
 
         function setPvPBetPercent(pct) {
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
@@ -1004,10 +1184,8 @@
         function startPvPSearch() {
             pvpBet = parseInt(document.getElementById('pvpBetInput').value) || 0;
             if (pvpBet < 100) { tg.showAlert("Минимальная ставка 100 $ROB!"); return; }
-
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             if (currentTotal < pvpBet) { tg.showAlert("Мало денег на балансе!"); return; }
-            
             closePvPModal();
             tg.showAlert("Ищем противника...");
             setTimeout(() => initBattle(), 2000);
@@ -1032,8 +1210,7 @@
                         if(avg > 30) moveRope(avg * 0.05); 
                     }
                 } catch(e) {
-                    tg.showAlert("Нет доступа к микрофону!");
-                    endBattle(true);
+                    tg.showAlert("Нет доступа к микрофону!"); endBattle(true);
                 }
             }
 
@@ -1053,7 +1230,9 @@
             document.getElementById('pvpTop').style.flexBasis = `${100 - myPos}%`;
         }
 
-        // ОТПРАВЛЯЕМ РЕЗУЛЬТАТЫ ДУЭЛИ НА СЕРВЕР
+        // ОТПРАВЛЯЕМ РЕЗУЛЬТАТЫ ДУЭЛИ НА СЕРВЕР И ПОКАЗЫВАЕМ ЭКРАН ТЕМЫ
+        let lastPvPWinAmount = 0;
+        
         function endBattle(forceLose = false) {
             clearInterval(pvpInterval);
             if(pvpMode === 'voice' && audioContext) { audioContext.close(); }
@@ -1062,26 +1241,75 @@
             let isWin = !forceLose && myPos > 50;
             
             fetch(`${BACKEND_URL}/pvp-result`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ initData: tg.initData, bet: pvpBet, is_win: isWin }) 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, bet: pvpBet, is_win: isWin }) 
             }).then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     serverTaps = data.new_taps_balance;
                     serverBonus = data.new_bonus_balance;
                     updateVisualScore();
-                    
-                    if (isWin) {
-                        let displayWin = Math.floor(pvpBet * 1.95);
-                        tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert(`🎉 ПОБЕДА! Вы выиграли ${displayWin.toLocaleString('ru-RU')} $ROB!`);
-                        shareResult(`⚔️ Я только что вынес противника на Арене и забрал банк! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
-                    } else {
-                        tg.HapticFeedback.notificationOccurred('error');
-                        tg.showAlert("💀 ПОРАЖЕНИЕ. Противник оказался сильнее. Ставка сгорела.");
-                    }
+                    showCustomPvPResult(isWin); // Вызываем красивый экран вместо стандартного tg.showAlert
                 } else { tg.showAlert(`❌ ${data.error}`); }
             }).catch(() => { tg.showAlert("❌ Ошибка соединения с сервером."); });
+        }
+
+        // ЛОГИКА КАСТОМНЫХ ЭКРАНОВ АРЕНЫ
+        function showCustomPvPResult(isWin) {
+            const resScreen = document.getElementById('pvpResultScreen');
+            const icon = document.getElementById('pvpResultIcon');
+            const title = document.getElementById('pvpResultTitle');
+            const desc = document.getElementById('pvpResultDesc');
+            const amount = document.getElementById('pvpResultAmount');
+            const btnShare = document.getElementById('btnPvPShare');
+            const btnExit = document.getElementById('btnPvPExit');
+            
+            resScreen.style.display = 'flex';
+            lastPvPWinAmount = isWin ? Math.floor(pvpBet * 1.95) : pvpBet;
+            
+            if (currentArenaTheme === 'meme') {
+                resScreen.style.background = isWin ? 'rgba(20, 40, 20, 0.95)' : 'rgba(20, 20, 20, 0.95) grayscale(100%)';
+                icon.innerText = isWin ? '🐸👑' : '🐸💧';
+                title.innerText = isWin ? 'ГГ, ИЗИ! (GG WP)' : 'Реквием по балансу...';
+                title.style.color = isWin ? '#fbbf24' : '#a1a1aa';
+                title.style.textShadow = 'none';
+                desc.innerText = isWin ? 'Дождь из денег!' : 'Ты слил ставку.';
+                amount.innerText = isWin ? `+ ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB` : `- ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB`;
+                amount.style.color = isWin ? '#10b981' : '#ef4444';
+                btnShare.style.display = isWin ? 'block' : 'none';
+                btnExit.innerText = isWin ? 'Забрать банк' : 'Уйти в слезах';
+            } 
+            else if (currentArenaTheme === 'crypto') {
+                resScreen.style.background = isWin ? 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(0,0,0,0.95) 70%)' : 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, rgba(0,0,0,0.95) 70%)';
+                icon.innerText = isWin ? '📈' : '📉';
+                title.innerText = isWin ? 'TAKE PROFIT' : 'MARGIN CALL';
+                title.style.color = isWin ? '#10b981' : '#ef4444';
+                title.style.textShadow = 'none';
+                desc.innerText = isWin ? 'Сделка закрыта в плюс. Банк твой!' : 'Ликвидация. Рынок оказался сильнее.';
+                amount.innerText = isWin ? `+ ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB` : `- ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB`;
+                amount.style.color = isWin ? '#10b981' : '#ef4444';
+                btnShare.style.display = isWin ? 'block' : 'none';
+                btnExit.innerText = isWin ? 'Зафиксировать прибыль' : 'Покинуть биржу';
+            } 
+            else if (currentArenaTheme === 'cyber') {
+                resScreen.style.background = isWin ? 'radial-gradient(circle, rgba(251,191,36,0.3) 0%, rgba(0,0,0,0.95) 80%)' : 'rgba(10,0,0,0.95)';
+                icon.innerText = isWin ? '💥' : '☠️';
+                title.innerText = isWin ? 'FATALITY' : 'WASTED';
+                title.style.color = isWin ? '#fbbf24' : '#ef4444';
+                title.style.textShadow = isWin ? '0 0 20px #fbbf24' : '0 0 20px #ef4444';
+                desc.innerText = isWin ? 'Противник стерт в пиксели.' : 'Критический сбой системы.';
+                amount.innerText = isWin ? `+ ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB` : `- ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB`;
+                amount.style.color = isWin ? '#fbbf24' : '#ef4444';
+                btnShare.style.display = isWin ? 'block' : 'none';
+                btnExit.innerText = isWin ? 'Покинуть Арену' : 'Отключиться';
+            }
+            
+            tg.HapticFeedback.notificationOccurred(isWin ? 'success' : 'error');
+        }
+
+        function closePvPResult(share) {
+            document.getElementById('pvpResultScreen').style.display = 'none';
+            if(share) {
+                shareResult(`⚔️ Я разнес оппонента на Арене и забрал ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
+            }
         }
 
         // ОБРАБОТЧИК КЛИКА (ТАП)
@@ -1105,7 +1333,7 @@
             showFloatingEffects(x, y, earnAmount, isRocketActive);
         });
 
-        // СИНХРОНИЗАЦИЯ (добавлен запрос зарядов турбины)
+        // СИНХРОНИЗАЦИЯ (Загрузка купленных стилей Арены с сервера)
         function syncWithServer(isInitial = false) {
             let stdToSend = pendingStandardClicks; let rktToSend = pendingRocketClicks;
             inFlightStandardClicks += stdToSend; inFlightRocketClicks += rktToSend;
@@ -1133,9 +1361,15 @@
                     }
 
                     if (data.turbine_charges !== undefined) {
-                        currentTurbineCharges = data.turbine_charges;
-                        maxTurbineCharges = data.max_charges;
+                        currentTurbineCharges = data.turbine_charges; maxTurbineCharges = data.max_charges;
                         document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+                    }
+
+                    // Обновляем список купленных тем с сервера
+                    if (data.owned_arena_themes !== undefined) {
+                        ownedArenaThemes = data.owned_arena_themes;
+                        if (!ownedArenaThemes.includes(currentArenaTheme)) currentArenaTheme = 'meme';
+                        renderArenaStyles();
                     }
 
                     updateVisualScore();

@@ -49,6 +49,12 @@ ARTIFACT_COSTS = {
     'durov_cap': 1000000
 }
 
+# --- НОВОЕ: Цены на стили Арены ---
+ARENA_THEMES_COSTS = {
+    'crypto': 1000000,
+    'cyber': 5000000
+}
+
 TEXTS = {
     'ru': {
         'welcome': "👋 <b>Привет, {name}!</b>\n\n🔒 Подпишись на наши каналы для доступа к игре:",
@@ -114,6 +120,10 @@ async def init_db():
         try: await conn.execute("ALTER TABLE users ADD COLUMN last_turbine_date TEXT DEFAULT ''")
         except asyncpg.exceptions.DuplicateColumnError: pass
 
+        # --- НОВОЕ: Колонка для стилей Арены ---
+        try: await conn.execute("ALTER TABLE users ADD COLUMN owned_arena_themes TEXT DEFAULT '[\"meme\"]'")
+        except asyncpg.exceptions.DuplicateColumnError: pass
+
 def validate_telegram_data(init_data: str, bot_token: str):
     try:
         parsed_data = dict(parse_qsl(init_data))
@@ -139,7 +149,7 @@ def get_upgrade_cost(base_cost, current_level):
     return base_cost * (2 ** power)
 
 # ==========================================
-# ФУНКЦИИ API (ОБНОВЛЕННЫЕ ДЛЯ PVP И ТУРБИНЫ)
+# ФУНКЦИИ API 
 # ==========================================
 
 async def sync_api(request):
@@ -222,12 +232,17 @@ async def sync_api(request):
                               WHERE user_id = $12''', 
                            new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, turbine_charges, last_turbine_date, user_id)
             
+            # Извлекаем купленные темы
+            try: owned_themes = json.loads(user_db['owned_arena_themes'] or '["meme"]')
+            except Exception: owned_themes = ["meme"]
+
         return web.json_response({
             "status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal,
             "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": user_db['squad_id'], 
             "rockets_left": rockets_count, "daily_streak": user_db['daily_streak'], "last_claim_date": user_db['last_claim_date'],
             "claimed_sponsors": user_db['claimed_sponsors'], "daily_taps": daily_taps, "daily_quest_claimed": daily_quest_claimed,
-            "turbine_charges": turbine_charges, "max_charges": max_turbine_charges
+            "turbine_charges": turbine_charges, "max_charges": max_turbine_charges,
+            "owned_arena_themes": owned_themes # Передаем в мини-приложение список покупок
         })
     except Exception as e: return web.json_response({"error": f"Server error"}, status=500)
 
@@ -310,6 +325,53 @@ async def pvp_result_api(request):
             return web.json_response({"status": "success", "new_taps_balance": new_taps, "new_bonus_balance": new_bonus})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
+async def buy_api(request):
+    try:
+        data = await request.json()
+        user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
+        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+        user_id = user_data.get("id"); buy_type = data.get("type") 
+        async with db_pool.acquire() as conn:
+            user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
+            taps_bal = int(user_db['taps_balance'] or 0); bonus_bal = int(user_db['bonus_balance'] or 0)
+            total_balance = taps_bal + bonus_bal; cost = 0; column_to_update = ""; new_value = 0
+            
+            if buy_type == "tech":
+                item_id = data.get("item_id")
+                if item_id == "multitap": cost = get_upgrade_cost(2000, int(user_db['multitap_level'] or 1)); column_to_update = "multitap_level"; new_value = int(user_db['multitap_level'] or 1) + 1
+                elif item_id == "energy": cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1)); column_to_update = "max_energy_level"; new_value = int(user_db['max_energy_level'] or 1) + 1
+                elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
+            
+            elif buy_type == "skin":
+                item_id = data.get("item_id")
+                cost = ARTIFACT_COSTS.get(item_id, 0) 
+                owned_skins = json.loads(user_db['owned_skins'] or '[]')
+                if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
+                owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
+            
+            elif buy_type == "room_upgrade":
+                level_id = data.get("level"); cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
+
+            # --- НОВОЕ: Обработка покупки Стиля Арены ---
+            elif buy_type == "arena_theme":
+                item_id = data.get("item_id")
+                cost = ARENA_THEMES_COSTS.get(item_id, 0)
+                try: owned_themes = json.loads(user_db['owned_arena_themes'] or '["meme"]')
+                except Exception: owned_themes = ["meme"]
+                
+                if item_id in owned_themes: return web.json_response({"error": "Уже куплено"}, status=400)
+                owned_themes.append(item_id)
+                column_to_update = "owned_arena_themes"
+                new_value = json.dumps(owned_themes)
+            
+            if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
+            if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
+            else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
+            
+            if column_to_update: await conn.execute(f'UPDATE users SET taps_balance = $1, bonus_balance = $2, {column_to_update} = $3 WHERE user_id = $4', new_taps_bal, new_bonus_bal, new_value, user_id)
+            return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
+    except Exception as e: return web.json_response({"error": str(e)}, status=500)
+
 async def claim_daily_quest_api(request):
     try:
         user_data = validate_telegram_data((await request.json()).get("initData"), BOT_TOKEN)
@@ -375,37 +437,6 @@ async def activate_rocket_api(request):
             new_count = r_count - 1; new_exp = current_time + 15
             await conn.execute("UPDATE users SET rockets_count = $1, rocket_expires_at = $2, last_play_date = $3 WHERE user_id = $4", new_count, new_exp, last_date, user_id)
             return web.json_response({"status": "success", "rockets_left": new_count})
-    except Exception as e: return web.json_response({"error": str(e)}, status=500)
-
-async def buy_api(request):
-    try:
-        data = await request.json()
-        user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
-        if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
-        user_id = user_data.get("id"); buy_type = data.get("type") 
-        async with db_pool.acquire() as conn:
-            user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
-            taps_bal = int(user_db['taps_balance'] or 0); bonus_bal = int(user_db['bonus_balance'] or 0)
-            total_balance = taps_bal + bonus_bal; cost = 0; column_to_update = ""; new_value = 0
-            if buy_type == "tech":
-                item_id = data.get("item_id")
-                if item_id == "multitap": cost = get_upgrade_cost(2000, int(user_db['multitap_level'] or 1)); column_to_update = "multitap_level"; new_value = int(user_db['multitap_level'] or 1) + 1
-                elif item_id == "energy": cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1)); column_to_update = "max_energy_level"; new_value = int(user_db['max_energy_level'] or 1) + 1
-                elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
-            elif buy_type == "skin":
-                item_id = data.get("item_id")
-                cost = ARTIFACT_COSTS.get(item_id, 0) 
-                owned_skins = json.loads(user_db['owned_skins'] or '[]')
-                if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
-                owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
-            elif buy_type == "room_upgrade":
-                level_id = data.get("level"); cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
-            
-            if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
-            if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
-            else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
-            if column_to_update: await conn.execute(f'UPDATE users SET taps_balance = $1, bonus_balance = $2, {column_to_update} = $3 WHERE user_id = $4', new_taps_bal, new_bonus_bal, new_value, user_id)
-            return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def create_squad_api(request):
@@ -538,7 +569,7 @@ async def process_check(callback: types.CallbackQuery):
 
 async def main():
     await init_db()
-    print("Бот запущен! Добавлен Бэкенд для PvP и Турбины.")
+    print("Бот запущен! Магазин СТИЛЕЙ АРЕНЫ активирован.")
     app = web.Application()
     import aiohttp_cors
     cors = aiohttp_cors.setup(app, defaults={"*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*")})
@@ -551,8 +582,6 @@ async def main():
     cors.add(app.router.add_post('/api/claim-daily-quest', claim_daily_quest_api))
     cors.add(app.router.add_post('/api/create-squad', create_squad_api))
     cors.add(app.router.add_post('/api/leaderboard', leaderboard_api))
-    
-    # НОВЫЕ РОУТЫ
     cors.add(app.router.add_post('/api/turbine-claim', turbine_claim_api))
     cors.add(app.router.add_post('/api/pvp-result', pvp_result_api))
     
