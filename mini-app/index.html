@@ -151,9 +151,76 @@
         .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
         .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
         .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
+
+        /* НОВЫЙ ИНТЕРФЕЙС: PVP Арена */
+        .btn-danger { background: linear-gradient(90deg, #ef4444, #dc2626); color: white; }
+        .pvp-select-btn { border: 1px solid rgba(255,255,255,0.1); background: rgba(20,20,25,0.8); color: white; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+        .pvp-select-btn.active { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+        .battle-arena { display: flex; flex-direction: column; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 5000; background: #000; display: none; }
+        .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: flex-basis 0.2s ease-out; }
+        .battle-top { background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%); }
+        .battle-bottom { background: linear-gradient(0deg, #3b82f6 0%, #1e3a8a 100%); cursor: pointer; touch-action: manipulation; -webkit-user-drag: none; }
+        .battle-divider { height: 6px; width: 100%; background: #fbbf24; position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; box-shadow: 0 0 20px #fbbf24; transition: top 0.2s ease-out; }
+        .battle-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; position: absolute; opacity: 0.5; }
+        .battle-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 32px; font-weight: 900; z-index: 20; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+
+        /* НОВЫЙ ИНТЕРФЕЙС: Аудио Турбина */
+        .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
+        .turbine-circle { width: 200px; height: 200px; border-radius: 50%; border: 10px solid #333; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px #000, 0 0 50px rgba(239, 68, 68, 0.2); transition: 0.1s; }
+        .turbine-inner { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0%, transparent 0%); position: absolute; top:0; left:0; opacity: 0.8; }
+        .turbine-text { font-size: 48px; font-weight: 900; color: white; z-index: 10; text-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .turbine-info { font-size: 16px; color: #a1a1aa; margin-top: 30px; font-weight: bold; }
     </style>
 </head>
 <body>
+
+    <!-- МОДАЛКА: ВЫБОР PVP -->
+    <div id="pvpSetupModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal-btn" onclick="closePvPModal()">×</button>
+            <div class="modal-title" style="font-size: 22px; color: #ef4444;" data-i18n="pvpTitle">⚔️ Арена Дуэлей</div>
+            <div class="modal-text" style="font-size: 13px;" data-i18n="pvpDesc">Победитель забирает банк (комиссия сети 5%).</div>
+            
+            <div style="text-align: left; font-weight: bold; margin-bottom: 5px; font-size: 14px;">1. Ставка ($ROB):</div>
+            <button class="pvp-select-btn bet-btn active" onclick="selectPvPBet(10000, this)">10 000</button>
+            <button class="pvp-select-btn bet-btn" onclick="selectPvPBet(100000, this)">100 000</button>
+            <button class="pvp-select-btn bet-btn" onclick="selectPvPBet(1000000, this)">1 000 000</button>
+
+            <div style="text-align: left; font-weight: bold; margin: 15px 0 5px 0; font-size: 14px;">2. Оружие:</div>
+            <button class="pvp-select-btn mode-btn active" onclick="selectPvPMode('touch', this)">👆 Классика (Тапы)</button>
+            <button class="pvp-select-btn mode-btn" onclick="selectPvPMode('voice', this)">🎙️ Крик-Баттл (Голос)</button>
+
+            <button class="support-btn btn-danger" style="width: 100%; font-size: 16px; margin-top: 15px;" onclick="startPvPSearch()" data-i18n="findOpponent">Найти противника 🔍</button>
+        </div>
+    </div>
+
+    <!-- ИНТЕРФЕЙС БОЯ PVP -->
+    <div id="pvpArena" class="battle-arena">
+        <div id="pvpTimer" class="battle-timer">15</div>
+        <div id="pvpTop" class="battle-half battle-top">
+            <img src="https://img.icons8.com/fluency/512/robot.png" class="battle-avatar" style="top: 20%;">
+            <div style="position: absolute; top: 10px; right: 10px; color: white; font-weight: bold;">Opponent</div>
+        </div>
+        <div id="pvpBottom" class="battle-half battle-bottom" onclick="pvpPlayerTap()">
+            <img src="https://img.icons8.com/fluency/512/user-male-circle.png" class="battle-avatar" style="bottom: 20%;">
+            <div style="position: absolute; bottom: 10px; left: 10px; color: white; font-weight: bold;">You</div>
+            <div id="pvpMicHint" style="position: absolute; bottom: 30%; color: #fbbf24; font-weight: bold; display: none; font-size: 24px; width: 100%; text-align: center;">КРИЧИ! 🎙️</div>
+        </div>
+        <div id="pvpDivider" class="battle-divider" style="top: 50%;"></div>
+    </div>
+
+    <!-- ИНТЕРФЕЙС АУДИО-МАЙНИНГА (Турбина) -->
+    <div id="turbineArena" class="turbine-modal">
+        <div class="modal-title" style="font-size: 28px; color: #ef4444; margin-bottom: 5px;">Турбина Web3 🚀</div>
+        <div style="color: #a1a1aa; margin-bottom: 30px;">Дуй в микрофон или кричи!</div>
+        
+        <div class="turbine-circle" id="turbineCircle">
+            <div class="turbine-inner" id="turbineFill"></div>
+            <div class="turbine-text" id="turbineTimer">10</div>
+        </div>
+
+        <div class="turbine-info">Нафармлено: <span id="turbineScore" style="color: #fbbf24; font-size: 24px;">0</span> $ROB</div>
+    </div>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
     <div id="offlineModal" class="modal-overlay">
@@ -248,6 +315,12 @@
         <div id="airdrop" class="screen">
             <div class="title" data-i18n="navAirdrop">🚀 Airdrop</div>
 
+            <div class="task-box" style="text-align: center; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1);">
+                <b style="font-size: 16px; color: #ef4444;">🎙️ Аудио-Майнинг</b><br>
+                <span style="font-size: 12px; color: #a1a1aa;">Шуми в микрофон, чтобы фармить!</span>
+                <button class="support-btn btn-danger" style="width: 100%; padding: 10px; margin-top: 10px; box-shadow: none;" onclick="startAudioTurbine()">Запустить Турбину 🚀</button>
+            </div>
+
             <div class="staking-box">
                 <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-bottom: 4px;" data-i18n="stakingTitle">🏦 Web3 Инвестиции</div>
                 <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 12px;" data-i18n="stakingDesc">Заморозь монеты на 14 дней и получи +40%.</div>
@@ -320,6 +393,9 @@
                 <button class="support-btn" style="background: #27272a; color: #a1a1aa; width: 100%; box-shadow: none; font-size: 14px; padding: 12px;" onclick="tg.showAlert(currentLang === 'en' ? 'Withdrawal opens in Phase 2' : 'Вывод откроется в Фазе 2')" data-i18n="withdrawBtn">🔒 Вывести токены (Скоро)</button>
             </div>
 
+            <!-- КНОПКА PVP АРЕНЫ -->
+            <button class="support-btn btn-danger" style="width: 100%; padding: 16px; font-size: 18px; margin-top: 0; margin-bottom: 20px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);" onclick="openPvPModal()">⚔️ Арена Дуэлей</button>
+
             <!-- Блок Лидерборда -->
             <div class="title" style="margin-bottom: 10px;" data-i18n="topTitle">🏆 Лидерборд</div>
             <div class="tabs-container">
@@ -374,7 +450,8 @@
                 inviteLink: "Пригласить", topTitle: "🏆 Лидерборд", balance: "Баланс:",
                 tabPlayers: "👤 Игроки", tabSquads: "📢 Сквады", yourLeague: "Ваша лига:", topSquadBtn: "🔥 Вывести свой канал в ТОП",
                 leagueRank: "Рейтинг:", artifactsTitle: "🏆 Telegram Артефакты", artifactsDesc: "Экипируйте мемы для глобального буста.",
-                stakingTitle: "🏦 Web3 Инвестиции", stakingDesc: "Заморозь монеты на 14 дней и получи +40%.", stakeBtn: "Инвестировать (Скоро)"
+                stakingTitle: "🏦 Web3 Инвестиции", stakingDesc: "Заморозь монеты на 14 дней и получи +40%.", stakeBtn: "Инвестировать (Скоро)",
+                pvpTitle: "⚔️ Арена Дуэлей", pvpDesc: "Победитель забирает банк (комиссия сети 5%).", findOpponent: "Найти противника 🔍"
             },
             en: {
                 navGame: "Game", navBusiness: "Business", navAirdrop: "Airdrop", navTop: "Top",
@@ -394,7 +471,8 @@
                 inviteLink: "Invite", topTitle: "🏆 Leaderboard", balance: "Balance:",
                 tabPlayers: "👤 Players", tabSquads: "📢 Squads", yourLeague: "Your League:", topSquadBtn: "🔥 Promote Channel to TOP",
                 leagueRank: "Rank:", artifactsTitle: "🏆 Telegram Artifacts", artifactsDesc: "Equip memes for global boosts.",
-                stakingTitle: "🏦 Web3 Investments", stakingDesc: "Stake tokens for 14 days and get +40%.", stakeBtn: "Stake (Soon)"
+                stakingTitle: "🏦 Web3 Investments", stakingDesc: "Stake tokens for 14 days and get +40%.", stakeBtn: "Stake (Soon)",
+                pvpTitle: "⚔️ Duel Arena", pvpDesc: "Winner takes the bank (5% network fee).", findOpponent: "Find Opponent 🔍"
             }
         };
 
@@ -427,6 +505,7 @@
         let serverTaps = 0; let serverBonus = 0; 
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
+        let localSimulatedBonus = 0; // Локальный сейф для симуляции PvP и Аудио-майнинга
         
         let currentLbTab = 'players'; let currentMySquad = ''; 
         let globalDailyStreak = 0; let globalLastClaimDate = "";
@@ -662,7 +741,8 @@
         }
 
         function updateVisualScore() {
-            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
+            // ВАЖНО: Добавлена localSimulatedBonus для тестирования новых функций до внедрения в бэкенд!
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
             scoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             profileScoreElement.innerText = currentTotal.toLocaleString('ru-RU'); 
             updateLevelVisuals(currentTotal); 
@@ -772,6 +852,157 @@
                 finishLoading();
             });
         } else { finishLoading(); }
+
+        // ==========================================
+        // ЛОГИКА ШЕРИНГА (Stories / TikTok)
+        // ==========================================
+        function shareResult(text) {
+            if (tg.shareToStory) { 
+                tg.shareToStory('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000', { text: text }); 
+            } else { 
+                tg.showAlert("Скопируй для TikTok / Reels:\n\n" + text); 
+            }
+        }
+
+        // ==========================================
+        // 🎙️ АУДИО-МАЙНИНГ (ТУРБИНА WEB3)
+        // ==========================================
+        let audioContext, analyser, microphone, javascriptNode;
+        let turbineActive = false; let turbineScore = 0; let turbineTimer = 10; let turbineInterval;
+
+        async function startAudioTurbine() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                document.getElementById('turbineArena').style.display = 'flex';
+                turbineScore = 0; turbineTimer = 10; document.getElementById('turbineScore').innerText = '0';
+                turbineActive = true;
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                
+                analyser.smoothingTimeConstant = 0.8; analyser.fftSize = 1024;
+                microphone.connect(analyser); analyser.connect(javascriptNode); javascriptNode.connect(audioContext.destination);
+                
+                javascriptNode.onaudioprocess = function() {
+                    if(!turbineActive) return;
+                    let array = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(array);
+                    let values = 0, length = array.length;
+                    for (let i = 0; i < length; i++) values += (array[i]);
+                    let average = values / length; 
+                    
+                    let percent = Math.min(100, average * 1.5);
+                    document.getElementById('turbineFill').style.background = `conic-gradient(#ef4444 ${percent}%, transparent ${percent}%)`;
+                    
+                    if (average > 20) { 
+                        let earned = Math.floor(average);
+                        turbineScore += earned; 
+                        document.getElementById('turbineScore').innerText = turbineScore.toLocaleString('ru-RU'); 
+                    }
+                }
+
+                turbineInterval = setInterval(() => {
+                    turbineTimer--; document.getElementById('turbineTimer').innerText = turbineTimer;
+                    if(turbineTimer <= 0) endAudioTurbine(stream);
+                }, 1000);
+
+            } catch (err) { tg.showAlert("Нужен доступ к микрофону!"); }
+        }
+
+        function endAudioTurbine(stream) {
+            clearInterval(turbineInterval); turbineActive = false;
+            stream.getTracks().forEach(track => track.stop());
+            if(audioContext) audioContext.close(); 
+            document.getElementById('turbineArena').style.display = 'none';
+            
+            localSimulatedBonus += turbineScore; 
+            updateVisualScore();
+            tg.HapticFeedback.notificationOccurred('success');
+            shareResult(`🚀 Я надул ${turbineScore.toLocaleString('ru-RU')} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.`);
+        }
+
+        // ==========================================
+        // ⚔️ PVP-АРЕНА (ПЕРЕТЯГИВАНИЕ КАНАТА)
+        // ==========================================
+        let pvpBet = 10000; let pvpMode = 'touch';
+        let pvpTimer = 15; let pvpInterval;
+        let myPos = 50; 
+        
+        function openPvPModal() { document.getElementById('pvpSetupModal').style.display = 'flex'; }
+        function closePvPModal() { document.getElementById('pvpSetupModal').style.display = 'none'; }
+        
+        function selectPvPBet(amount, btn) { pvpBet = amount; document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+        function selectPvPMode(mode, btn) { pvpMode = mode; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+
+        function startPvPSearch() {
+            let currentTotal = serverTaps + serverBonus + getUnsyncedEarn() + localSimulatedBonus;
+            if (currentTotal < pvpBet) { tg.showAlert("Мало денег на балансе!"); return; }
+            
+            localSimulatedBonus -= pvpBet; // Заморозка ставки
+            updateVisualScore(); 
+            closePvPModal();
+            tg.showAlert("Ищем противника...");
+            setTimeout(() => initBattle(), 2000);
+        }
+
+        async function initBattle() {
+            myPos = 50; pvpTimer = 15;
+            document.getElementById('pvpArena').style.display = 'flex';
+            document.getElementById('pvpDivider').style.top = '50%';
+            document.getElementById('pvpTimer').innerText = '15';
+            document.getElementById('pvpMicHint').style.display = pvpMode === 'voice' ? 'block' : 'none';
+
+            if(pvpMode === 'voice') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser(); microphone = audioContext.createMediaStreamSource(stream); javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                    microphone.connect(analyser); analyser.connect(javascriptNode); javascriptNode.connect(audioContext.destination);
+                    javascriptNode.onaudioprocess = function() {
+                        let array = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(array);
+                        let avg = array.reduce((a,b) => a+b, 0) / array.length;
+                        if(avg > 30) moveRope(avg * 0.05); 
+                    }
+                } catch(e) {
+                    tg.showAlert("Нет доступа к микрофону!");
+                    endBattle(true);
+                }
+            }
+
+            pvpInterval = setInterval(() => {
+                pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
+                moveRope(-1); // Виртуальный противник (бот) тянет на себя каждую секунду
+                if(pvpTimer <= 0) endBattle();
+            }, 1000);
+        }
+
+        function pvpPlayerTap() { if(pvpMode === 'touch') { moveRope(2); tg.HapticFeedback.impactOccurred('light'); } }
+
+        function moveRope(amount) {
+            myPos = Math.max(0, Math.min(100, myPos + amount));
+            document.getElementById('pvpDivider').style.top = `${100 - myPos}%`;
+            document.getElementById('pvpBottom').style.flexBasis = `${myPos}%`;
+            document.getElementById('pvpTop').style.flexBasis = `${100 - myPos}%`;
+        }
+
+        function endBattle(forceLose = false) {
+            clearInterval(pvpInterval);
+            if(pvpMode === 'voice' && audioContext) { audioContext.close(); }
+            document.getElementById('pvpArena').style.display = 'none';
+            
+            if(!forceLose && myPos > 50) {
+                let winAmount = pvpBet * 1.95; 
+                localSimulatedBonus += winAmount; 
+                updateVisualScore();
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert(`🎉 ПОБЕДА! Ты перетянул канат и выиграл ${winAmount.toLocaleString('ru-RU')} $ROB!`);
+                shareResult(`⚔️ Я только что вынес противника на Арене и забрал банк! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+                tg.showAlert("💀 ПОРАЖЕНИЕ. Противник оказался сильнее. Ставка сгорела.");
+            }
+        }
 
         // ОБРАБОТЧИК КЛИКА (ТАП) С ИСКРАМИ И АРТЕФАКТАМИ
         tapBtn.addEventListener('click', (e) => {
