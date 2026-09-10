@@ -18,6 +18,9 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# --- БЕЛЫЙ СПИСОК АДМИНОВ ---
+TESTER_IDS = [7983457700]
+
 YOUR_TELEGRAM_ID = None  
 CHANNEL_RU = "@robuxtap_ru"
 CHANNEL_SNG = "@robuxtap_sng"
@@ -258,7 +261,7 @@ async def turbine_claim_api(request):
         max_charges = 2 if is_premium else 1
         current_date = time.strftime('%Y-%m-%d')
         
-        # АНТИЧИТ: Реалистичный лимит для Турбины (за 10 секунд физически не выжать больше 30 000)
+        # АНТИЧИТ: Реалистичный лимит для Турбины
         if earned < 0 or earned > 30000:
             return web.json_response({"error": "Превышен лимит добычи!"}, status=400)
 
@@ -472,7 +475,6 @@ async def leaderboard_api(request):
                 return web.json_response({"status": "success", "list": players, "tab": "players"})
             
             elif tab == "squads":
-                # ИСПРАВЛЕН БАГ ЛИДЕРБОРДА (Устранен конфликт переменных)
                 rows = await conn.fetch("SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as ts FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY ts DESC LIMIT 50")
                 user_row = await conn.fetchrow("SELECT squad_id FROM users WHERE user_id = $1", req_user_id) 
                 user_squad_id = user_row['squad_id'] if user_row else ""
@@ -483,7 +485,7 @@ async def leaderboard_api(request):
 
 
 # ==========================================
-# ЛОГИКА БОТА И МУЛЬТИЯЗЫЧНОСТЬ
+# ЛОГИКА БОТА, БЕЛЫЙ СПИСОК И МУЛЬТИЯЗЫЧНОСТЬ
 # ==========================================
 
 async def send_main_menu(message_or_callback, user_id, first_name, lang):
@@ -494,15 +496,30 @@ async def send_main_menu(message_or_callback, user_id, first_name, lang):
         refs_count = r['count'] if r else 0
 
     if await check_subscription(user_id, CHANNEL_RU) or await check_subscription(user_id, CHANNEL_SNG):
-        custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}&lang={lang}"
-        builder = InlineKeyboardBuilder()
-        builder.row(types.InlineKeyboardButton(text=t['play_btn'], web_app=WebAppInfo(url=custom_url)))
         
-        if isinstance(message_or_callback, types.Message):
-            await message_or_callback.answer_photo(photo=BANNER_GAME, caption=t['welcome_back'].format(name=first_name), reply_markup=builder.as_markup(), parse_mode="HTML")
+        # --- ПРОВЕРКА БЕЛОГО СПИСКА ---
+        if user_id in TESTER_IDS:
+            custom_url = f"{WEB_APP_URL}?refs={refs_count}&v={int(time.time())}&lang={lang}"
+            builder = InlineKeyboardBuilder()
+            builder.row(types.InlineKeyboardButton(text=t['play_btn'], web_app=WebAppInfo(url=custom_url)))
+            
+            if isinstance(message_or_callback, types.Message):
+                await message_or_callback.answer_photo(photo=BANNER_GAME, caption=t['welcome_back'].format(name=first_name), reply_markup=builder.as_markup(), parse_mode="HTML")
+            else:
+                await message_or_callback.message.delete()
+                await bot.send_photo(chat_id=message_or_callback.message.chat.id, photo=BANNER_GAME, caption=t['good'], reply_markup=builder.as_markup(), parse_mode="HTML")
         else:
-            await message_or_callback.message.delete()
-            await bot.send_photo(chat_id=message_or_callback.message.chat.id, photo=BANNER_GAME, caption=t['good'], reply_markup=builder.as_markup(), parse_mode="HTML")
+            # ОБЫЧНЫЙ ИГРОК: Заглушка вместо кнопки WebApp
+            builder = InlineKeyboardBuilder()
+            builder.row(types.InlineKeyboardButton(text="📢 Следить за новостями", url=f"https://t.me/{CHANNEL_RU[1:]}"))
+            
+            lock_text = "🚧 <b>Время еще не пришло, загляни в канал, скоро начнется новая ЭРА</b>"
+            
+            if isinstance(message_or_callback, types.Message):
+                await message_or_callback.answer_photo(photo=BANNER_GAME, caption=lock_text, reply_markup=builder.as_markup(), parse_mode="HTML")
+            else:
+                await message_or_callback.message.delete()
+                await bot.send_photo(chat_id=message_or_callback.message.chat.id, photo=BANNER_GAME, caption=lock_text, reply_markup=builder.as_markup(), parse_mode="HTML")
     else:
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text=t['sub_ru'], url=f"https://t.me/{CHANNEL_RU[1:]}"))
