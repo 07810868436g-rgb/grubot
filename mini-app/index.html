@@ -44,50 +44,58 @@
         }
 
         /* ========================================= */
-        /* SPLASH SCREEN (КИБЕР-МАСОНСТВО 4.5 сек)   */
+        /* SPLASH SCREEN (3D-Орбита 4.5 сек)         */
         /* ========================================= */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000; z-index: 9999;
+            background-color: rgba(0,0,0,1); z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease-out;
+            transition: background-color 0.5s ease-out;
         }
-        .splash-eye {
-            width: 140px; height: 140px;
-            background-image: url('https://github.com/07810868436g-rgb/grubot/blob/main/eye.png?raw=true');
-            background-size: contain; background-repeat: no-repeat; background-position: center bottom;
-            filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.5));
-            /* Сканирование: 3 секунды */
-            animation: scanFloat 3s linear forwards;
-            margin-bottom: 5px; 
-            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-            z-index: 2;
+        .splash-core {
+            position: relative; z-index: 5; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
         }
-        @keyframes scanFloat {
-            0% { transform: translateX(-80px) translateY(5px); opacity: 0; }
-            5% { opacity: 1; transform: translateX(-80px) translateY(5px); }
-            95% { transform: translateX(80px) translateY(5px); opacity: 1; }
-            100% { transform: translateX(80px) translateY(5px); opacity: 1; }
-        }
-        .splash-eye.targeting {
-            animation: none !important;
-            transform: translateX(0) scale(1.2) translateY(0) !important;
-            filter: drop-shadow(0 0 50px rgba(251, 191, 36, 1));
+        .splash-title {
+            font-size: 36px; font-weight: 900; color: #ffffff; letter-spacing: 8px;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); margin-bottom: 20px;
+            transition: opacity 0.2s;
         }
         .splash-loader-bg { 
-            width: 220px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; transition: opacity 0.3s;
-            margin-bottom: 30px; 
+            width: 220px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; transition: opacity 0.2s;
         }
         .splash-loader-fill {
             width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24);
-            animation: loadProgress 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loadProgress 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         @keyframes loadProgress { 0% { width: 0%; } 100% { width: 100%; } }
         
-        .splash-title {
-            font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: 8px;
-            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-            transition: opacity 0.3s;
+        .splash-eye {
+            position: absolute; top: 50%; left: 50%; width: 90px; height: 90px;
+            margin-top: -45px; margin-left: -45px;
+            background-image: url('https://github.com/07810868436g-rgb/grubot/blob/main/eye.png?raw=true');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            animation: orbit3D 3.5s linear forwards;
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.5s ease, opacity 0.2s;
+        }
+        
+        @keyframes orbit3D {
+            0%    { transform: translate(0, -60px) scale(0.65); filter: brightness(0.6) drop-shadow(0 0 10px rgba(251,191,36,0.2)); z-index: 1; }
+            12.5% { transform: translate(-130px, -10px) scale(0.85); filter: brightness(0.9) drop-shadow(0 0 15px rgba(251,191,36,0.5)); z-index: 10; }
+            25%   { transform: translate(0, 45px) scale(1.1); filter: brightness(1.2) drop-shadow(0 0 25px rgba(251,191,36,0.8)); z-index: 10; }
+            37.5% { transform: translate(130px, -10px) scale(0.85); filter: brightness(0.9) drop-shadow(0 0 15px rgba(251,191,36,0.5)); z-index: 1; }
+            50%   { transform: translate(0, -60px) scale(0.65); filter: brightness(0.6) drop-shadow(0 0 10px rgba(251,191,36,0.2)); z-index: 1; }
+            62.5% { transform: translate(-130px, -10px) scale(0.85); filter: brightness(0.9) drop-shadow(0 0 15px rgba(251,191,36,0.5)); z-index: 10; }
+            75%   { transform: translate(0, 45px) scale(1.1); filter: brightness(1.2) drop-shadow(0 0 25px rgba(251,191,36,0.8)); z-index: 10; }
+            87.5% { transform: translate(130px, -10px) scale(0.85); filter: brightness(0.9) drop-shadow(0 0 15px rgba(251,191,36,0.5)); z-index: 1; }
+            100%  { transform: translate(0, -60px) scale(0.65); filter: brightness(0.6) drop-shadow(0 0 10px rgba(251,191,36,0.2)); z-index: 1; }
+        }
+
+        .splash-eye.targeting {
+            animation: none !important;
+            transform: translate(0, -45px) scale(1.3) !important;
+            filter: brightness(1.5) drop-shadow(0 0 40px rgba(251, 191, 36, 1)) !important;
+            z-index: 15 !important;
         }
 
         /* ========================================= */
@@ -122,7 +130,6 @@
         .settings-row:last-child { border-bottom: none; }
         .settings-label { font-size: 15px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         
-        /* Тумблер (Switch) для смены тем */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; border: 1px solid var(--panel-border); }
@@ -130,7 +137,6 @@
         input:checked + .slider { background-color: var(--menu-bg); }
         input:checked + .slider:before { transform: translateX(20px); background-color: #d4af37; }
 
-        /* Иконка профиля на главном экране */
         .top-profile-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--gold); font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 50; cursor: pointer; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         /* ========================================= */
@@ -260,7 +266,6 @@
         .pvp-bet-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: var(--gold); font-size: 20px; font-weight: 900; text-align: center; box-sizing: border-box; margin-bottom: 10px; }
         .pvp-bet-input:focus { outline: none; box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
 
-        /* Арена и Турбина всегда темные для атмосферы */
         .battle-arena { display: flex; flex-direction: column; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 5000; background: #000; display: none; }
         .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: flex-basis 0.2s ease-out; }
         .battle-top { background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%); }
@@ -288,11 +293,13 @@
     <!-- SPLASH SCREEN (КИБЕР-МАСОНСТВО)           -->
     <!-- ========================================= -->
     <div id="splashScreen">
-        <div class="splash-eye" id="splashEye"></div>
-        <div class="splash-loader-bg" id="splashLoader">
-            <div class="splash-loader-fill"></div>
+        <div class="splash-core">
+            <div class="splash-title" id="splashTitle">GRUTAP</div>
+            <div class="splash-loader-bg" id="splashLoader">
+                <div class="splash-loader-fill"></div>
+            </div>
         </div>
-        <div class="splash-title" id="splashTitle">GRUTAP</div>
+        <div class="splash-eye" id="splashEye"></div>
     </div>
 
     <!-- ========================================= -->
@@ -682,7 +689,7 @@
 
     <script>
         // ==========================================
-        // ЛОГИКА SPLASH SCREEN (КИБЕР-МАСОНСТВО 4.5 СЕК)
+        // ЛОГИКА SPLASH SCREEN (3D-Орбита 4.5 сек)
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             const splash = document.getElementById('splashScreen');
@@ -690,41 +697,42 @@
             const title = document.getElementById('splashTitle');
             const loader = document.getElementById('splashLoader');
 
-            // 1. Режим сканера (0 - 3.0 сек)
-            // Анимация CSS .splash-loader-fill и scanFloat идет ровно 3 секунды.
+            // 1. Акт 1: Орбита длится 3.5 секунды (определено в CSS анимации orbit3D)
             
             setTimeout(() => {
-                // 2. Захват цели (3.0 - 3.8 сек) - Глаз центрируется, замирает и увеличивается
+                // 2. Акт 2: Захват цели (3.5 сек - 4.0 сек)
                 eye.classList.add('targeting');
-                title.style.opacity = '0';
-                loader.style.opacity = '0';
-            }, 3000);
+            }, 3500);
 
             setTimeout(() => {
-                // 3. Сингулярность (3.8 сек) - Взрыв на золотые искры
+                // 3. Акт 3: Сингулярность (4.0 сек)
                 const rect = eye.getBoundingClientRect();
                 const x = rect.left + rect.width / 2;
                 const y = rect.top + rect.height / 2;
                 
-                // Создаем 60 искр
+                // Создаем 60 золотых искр
                 for(let i = 0; i < 60; i++) {
                     let spark = document.createElement('div');
                     spark.className = 'spark';
                     spark.style.left = x + 'px';
                     spark.style.top = y + 'px';
-                    spark.style.setProperty('--dx', (Math.random() * 500 - 250) + 'px');
-                    spark.style.setProperty('--dy', (Math.random() * 500 - 250) + 'px');
-                    spark.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+                    spark.style.setProperty('--dx', (Math.random() * 600 - 300) + 'px');
+                    spark.style.setProperty('--dy', (Math.random() * 600 - 300) + 'px');
+                    spark.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
                     splash.appendChild(spark);
                 }
-                eye.style.opacity = '0';
                 
-                // Растворение черного фона к 4.5 секунде
-                setTimeout(() => {
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.remove(), 500);
-                }, 700);
-            }, 3800);
+                // Исчезновение центрального ядра
+                eye.style.opacity = '0';
+                title.style.opacity = '0';
+                loader.style.opacity = '0';
+                
+                // Растворение черного фона за 0.5 сек
+                splash.style.backgroundColor = 'rgba(0,0,0,0)';
+                
+                // Полное удаление экрана заставки
+                setTimeout(() => splash.remove(), 600);
+            }, 4000);
         });
 
         // ==========================================
