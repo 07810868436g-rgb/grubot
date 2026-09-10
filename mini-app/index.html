@@ -44,47 +44,51 @@
         }
 
         /* ========================================= */
-        /* SPLASH SCREEN & КИНЕМАТОГРАФИЯ            */
+        /* SPLASH SCREEN (КИБЕР-МАСОНСТВО 4.5 сек)   */
         /* ========================================= */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000000; z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.4s ease-out;
+            transition: opacity 0.5s ease-out;
         }
         .splash-eye {
             width: 140px; height: 140px;
             background-image: url('https://github.com/07810868436g-rgb/grubot/blob/main/eye.png?raw=true');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
+            background-size: contain; background-repeat: no-repeat; background-position: center bottom;
             filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.5));
-            /* Орбитальное движение (Наблюдатель) */
-            animation: orbitalFloat 5s infinite linear;
-            margin-bottom: 40px;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* Сканирование: 3 секунды */
+            animation: scanFloat 3s linear forwards;
+            margin-bottom: 5px; 
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 2;
         }
-        @keyframes orbitalFloat {
-            0% { transform: translate(0, -10px) rotate(0deg); }
-            25% { transform: translate(-10px, 0) rotate(-2deg); }
-            50% { transform: translate(0, 10px) rotate(0deg); }
-            75% { transform: translate(10px, 0) rotate(2deg); }
-            100% { transform: translate(0, -10px) rotate(0deg); }
+        @keyframes scanFloat {
+            0% { transform: translateX(-80px) translateY(5px); opacity: 0; }
+            5% { opacity: 1; transform: translateX(-80px) translateY(5px); }
+            95% { transform: translateX(80px) translateY(5px); opacity: 1; }
+            100% { transform: translateX(80px) translateY(5px); opacity: 1; }
         }
         .splash-eye.targeting {
             animation: none !important;
-            transform: scale(1.15) translate(0, 0) !important;
+            transform: translateX(0) scale(1.2) translateY(0) !important;
             filter: drop-shadow(0 0 50px rgba(251, 191, 36, 1));
         }
-        .splash-title {
-            font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: 8px;
-            margin-bottom: 30px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-            transition: opacity 0.3s;
+        .splash-loader-bg { 
+            width: 220px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; transition: opacity 0.3s;
+            margin-bottom: 30px; 
         }
-        .splash-loader-bg { width: 220px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; transition: opacity 0.3s;}
         .splash-loader-fill {
             width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24);
-            animation: loadProgress 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loadProgress 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
-        @keyframes loadProgress { 0% { width: 0%; } 40% { width: 45%; } 100% { width: 100%; } }
+        @keyframes loadProgress { 0% { width: 0%; } 100% { width: 100%; } }
+        
+        .splash-title {
+            font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: 8px;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            transition: opacity 0.3s;
+        }
 
         /* ========================================= */
         /* ПРОФИЛЬ (iOS СЛАЙДЕР СБОКУ)               */
@@ -285,10 +289,10 @@
     <!-- ========================================= -->
     <div id="splashScreen">
         <div class="splash-eye" id="splashEye"></div>
-        <div class="splash-title" id="splashTitle">GRUTAP</div>
         <div class="splash-loader-bg" id="splashLoader">
             <div class="splash-loader-fill"></div>
         </div>
+        <div class="splash-title" id="splashTitle">GRUTAP</div>
     </div>
 
     <!-- ========================================= -->
@@ -298,11 +302,9 @@
         <div class="profile-header">
             <button class="profile-back" onclick="closeProfile()">‹ Назад</button>
             <div class="profile-title-text" data-i18n="profileTitle">Web3 Паспорт</div>
-            <div style="width: 50px;"></div> <!-- Spacer для выравнивания -->
+            <div style="width: 50px;"></div>
         </div>
         <div class="profile-content">
-            
-            <!-- Блок 1: Идентификация -->
             <div class="profile-block">
                 <div class="profile-avatar-container">
                     <div class="profile-avatar">👤</div>
@@ -316,7 +318,6 @@
                 <button class="support-btn" style="width: 100%; margin-top: 5px; box-shadow: none;" data-i18n="connectWallet">Connect Wallet (Скоро)</button>
             </div>
 
-            <!-- Блок 2: Настройки -->
             <div class="profile-block">
                 <div class="section-label" style="margin-top: 0;" data-i18n="settingsTitle">Настройки</div>
                 <div class="settings-row">
@@ -332,7 +333,6 @@
                 </div>
             </div>
 
-            <!-- Блок 3: Статистика -->
             <div class="profile-block">
                 <div class="section-label" style="margin-top: 0;" data-i18n="statsTitle">Статистика</div>
                 <div class="settings-row">
@@ -344,7 +344,6 @@
                     <div style="font-weight: 800; color: var(--text-main);"><span id="profileSidebarStreak">0</span> <span data-i18n="days">дней</span></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -468,7 +467,6 @@
     <!-- ВСПЛЫВАЮЩИЕ ПАПКИ (ШОРТ-ШИТЫ) БИЗНЕСА -->
     <div id="globalOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
-    <!-- ПАПКА 1: НЕДВИЖИМОСТЬ -->
     <div id="sheet-realestate" class="sheet">
         <div class="sheet-header">
             <button class="sheet-close" onclick="closeAllSheets()">×</button>
@@ -483,7 +481,6 @@
         </div>
     </div>
 
-    <!-- ПАПКА 2: ТЕХНОЛОГИИ -->
     <div id="sheet-tech" class="sheet">
         <div class="sheet-header">
             <button class="sheet-close" onclick="closeAllSheets()">×</button>
@@ -498,7 +495,6 @@
         </div>
     </div>
 
-    <!-- ПАПКА 3: КАСТОМИЗАЦИЯ -->
     <div id="sheet-custom" class="sheet">
         <div class="sheet-header">
             <button class="sheet-close" onclick="closeAllSheets()">×</button>
@@ -514,7 +510,6 @@
         </div>
     </div>
 
-    <!-- МАГАЗИН КОМНАТ -->
     <div id="shopSheetOverlay" class="sheet-overlay" onclick="closeStudioShop()"></div>
     <div id="shopSheet" class="sheet">
         <div class="sheet-header">
@@ -642,7 +637,6 @@
             <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; width: 100%; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div id="userName" style="font-size: 18px; font-weight: 800; color: var(--text-main);">@Username</div>
-                    <!-- Кнопка языка отсюда убрана и перенесена в Профиль -->
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div style="text-align: left;">
@@ -688,7 +682,7 @@
 
     <script>
         // ==========================================
-        // ЛОГИКА SPLASH SCREEN (КИБЕР-МАСОНСТВО)
+        // ЛОГИКА SPLASH SCREEN (КИБЕР-МАСОНСТВО 4.5 СЕК)
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             const splash = document.getElementById('splashScreen');
@@ -696,16 +690,18 @@
             const title = document.getElementById('splashTitle');
             const loader = document.getElementById('splashLoader');
 
-            // 1. Наблюдатель (0 - 2.2 сек)
+            // 1. Режим сканера (0 - 3.0 сек)
+            // Анимация CSS .splash-loader-fill и scanFloat идет ровно 3 секунды.
+            
             setTimeout(() => {
-                // 2. Захват цели (2.2 сек) - Глаз центрируется и замирает
+                // 2. Захват цели (3.0 - 3.8 сек) - Глаз центрируется, замирает и увеличивается
                 eye.classList.add('targeting');
                 title.style.opacity = '0';
                 loader.style.opacity = '0';
-            }, 2200);
+            }, 3000);
 
             setTimeout(() => {
-                // 3. Сингулярность (2.8 сек) - Взрыв на золотые искры
+                // 3. Сингулярность (3.8 сек) - Взрыв на золотые искры
                 const rect = eye.getBoundingClientRect();
                 const x = rect.left + rect.width / 2;
                 const y = rect.top + rect.height / 2;
@@ -716,7 +712,6 @@
                     spark.className = 'spark';
                     spark.style.left = x + 'px';
                     spark.style.top = y + 'px';
-                    // Разлет по кругу
                     spark.style.setProperty('--dx', (Math.random() * 500 - 250) + 'px');
                     spark.style.setProperty('--dy', (Math.random() * 500 - 250) + 'px');
                     spark.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
@@ -724,12 +719,12 @@
                 }
                 eye.style.opacity = '0';
                 
-                // Растворение черного фона
+                // Растворение черного фона к 4.5 секунде
                 setTimeout(() => {
                     splash.style.opacity = '0';
                     setTimeout(() => splash.remove(), 500);
-                }, 200);
-            }, 2800);
+                }, 700);
+            }, 3800);
         });
 
         // ==========================================
@@ -814,11 +809,10 @@
         }
 
         // ==========================================
-        // ПРОФИЛЬ И ТЕМЫ (НОВОЕ)
+        // ПРОФИЛЬ И ТЕМЫ
         // ==========================================
         function openProfile() {
             document.getElementById('profileSidebar').classList.add('open');
-            // Обновляем статистику профиля
             document.getElementById('profileSidebarStreak').innerText = globalDailyStreak;
             if (tg.initDataUnsafe?.user) {
                 document.getElementById('profileSidebarName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`;
@@ -1527,7 +1521,9 @@
 
         function closePvPResult(share) {
             document.getElementById('pvpResultScreen').style.display = 'none';
-            if(share) { shareResult(`⚔️ Я разнес оппонента на Арене и забрал ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB! Хватит смелости бросить мне вызов? Ссылка в профиле.`); }
+            if(share) {
+                shareResult(`⚔️ Я разнес оппонента на Арене и забрал ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
+            }
         }
 
         tapBtn.addEventListener('click', (e) => {
