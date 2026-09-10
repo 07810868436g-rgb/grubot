@@ -49,7 +49,6 @@ ARTIFACT_COSTS = {
     'durov_cap': 1000000
 }
 
-# --- НОВОЕ: Цены на стили Арены ---
 ARENA_THEMES_COSTS = {
     'crypto': 1000000,
     'cyber': 5000000
@@ -113,14 +112,10 @@ async def init_db():
         
         try: await conn.execute("ALTER TABLE users ADD COLUMN language TEXT")
         except asyncpg.exceptions.DuplicateColumnError: pass
-
         try: await conn.execute("ALTER TABLE users ADD COLUMN turbine_charges INTEGER")
         except asyncpg.exceptions.DuplicateColumnError: pass
-
         try: await conn.execute("ALTER TABLE users ADD COLUMN last_turbine_date TEXT DEFAULT ''")
         except asyncpg.exceptions.DuplicateColumnError: pass
-
-        # --- НОВОЕ: Колонка для стилей Арены ---
         try: await conn.execute("ALTER TABLE users ADD COLUMN owned_arena_themes TEXT DEFAULT '[\"meme\"]'")
         except asyncpg.exceptions.DuplicateColumnError: pass
 
@@ -160,7 +155,10 @@ async def sync_api(request):
             
         user_id = user_data.get("id")
         is_premium = user_data.get("is_premium", False)
-        max_turbine_charges = 5 if is_premium else 3
+        
+        # ЛИМИТЫ (Premium vs Обычный)
+        max_turbine_charges = 2 if is_premium else 1
+        max_rockets = 3 if is_premium else 2
 
         standard_clicks = data.get("standard_clicks", 0)
         rocket_clicks = data.get("rocket_clicks", 0)
@@ -183,7 +181,10 @@ async def sync_api(request):
             last_turbine_date = user_db.get('last_turbine_date', '')
 
             if last_play_date != current_date:
-                rockets_count = 3; last_play_date = current_date; daily_taps = 0; daily_quest_claimed = 0
+                rockets_count = max_rockets
+                last_play_date = current_date
+                daily_taps = 0
+                daily_quest_claimed = 0
 
             if last_turbine_date != current_date:
                 turbine_charges = max_turbine_charges
@@ -232,17 +233,16 @@ async def sync_api(request):
                               WHERE user_id = $12''', 
                            new_taps_bal, new_bonus_bal, current_time, first_name, username, rockets_count, last_play_date, daily_taps, daily_quest_claimed, turbine_charges, last_turbine_date, user_id)
             
-            # Извлекаем купленные темы
             try: owned_themes = json.loads(user_db['owned_arena_themes'] or '["meme"]')
             except Exception: owned_themes = ["meme"]
 
         return web.json_response({
             "status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal,
             "earned_offline": earned_passive if is_offline_reward else 0, "current_squad": user_db['squad_id'], 
-            "rockets_left": rockets_count, "daily_streak": user_db['daily_streak'], "last_claim_date": user_db['last_claim_date'],
+            "rockets_left": rockets_count, "max_rockets": max_rockets, "daily_streak": user_db['daily_streak'], "last_claim_date": user_db['last_claim_date'],
             "claimed_sponsors": user_db['claimed_sponsors'], "daily_taps": daily_taps, "daily_quest_claimed": daily_quest_claimed,
             "turbine_charges": turbine_charges, "max_charges": max_turbine_charges,
-            "owned_arena_themes": owned_themes # Передаем в мини-приложение список покупок
+            "owned_arena_themes": owned_themes
         })
     except Exception as e: return web.json_response({"error": f"Server error"}, status=500)
 
@@ -255,11 +255,12 @@ async def turbine_claim_api(request):
         user_id = user_data.get("id")
         earned = int(data.get("amount", 0))
         is_premium = user_data.get("is_premium", False)
-        max_charges = 5 if is_premium else 3
+        max_charges = 2 if is_premium else 1
         current_date = time.strftime('%Y-%m-%d')
         
-        if earned < 0 or earned > 250000:
-            return web.json_response({"error": "Invalid amount"}, status=400)
+        # АНТИЧИТ: Реалистичный лимит для Турбины (за 10 секунд физически не выжать больше 30 000)
+        if earned < 0 or earned > 30000:
+            return web.json_response({"error": "Превышен лимит добычи!"}, status=400)
 
         async with db_pool.acquire() as conn:
             row = await conn.fetchrow("SELECT turbine_charges, last_turbine_date, bonus_balance FROM users WHERE user_id = $1", user_id)
@@ -294,6 +295,7 @@ async def pvp_result_api(request):
         bet = int(data.get("bet", 0))
         is_win = data.get("is_win", False)
         
+        # АНТИЧИТ: Проверка минимальной ставки
         if bet < 100: return web.json_response({"error": "Минимальная ставка 100 $ROB!"}, status=400)
 
         async with db_pool.acquire() as conn:
@@ -304,6 +306,7 @@ async def pvp_result_api(request):
             bonus_bal = row['bonus_balance']
             total_bal = taps_bal + bonus_bal
             
+            # АНТИЧИТ: Проверка баланса игрока
             if total_bal < bet:
                 return web.json_response({"error": "Недостаточно средств!"}, status=400)
                 
@@ -352,7 +355,6 @@ async def buy_api(request):
             elif buy_type == "room_upgrade":
                 level_id = data.get("level"); cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
 
-            # --- НОВОЕ: Обработка покупки Стиля Арены ---
             elif buy_type == "arena_theme":
                 item_id = data.get("item_id")
                 cost = ARENA_THEMES_COSTS.get(item_id, 0)
@@ -426,12 +428,16 @@ async def activate_rocket_api(request):
         user_data = validate_telegram_data((await request.json()).get("initData"), BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         user_id = user_data.get("id"); current_time = time.time(); current_date = time.strftime('%Y-%m-%d')
+        is_premium = user_data.get("is_premium", False)
+        max_rockets = 3 if is_premium else 2
+
         async with db_pool.acquire() as conn:
             row = await conn.fetchrow("SELECT rockets_count, rocket_expires_at, last_play_date FROM users WHERE user_id = $1", user_id)
-            r_count = int(row['rockets_count']) if row['rockets_count'] is not None else 3
+            r_count = int(row['rockets_count']) if row['rockets_count'] is not None else max_rockets
             r_exp = float(row['rocket_expires_at']) if row['rocket_expires_at'] is not None else 0
             last_date = row['last_play_date']
-            if last_date != current_date: r_count = 3; last_date = current_date
+            
+            if last_date != current_date: r_count = max_rockets; last_date = current_date
             if r_count <= 0: return web.json_response({"error": "Ракеты закончились!"}, status=400)
             if current_time <= r_exp: return web.json_response({"error": "Ракета уже активна!"}, status=400)
             new_count = r_count - 1; new_exp = current_time + 15
@@ -464,10 +470,14 @@ async def leaderboard_api(request):
                 rows = await conn.fetch('SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score FROM users ORDER BY score DESC LIMIT 50')
                 players = [{"id": r['user_id'], "name": r['first_name'] or "Аноним", "username": r['username'], "score": r['score'], "isMe": r['user_id'] == req_user_id} for r in rows]
                 return web.json_response({"status": "success", "list": players, "tab": "players"})
+            
             elif tab == "squads":
+                # ИСПРАВЛЕН БАГ ЛИДЕРБОРДА (Устранен конфликт переменных)
                 rows = await conn.fetch("SELECT squad_id, COUNT(user_id) as members, SUM(taps_balance + bonus_balance) as ts FROM users WHERE squad_id != '' GROUP BY squad_id ORDER BY ts DESC LIMIT 50")
-                r = await conn.fetchrow("SELECT squad_id FROM users WHERE user_id = $1", req_user_id) 
-                squads = [{"id": r['squad_id'], "members": r['members'], "score": r['ts'], "isMySquad": r['squad_id'] == (r['squad_id'] if r else "")} for r in rows]
+                user_row = await conn.fetchrow("SELECT squad_id FROM users WHERE user_id = $1", req_user_id) 
+                user_squad_id = user_row['squad_id'] if user_row else ""
+                
+                squads = [{"id": row_data['squad_id'], "members": row_data['members'], "score": row_data['ts'], "isMySquad": row_data['squad_id'] == user_squad_id} for row_data in rows]
                 return web.json_response({"status": "success", "list": squads, "tab": "squads"})
     except Exception: return web.json_response({"error": "Server error"}, status=500)
 

@@ -76,7 +76,6 @@
             background-image: url('https://github.com/07810868436g-rgb/grubot/blob/main/eye.png?raw=true');
             background-size: contain; background-repeat: no-repeat; background-position: center;
             animation: orbit3D 3.5s linear forwards;
-            /* Убран transform из transition, чтобы глаз не "дышал", а замирал мертво */
             transition: filter 0.5s ease, opacity 0.2s;
         }
         
@@ -94,9 +93,7 @@
 
         .splash-eye.targeting {
             animation: none !important;
-            /* Статичный размер, без увеличения */
             transform: translate(0, -50px) scale(0.9) !important;
-            /* Накапливается только золотое свечение */
             filter: brightness(1.5) drop-shadow(0 0 50px rgba(251, 191, 36, 1)) !important;
             z-index: 15 !important;
         }
@@ -143,18 +140,54 @@
         .top-profile-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--gold); font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 50; cursor: pointer; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         /* ========================================= */
-        /* ОСНОВНОЙ ИНТЕРФЕЙС И НАСЛЕДОВАНИЕ ЦВЕТОВ  */
+        /* ОСНОВНОЙ ИНТЕРФЕЙС                        */
         /* ========================================= */
         #gameContent { position: absolute; top: 0; left: 0; right: 0; bottom: 85px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
         .screen { display: none; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100%; text-align: center; padding-bottom: 30px; }
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        .bottom-menu { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; background: var(--menu-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--panel-border); border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background 0.3s; }
-        .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 3px; }
-        .menu-icon { font-size: 20px; filter: grayscale(100%); transition: filter 0.3s; }
-        .menu-btn.active { color: var(--gold); text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
-        .menu-btn.active .menu-icon { filter: grayscale(0%); }
+        /* ========================================= */
+        /* ЛЕВИТИРУЮЩЕЕ НИЖНЕЕ МЕНЮ                  */
+        /* ========================================= */
+        .bottom-menu { 
+            position: fixed; bottom: 15px; left: 15px; right: 15px; height: 70px; 
+            background: var(--menu-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
+            border: 1px solid var(--panel-border); border-radius: 24px; 
+            display: flex; justify-content: space-around; align-items: center; 
+            z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background 0.3s; 
+        }
+        .menu-btn { 
+            background: none; border: none; color: var(--text-muted); font-size: 11px; 
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; 
+            width: 60px; font-weight: 600; gap: 4px; position: relative; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .menu-icon { 
+            font-size: 24px; filter: grayscale(100%); transition: all 0.3s ease; 
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; 
+        }
+        
+        /* Эффект левитации и золотой фишки */
+        .menu-btn.active { 
+            color: var(--gold); text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); 
+            transform: translateY(-16px); 
+        }
+        .menu-btn.active .menu-icon { 
+            filter: grayscale(0%); background: #18181b; border: 2px solid var(--gold); 
+            box-shadow: 0 8px 15px rgba(251, 191, 36, 0.4); font-size: 22px; 
+        }
+        
+        /* Светящаяся золотая аура-лунка под кнопкой */
+        .menu-btn::before { 
+            content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); 
+            width: 30px; height: 10px; border-radius: 50%; 
+            background: rgba(251, 191, 36, 0); transition: background 0.3s; 
+            filter: blur(8px); z-index: -1; 
+        }
+        .menu-btn.active::before { 
+            background: rgba(251, 191, 36, 0.6); 
+        }
 
         .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); }
         .robux-estimate { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; background: var(--panel-bg); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--panel-border); }
@@ -292,9 +325,7 @@
 </head>
 <body>
 
-    <!-- ========================================= -->
-    <!-- SPLASH SCREEN (КИБЕР-МАСОНСТВО)           -->
-    <!-- ========================================= -->
+    <!-- SPLASH SCREEN -->
     <div id="splashScreen">
         <div class="splash-core">
             <div class="splash-title" id="splashTitle">GRUTAP</div>
@@ -305,9 +336,7 @@
         <div class="splash-eye" id="splashEye"></div>
     </div>
 
-    <!-- ========================================= -->
-    <!-- ПРОФИЛЬ (WEB3 ПАСПОРТ)                    -->
-    <!-- ========================================= -->
+    <!-- ПРОФИЛЬ (WEB3 ПАСПОРТ) -->
     <div id="profileSidebar" class="profile-sidebar">
         <div class="profile-header">
             <button class="profile-back" onclick="closeProfile()">‹ Назад</button>
@@ -401,7 +430,7 @@
         <div id="pvpDivider" class="battle-divider" style="top: 50%;"></div>
     </div>
 
-    <!-- ЭКРАН РЕЗУЛЬТАТОВ БОЯ (КАСТОМНЫЙ) -->
+    <!-- ЭКРАН РЕЗУЛЬТАТОВ БОЯ -->
     <div id="pvpResultScreen" class="pvp-result-overlay">
         <div id="pvpResultIcon" class="pvp-res-icon">🐸</div>
         <div id="pvpResultTitle" class="pvp-res-title">ГГ, ИЗИ!</div>
@@ -536,7 +565,6 @@
         
         <!-- Вкладка 1: ИГРА -->
         <div id="main" class="screen active">
-            <!-- КНОПКА ПРОФИЛЯ -->
             <button class="top-profile-btn" onclick="openProfile()">👤</button>
 
             <div id="rocketBadge" class="rocket-badge"><span data-i18n="rocketActive">🚀 РАКЕТА АКТИВНА! (x5 к тапу)</span> <span id="rocketTimer">15</span>s</div>
@@ -615,7 +643,7 @@
             
             <div class="task-box" style="text-align: center;">
                 <b style="font-size: 15px;" data-i18n="rocketTitle">🚀 Сверхзвуковая Ракета</b><br>
-                <span style="font-size: 12px; color: var(--text-muted);"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
+                <span style="font-size: 12px; color: var(--text-muted);"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">...</b></span>
                 <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; font-size: 14px; margin-top: 8px; box-shadow: none;" onclick="activateRocket()" data-i18n="launchRocket">Запустить Ракету 🚀</button>
             </div>
 
@@ -700,41 +728,28 @@
             const title = document.getElementById('splashTitle');
             const loader = document.getElementById('splashLoader');
 
-            // 1. Акт 1: Орбита длится 3.5 секунды
-            
-            setTimeout(() => {
-                // 2. Акт 2: Захват цели (3.5 сек - 4.0 сек)
-                // Добавляем класс для жесткой фиксации и нарастания свечения (БЕЗ увеличения масштаба)
-                eye.classList.add('targeting');
-            }, 3500);
+            setTimeout(() => { eye.classList.add('targeting'); }, 3500);
 
             setTimeout(() => {
-                // 3. Акт 3: Сингулярность (4.0 сек)
                 const rect = eye.getBoundingClientRect();
                 const x = rect.left + rect.width / 2;
                 const y = rect.top + rect.height / 2;
                 
-                // Создаем 60 золотых искр
                 for(let i = 0; i < 60; i++) {
                     let spark = document.createElement('div');
                     spark.className = 'spark';
-                    spark.style.left = x + 'px';
-                    spark.style.top = y + 'px';
+                    spark.style.left = x + 'px'; spark.style.top = y + 'px';
                     spark.style.setProperty('--dx', (Math.random() * 600 - 300) + 'px');
                     spark.style.setProperty('--dy', (Math.random() * 600 - 300) + 'px');
                     spark.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
                     splash.appendChild(spark);
                 }
                 
-                // Исчезновение центрального ядра
                 eye.style.opacity = '0';
                 title.style.opacity = '0';
                 loader.style.opacity = '0';
-                
-                // Растворение черного фона
                 splash.style.backgroundColor = 'rgba(0,0,0,0)';
                 
-                // Полное удаление экрана заставки
                 setTimeout(() => splash.remove(), 600);
             }, 4000);
         });
@@ -820,9 +835,6 @@
             tg.HapticFeedback.selectionChanged();
         }
 
-        // ==========================================
-        // ПРОФИЛЬ И ТЕМЫ
-        // ==========================================
         function openProfile() {
             document.getElementById('profileSidebar').classList.add('open');
             document.getElementById('profileSidebarStreak').innerText = globalDailyStreak;
@@ -852,7 +864,6 @@
         const energyText = document.getElementById('energyText');
         const energyBar = document.getElementById('energyBar');
 
-        // СЕРВЕРНЫЙ СЕЙФ И КЛИКИ
         let serverTaps = 0; let serverBonus = 0; 
         let pendingStandardClicks = 0; let pendingRocketClicks = 0;
         let inFlightStandardClicks = 0; let inFlightRocketClicks = 0;
@@ -863,14 +874,16 @@
         let sponsorStates = { 1: "init", 2: "init", 3: "init", 4: "init" }; 
 
         const refsCount = parseInt(urlParams.get('refs')) || 0;
-        let isRocketActive = false; let rocketsLeft = 3;
+        let isRocketActive = false;
+        
+        let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
+        let maxTurbineCharges = isPremium ? 2 : 1;
+        let maxRockets = isPremium ? 3 : 2;
+        let currentTurbineCharges = maxTurbineCharges; 
+        let rocketsLeft = maxRockets;
+
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
         let currentRoomLevel = 0; let ownedArtifactIds = ['default']; let currentArtifactId = 'default';
-
-        let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
-        let maxTurbineCharges = isPremium ? 5 : 3;
-        let currentTurbineCharges = maxTurbineCharges; 
-
         let ownedArenaThemes = ['meme'];
         let currentArenaTheme = 'meme';
 
@@ -903,6 +916,7 @@
         if (tg.initDataUnsafe?.user) { document.getElementById('userName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`; }
         document.getElementById('taskFriendsCount').innerText = refsCount;
         document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
+        document.getElementById('rocketCount').innerText = `${rocketsLeft}/${maxRockets}`;
 
         function showFloatingEffects(x, y, amount, isRocket) {
             let num = document.createElement('div');
@@ -1046,7 +1060,7 @@
                 let extraCSS = theme.extraStyle ? theme.extraStyle : '';
                 
                 if (isEquipped) { 
-                    btnHTML = `<button class="support-btn" style="padding: 10px; background: transparent; border: 1px solid #fbbf24; color: #fbbf24; box-shadow: none;">${currentLang === 'en' ? 'Equipped ✅' : 'Выбрано ✅'}</button>`; 
+                    btnHTML = `<button class="support-btn" style="padding: 10px; background: transparent; border: 1px solid var(--gold); color: var(--gold); box-shadow: none;">${currentLang === 'en' ? 'Equipped ✅' : 'Выбрано ✅'}</button>`; 
                 } 
                 else if (isOwned) { 
                     btnHTML = `<button class="support-btn" style="padding: 10px; background: var(--panel-border); color: var(--text-main); box-shadow: none;" onclick="selectArenaTheme('${theme.id}')">${currentLang === 'en' ? 'Equip' : 'Применить'}</button>`; 
@@ -1111,9 +1125,7 @@
         function switchLeaderboardTab(tab) {
             currentLbTab = tab; 
             document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); 
-            document.getElementById('tabPlayers').style.background = tab === 'players' ? 'var(--gold)' : 'var(--panel-border)'; 
             document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); 
-            document.getElementById('tabSquads').style.background = tab === 'squads' ? 'var(--gold)' : 'var(--panel-border)';
             document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; 
             loadLeaderboard();
         }
@@ -1125,7 +1137,7 @@
             fetch(`${BACKEND_URL}/activate-rocket`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
-                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                    rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/${maxRockets}`;
                     if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "var(--panel-border)"; btn.disabled = true; }
                     else { btn.innerText = origText; btn.disabled = false; }
                     isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
@@ -1317,7 +1329,7 @@
 
         async function startAudioTurbine() {
             if (currentTurbineCharges <= 0) {
-                tg.showAlert(`❌ Заряды исчерпаны!\n\nОбычные: 3 в день\nPremium: 5 в день.\n\nВозвращайтесь завтра!`);
+                tg.showAlert(`❌ Заряды исчерпаны!\n\nОбычные: 1 в день\nPremium: 2 в день.\n\nВозвращайтесь завтра!`);
                 return;
             }
             try {
@@ -1396,10 +1408,6 @@
 
         function claimAndShareTurbine() { claimAndExitTurbine(true); }
 
-        let pvpBet = 10000; let pvpMode = 'touch';
-        let pvpTimer = 15; let pvpInterval;
-        let myPos = 50; 
-        
         function openPvPModal() { document.getElementById('pvpSetupModal').style.display = 'flex'; }
         function closePvPModal() { document.getElementById('pvpSetupModal').style.display = 'none'; }
         function setPvPBet(amount) { document.getElementById('pvpBetInput').value = amount; }
@@ -1574,7 +1582,10 @@
                     renderDailyRewardUI(); renderDailyQuestUI(); renderSponsorsUI();
 
                     if (data.rockets_left !== undefined) {
-                        rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
+                        rocketsLeft = data.rockets_left; 
+                        maxRockets = data.max_rockets !== undefined ? data.max_rockets : maxRockets;
+                        document.getElementById('rocketCount').innerText = `${rocketsLeft}/${maxRockets}`;
+                        
                         let btn = document.getElementById('btnActivateRocket');
                         if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "var(--panel-border)"; btn.disabled = true; }
                         else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
