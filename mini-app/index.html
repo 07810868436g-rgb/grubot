@@ -3,172 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RobuxTap Premium</title>
+    <title>GruTap Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* CSS ПЕРЕМЕННЫЕ ДЛЯ СМЕНЫ ТЕМ */
+        :root {
+            --bg-main: #000000;
+            --bg-grad: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.12) 0%, #000000 70%);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --panel-bg: rgba(20, 20, 25, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --menu-bg: rgba(18, 18, 22, 0.75);
+            --modal-bg: #0f0f14;
+            --gold: #fbbf24;
+            --gold-grad: linear-gradient(90deg, #d4af37, #f59e0b);
+        }
+
+        [data-theme="platinum"] {
+            --bg-main: #f1f5f9;
+            --bg-grad: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15) 0%, #e2e8f0 70%);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-border: rgba(0, 0, 0, 0.1);
+            --menu-bg: rgba(255, 255, 255, 0.9);
+            --modal-bg: #ffffff;
+            --gold: #d4af37;
+            --gold-grad: linear-gradient(90deg, #f59e0b, #d4af37);
+        }
+
         * { box-sizing: border-box; }
         html, body { 
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            background-color: #000000; 
-            background-image: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.12) 0%, #000000 70%); 
-            color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-main); 
+            background-image: var(--bg-grad); 
+            color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             user-select: none; -webkit-tap-highlight-color: transparent; 
+            transition: background-color 0.4s, color 0.4s;
         }
 
-        #gameContent { 
-            position: absolute; top: 0; left: 0; right: 0; bottom: 85px; 
-            overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; 
+        /* ========================================= */
+        /* SPLASH SCREEN & КИНЕМАТОГРАФИЯ            */
+        /* ========================================= */
+        #splashScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.4s ease-out;
         }
+        .splash-eye {
+            width: 140px; height: 140px;
+            background-image: url('https://github.com/07810868436g-rgb/grubot/blob/main/eye.png?raw=true');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.5));
+            /* Орбитальное движение (Наблюдатель) */
+            animation: orbitalFloat 5s infinite linear;
+            margin-bottom: 40px;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        @keyframes orbitalFloat {
+            0% { transform: translate(0, -10px) rotate(0deg); }
+            25% { transform: translate(-10px, 0) rotate(-2deg); }
+            50% { transform: translate(0, 10px) rotate(0deg); }
+            75% { transform: translate(10px, 0) rotate(2deg); }
+            100% { transform: translate(0, -10px) rotate(0deg); }
+        }
+        .splash-eye.targeting {
+            animation: none !important;
+            transform: scale(1.15) translate(0, 0) !important;
+            filter: drop-shadow(0 0 50px rgba(251, 191, 36, 1));
+        }
+        .splash-title {
+            font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: 8px;
+            margin-bottom: 30px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            transition: opacity 0.3s;
+        }
+        .splash-loader-bg { width: 220px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; transition: opacity 0.3s;}
+        .splash-loader-fill {
+            width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            animation: loadProgress 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes loadProgress { 0% { width: 0%; } 40% { width: 45%; } 100% { width: 100%; } }
 
+        /* ========================================= */
+        /* ПРОФИЛЬ (iOS СЛАЙДЕР СБОКУ)               */
+        /* ========================================= */
+        .profile-sidebar {
+            position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
+            background: var(--bg-main); background-image: var(--bg-grad);
+            z-index: 8000; transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .profile-sidebar.open { right: 0; }
+        .profile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px; border-bottom: 1px solid var(--panel-border);
+            position: sticky; top: 0; background: var(--menu-bg); backdrop-filter: blur(10px); z-index: 10;
+        }
+        .profile-back { background: none; border: none; color: var(--gold); font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .profile-title-text { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .profile-content { padding: 20px; padding-bottom: 100px; }
+        
+        .profile-block { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; transition: background 0.3s; }
+        .profile-avatar-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--gold-grad); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .profile-name { font-size: 20px; font-weight: 900; color: var(--text-main); }
+        .profile-id { font-size: 13px; color: var(--text-muted); }
+        
+        .profile-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+        .profile-input:focus { border-color: var(--gold); outline: none; }
+        
+        .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--panel-border); }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-label { font-size: 15px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        
+        /* Тумблер (Switch) для смены тем */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; border: 1px solid var(--panel-border); }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 3px; background-color: var(--gold); transition: .4s; border-radius: 50%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        input:checked + .slider { background-color: var(--menu-bg); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #d4af37; }
+
+        /* Иконка профиля на главном экране */
+        .top-profile-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--gold); font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 50; cursor: pointer; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* ========================================= */
+        /* ОСНОВНОЙ ИНТЕРФЕЙС И НАСЛЕДОВАНИЕ ЦВЕТОВ  */
+        /* ========================================= */
+        #gameContent { position: absolute; top: 0; left: 0; right: 0; bottom: 85px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
         .screen { display: none; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100%; text-align: center; padding-bottom: 30px; }
         .screen.active { display: flex; }
         #main { justify-content: center; }
 
-        /* Парящее нижнее меню */
-        .bottom-menu { 
-            position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; 
-            background: rgba(18, 18, 22, 0.75); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 24px; display: flex; justify-content: space-around; align-items: center; 
-            z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .menu-btn { background: none; border: none; color: #71717a; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 3px; }
-        .menu-icon { font-size: 20px; }
-        .menu-btn.active { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
+        .bottom-menu { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; background: var(--menu-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--panel-border); border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: background 0.3s; }
+        .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 3px; }
+        .menu-icon { font-size: 20px; filter: grayscale(100%); transition: filter 0.3s; }
+        .menu-btn.active { color: var(--gold); text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
+        .menu-btn.active .menu-icon { filter: grayscale(0%); }
 
-        /* Премиальный баланс */
-        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .robux-estimate { font-size: 14px; color: #a1a1aa; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 2px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); }
+        .robux-estimate { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; background: var(--panel-bg); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--panel-border); }
 
-        /* Кнопка тапа */
-        .tap-button { 
-            width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); 
-            background-size: contain; background-position: center; background-repeat: no-repeat; border-radius: 50%; cursor: pointer; 
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(250, 204, 21, 0.15); 
-            transition: transform 0.05s ease-out; position: relative; z-index: 10; margin: 0 auto; 
-            touch-action: manipulation; -webkit-user-drag: none; 
-            border: 1px solid rgba(255, 255, 255, 0.05); background-color: #0f0f14;
-        }
+        .tap-button { width: 240px; height: 240px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: contain; background-position: center; background-repeat: no-repeat; border-radius: 50%; cursor: pointer; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(250, 204, 21, 0.15); transition: transform 0.05s ease-out; position: relative; z-index: 10; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; border: 1px solid var(--panel-border); background-color: var(--modal-bg); }
         .tap-button:active { transform: scale(0.93) translateY(4px); }
         .artifact-overlay { position: absolute; top: -10%; right: -10%; width: 100px; height: 100px; pointer-events: none; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8)); z-index: 11; display: none; }
 
-        /* Энергия */
-        .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: 600; color: #a1a1aa; font-size: 13px; }
-        .energy-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 4px; transition: width 0.3s ease-out; }
+        .energy-container { width: 100%; max-width: 300px; margin: 25px auto 0 auto; font-weight: 600; color: var(--text-muted); font-size: 13px; }
+        .energy-bar-bg { width: 100%; height: 8px; background: var(--panel-border); border-radius: 4px; margin-top: 6px; overflow: hidden; border: 1px solid var(--panel-border); }
+        .energy-bar-fill { width: 100%; height: 100%; background: var(--gold-grad); border-radius: 4px; transition: width 0.3s ease-out; }
         
         .rocket-badge { display: none; background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; margin-bottom: 20px; font-size: 14px; animation: pulse 1s infinite; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
-        /* Вылетающие цифры */
         .floating-text { position: absolute; color: white; font-size: 40px; font-weight: 900; pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         .spark { position: absolute; width: 5px; height: 5px; background: #fbbf24; border-radius: 50%; pointer-events: none; box-shadow: 0 0 10px #fbbf24; animation: scatter 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 999; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.2); } }
         @keyframes scatter { 0% { opacity: 1; transform: translate(0, 0) scale(1.5); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); } }
         
-        /* Базовые компоненты UI */
-        .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: left; width: 100%; }
-        .subtitle { font-size: 14px; color: #a1a1aa; margin-bottom: 25px; text-align: left; width: 100%; }
-        .task-box { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; }
-        .support-btn { background: linear-gradient(90deg, #d4af37, #f59e0b); color: #000000; padding: 14px 24px; border-radius: 14px; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); text-align: left; width: 100%; color: var(--text-main); }
+        .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; text-align: left; width: 100%; }
+        .task-box { background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 18px; border-radius: 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px; backdrop-filter: blur(10px); text-align: left; transition: background 0.3s; }
+        .support-btn { background: var(--gold-grad); color: #000000; padding: 14px 24px; border-radius: 14px; font-size: 15px; font-weight: 800; margin-top: 12px; display: inline-block; cursor: pointer; border: none; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); transition: transform 0.1s; box-sizing: border-box; text-align: center; }
         .support-btn:active { transform: scale(0.96); }
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; box-shadow: none; }
         .btn-green { background: linear-gradient(90deg, #10b981, #059669); color: white; }
-        .btn-gray { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
+        .btn-gray { background: var(--panel-border); color: var(--text-muted); cursor: not-allowed; }
         .btn-danger { background: linear-gradient(90deg, #ef4444, #dc2626); color: white; }
-        .section-label { font-size: 14px; font-weight: 800; color: #a1a1aa; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; text-align: left; width: 100%; }
+        .section-label { font-size: 14px; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; text-align: left; width: 100%; }
         
-        /* КАРТОЧКИ КАТЕГОРИЙ (БУТИКИ БИЗНЕСА) */
-        .category-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; }
+        .category-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; }
         .category-card:active { transform: scale(0.96); }
         .category-card:hover { border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 5px 20px rgba(251, 191, 36, 0.1); }
-        .category-icon { font-size: 42px; margin-right: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+        .category-icon { font-size: 42px; margin-right: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2)); }
         .category-info { flex-grow: 1; text-align: left; }
-        .category-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-        .category-desc { font-size: 13px; color: #a1a1aa; line-height: 1.3; }
-        .category-arrow { font-size: 20px; color: #fbbf24; font-weight: bold; margin-left: 10px; }
+        .category-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+        .category-desc { font-size: 13px; color: var(--text-muted); line-height: 1.3; }
+        .category-arrow { font-size: 20px; color: var(--gold); font-weight: bold; margin-left: 10px; }
 
-        /* ВСПЛЫВАЮЩИЕ ОКНА (ШОРТ-ШИТЫ) ДЛЯ ПАПОК БИЗНЕСА */
-        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
-        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 90%; background: #0f0f14; border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); }
+        .sheet-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
+        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 90%; background: var(--modal-bg); border-radius: 28px 28px 0 0; z-index: 3001; transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(251, 191, 36, 0.3); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); color: var(--text-main); }
         .sheet.open { bottom: 0; }
-        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; flex-shrink: 0; }
-        .sheet-title { font-size: 20px; font-weight: 900; color: #fbbf24; }
-        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #a1a1aa; font-size: 28px; cursor: pointer; padding: 0; line-height: 1; }
+        .sheet-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--panel-border); position: relative; flex-shrink: 0; }
+        .sheet-title { font-size: 20px; font-weight: 900; color: var(--gold); }
+        .sheet-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 0; line-height: 1; }
         .sheet-content { padding: 20px; overflow-y: auto; padding-bottom: 50px; }
 
-        /* Студия */
-        .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .studio-container { position: relative; width: 100%; height: 200px; background: #000000; border-radius: 20px; overflow: hidden; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .studio-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-position: center; background-size: cover; z-index: 0; transition: background-image 0.5s ease-in-out; }
         .studio-income-badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 15, 20, 0.85); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 12px; border-radius: 12px; font-weight: 700; color: #fbbf24; z-index: 10; font-size: 13px; backdrop-filter: blur(6px); }
 
-        /* Сетка бустов и Артефакты */
         .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
-        .tech-btn { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 5px; color: white; text-align: center; cursor: pointer; transition: transform 0.1s; }
+        .tech-btn { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 14px 5px; color: var(--text-main); text-align: center; cursor: pointer; transition: transform 0.1s; }
         .tech-btn:active { transform: scale(0.95); }
-        .tech-icon { font-size: 26px; margin-bottom: 4px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        .tech-title { font-size: 11px; font-weight: 600; color: #a1a1aa; }
-        .tech-lvl { font-size: 13px; font-weight: 800; color: #fbbf24; margin-top: 4px; display: block; }
+        .tech-icon { font-size: 26px; margin-bottom: 4px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+        .tech-title { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+        .tech-lvl { font-size: 13px; font-weight: 800; color: var(--gold); margin-top: 4px; display: block; }
 
         .artifacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .artifact-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
-        .artifact-card.equipped { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 2; }
-        .artifact-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: white; z-index: 2; text-align: center; }
+        .artifact-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 18px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; color: var(--text-main); }
+        .artifact-card.equipped { border-color: var(--gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .artifact-img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); z-index: 2; }
+        .artifact-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; z-index: 2; text-align: center; }
         .artifact-effect { font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 8px; z-index: 2; text-align: center;}
-        .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; }
+        .artifact-btn { width: 100%; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; margin-top: auto; z-index: 2; background: var(--panel-border); color: var(--text-main); }
+        .artifact-btn.btn-buy { background: var(--gold-grad); color: #000; }
+        .artifact-btn.btn-select { background: var(--menu-bg); border: 1px solid var(--panel-border); color: var(--text-main); }
 
-        /* Карточки стилей Арены */
-        .arena-style-card { background: rgba(20,20,25,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 18px; margin-bottom: 15px; text-align: left; position: relative; overflow: hidden; }
-        .arena-style-card.equipped { border-color: #fbbf24; background: rgba(251, 191, 36, 0.08); }
+        .arena-style-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 18px; padding: 18px; margin-bottom: 15px; text-align: left; position: relative; overflow: hidden; }
+        .arena-style-card.equipped { border-color: var(--gold); background: rgba(251, 191, 36, 0.08); }
         .style-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .style-name { font-size: 16px; font-weight: 800; color: white; z-index: 2; position: relative; }
+        .style-name { font-size: 16px; font-weight: 800; color: var(--text-main); z-index: 2; position: relative; }
         .style-price { font-size: 14px; font-weight: 800; color: #10b981; z-index: 2; position: relative; }
-        .style-desc { font-size: 13px; color: #a1a1aa; margin-bottom: 15px; line-height: 1.4; z-index: 2; position: relative; }
+        .style-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4; z-index: 2; position: relative; }
 
-        /* Магазин комнат (высший z-index для перекрытия папок) */
-        #shopSheetOverlay { z-index: 3005; }
-        #shopSheet { z-index: 3006; }
+        #shopSheetOverlay { z-index: 3005; } #shopSheet { z-index: 3006; }
         .showcase-grid { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
-        .showcase-card { background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; position: relative; }
-        .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .showcase-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 18px; overflow: hidden; position: relative; }
+        .showcase-img-container { width: 100%; height: 120px; background: #000; overflow: hidden; position: relative; border-bottom: 1px solid var(--panel-border); }
         .showcase-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
-        .showcase-info { padding: 14px; text-align: left; }
-        .showcase-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
+        .showcase-info { padding: 14px; text-align: left; color: var(--text-main); }
+        .showcase-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .showcase-effect { font-size: 13px; color: #10b981; font-weight: 600; margin-bottom: 10px; }
         .showcase-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
         .showcase-card.locked .showcase-img { filter: grayscale(100%); opacity: 0.2; }
-        .showcase-card.locked .showcase-title { color: #52525b; }
+        .showcase-card.locked .showcase-title { color: var(--text-muted); }
         .showcase-card.bought { border-color: #10b981; }
 
-        .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: white; font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
-        .squad-input:focus { border-color: #fbbf24; outline: none; }
+        .squad-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 15px; font-weight: bold; text-align: center; box-sizing: border-box; margin-bottom: 15px; }
+        .squad-input:focus { border-color: var(--gold); outline: none; }
         
-        .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(20,20,25,0.7) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; width: 100%; box-sizing: border-box; text-align: center; margin-bottom: 15px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+        .staking-box { background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, var(--panel-bg) 80%); border: 1px solid rgba(16, 185, 129, 0.4); padding: 20px; border-radius: 20px; width: 100%; box-sizing: border-box; text-align: center; margin-bottom: 15px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
 
         .tabs-container { display: flex; width: 100%; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 700; border: none; color: white; background: #18181b; cursor: pointer; transition: background 0.2s; }
-        .tab-btn.active { background: #fbbf24; color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 700; border: none; color: var(--text-main); background: var(--panel-border); cursor: pointer; transition: background 0.2s; }
+        .tab-btn.active { background: var(--gold); color: #000; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); }
 
-        .lang-switch { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fbbf24; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .lang-switch { background: var(--panel-border); border: 1px solid var(--panel-border); color: var(--gold); padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* Модальные окна */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        .modal-content { background: #0f0f14; padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); width: 85%; max-width: 350px; position: relative; }
-        .modal-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 10px; }
-        .modal-text { font-size: 14px; color: #a1a1aa; margin-bottom: 20px; }
-        .modal-reward { font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 25px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
-        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
-        .level-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--modal-bg); padding: 28px; border-radius: 24px; text-align: center; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 40px rgba(0, 0, 0, 0.6); width: 85%; max-width: 350px; position: relative; color: var(--text-main); }
+        .modal-title { font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+        .modal-reward { font-size: 32px; font-weight: 900; color: var(--text-main); margin-bottom: 25px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
+        .level-bar-bg { width: 100%; height: 8px; background: var(--panel-border); border-radius: 4px; overflow: hidden; margin-top: 6px; }
         .level-bar-fill { height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 4px; transition: width 0.4s ease-out; }
 
-        /* PVP Арена & Панель Ставок */
-        .pvp-select-btn { border: 1px solid rgba(255,255,255,0.1); background: rgba(20,20,25,0.8); color: white; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
-        .pvp-select-btn.active { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
-        .pvp-bet-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #fbbf24; background: rgba(0,0,0,0.5); color: #fbbf24; font-size: 20px; font-weight: 900; text-align: center; box-sizing: border-box; margin-bottom: 10px; }
+        .pvp-select-btn { border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+        .pvp-select-btn.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.1); color: var(--gold); }
+        .pvp-bet-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: var(--gold); font-size: 20px; font-weight: 900; text-align: center; box-sizing: border-box; margin-bottom: 10px; }
         .pvp-bet-input:focus { outline: none; box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
 
+        /* Арена и Турбина всегда темные для атмосферы */
         .battle-arena { display: flex; flex-direction: column; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 5000; background: #000; display: none; }
         .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: flex-basis 0.2s ease-out; }
         .battle-top { background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%); }
@@ -177,14 +265,12 @@
         .battle-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; position: absolute; opacity: 0.5; }
         .battle-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 32px; font-weight: 900; z-index: 20; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 
-        /* УНИКАЛЬНЫЙ ЭКРАН РЕЗУЛЬТАТОВ PVP (НОВОЕ) */
         .pvp-result-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: background 0.5s ease; text-align: center; }
         .pvp-res-icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)); }
         .pvp-res-title { font-size: 36px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
         .pvp-res-desc { font-size: 16px; color: #a1a1aa; margin-bottom: 30px; font-weight: bold; }
         .pvp-res-amount { font-size: 42px; font-weight: 900; margin-bottom: 40px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
-        /* Аудио Турбина */
         .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
         .turbine-circle { width: 200px; height: 200px; border-radius: 50%; border: 10px solid #333; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px #000, 0 0 50px rgba(239, 68, 68, 0.2); transition: 0.1s; margin: 0 auto; }
         .turbine-inner { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0%, transparent 0%); position: absolute; top:0; left:0; opacity: 0.8; }
@@ -193,6 +279,74 @@
     </style>
 </head>
 <body>
+
+    <!-- ========================================= -->
+    <!-- SPLASH SCREEN (КИБЕР-МАСОНСТВО)           -->
+    <!-- ========================================= -->
+    <div id="splashScreen">
+        <div class="splash-eye" id="splashEye"></div>
+        <div class="splash-title" id="splashTitle">GRUTAP</div>
+        <div class="splash-loader-bg" id="splashLoader">
+            <div class="splash-loader-fill"></div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- ПРОФИЛЬ (WEB3 ПАСПОРТ)                    -->
+    <!-- ========================================= -->
+    <div id="profileSidebar" class="profile-sidebar">
+        <div class="profile-header">
+            <button class="profile-back" onclick="closeProfile()">‹ Назад</button>
+            <div class="profile-title-text" data-i18n="profileTitle">Web3 Паспорт</div>
+            <div style="width: 50px;"></div> <!-- Spacer для выравнивания -->
+        </div>
+        <div class="profile-content">
+            
+            <!-- Блок 1: Идентификация -->
+            <div class="profile-block">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar">👤</div>
+                    <div>
+                        <div class="profile-name" id="profileSidebarName">@Username</div>
+                        <div class="profile-id" data-i18n="playerId">Игрок #1543</div>
+                    </div>
+                </div>
+                <div style="font-size: 13px; font-weight: bold; color: var(--text-muted); margin-bottom: 8px;">Roblox ID:</div>
+                <input type="text" class="profile-input" placeholder="Введите ник в Roblox" id="robloxIdInput">
+                <button class="support-btn" style="width: 100%; margin-top: 5px; box-shadow: none;" data-i18n="connectWallet">Connect Wallet (Скоро)</button>
+            </div>
+
+            <!-- Блок 2: Настройки -->
+            <div class="profile-block">
+                <div class="section-label" style="margin-top: 0;" data-i18n="settingsTitle">Настройки</div>
+                <div class="settings-row">
+                    <div class="settings-label">🌐 <span data-i18n="languageLabel">Язык</span></div>
+                    <button class="lang-switch" onclick="toggleLanguage()" style="margin: 0;"><span id="currentLangLabel">RU</span></button>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label">💎 <span data-i18n="themeLabel">Тема Platinum</span></div>
+                    <label class="switch">
+                        <input type="checkbox" id="themeSwitch" onchange="toggleTheme(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Блок 3: Статистика -->
+            <div class="profile-block">
+                <div class="section-label" style="margin-top: 0;" data-i18n="statsTitle">Статистика</div>
+                <div class="settings-row">
+                    <div class="settings-label" style="color: var(--text-muted);" data-i18n="leagueRank">Рейтинг:</div>
+                    <div style="font-weight: 800; color: var(--gold);" id="profileSidebarLeague">Diamond</div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label" style="color: var(--text-muted);" data-i18n="dailyStreak">Серия входов:</div>
+                    <div style="font-weight: 800; color: var(--text-main);"><span id="profileSidebarStreak">0</span> <span data-i18n="days">дней</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
     <!-- МОДАЛКА: ВЫБОР PVP -->
     <div id="pvpSetupModal" class="modal-overlay">
@@ -286,7 +440,7 @@
             <div id="techModalTitle" class="modal-title">Мультитап</div>
             <div id="techModalDesc" class="modal-text">Увеличивает добычу за 1 тап.</div>
             <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-bottom: 20px;">
-                <span style="color:#a1a1aa; font-size: 13px;"><span data-i18n="currentEffect">Текущий эффект:</span> <b id="techModalCurrent" style="color:white;">+1</b></span><br>
+                <span style="color:var(--text-muted); font-size: 13px;"><span data-i18n="currentEffect">Текущий эффект:</span> <b id="techModalCurrent" style="color:var(--text-main);">+1</b></span><br>
                 <span style="color:#10b981; font-size: 13px; font-weight: bold;"><span data-i18n="nextEffect">Следующий:</span> <b id="techModalNext">+2</b></span>
             </div>
             <button id="techModalBuyBtn" class="support-btn" style="width: 100%; margin-top: 0;" onclick="">Прокачать</button>
@@ -298,15 +452,15 @@
             <button class="close-modal-btn" onclick="closeSquadModal()">×</button>
             <div style="font-size: 40px; margin-bottom: 10px;">📢</div>
             <div class="modal-title" style="font-size: 18px;" data-i18n="squadTitle">Создать официальный Сквад</div>
-            <div style="text-align: left; font-size: 12px; color: #a1a1aa; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
+            <div style="text-align: left; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 14px;" data-i18n="squadRules">
                 Чтобы ваш канал попал в Лидерборд, добавьте бота @grutap_robot в администраторы вашего канала.
             </div>
             <input type="text" id="squadInput" class="squad-input" placeholder="@MySuperChannel">
             <button id="btnCreateSquad" class="support-btn" style="width: 100%; margin-top: 0; padding: 12px;" onclick="generateSquadLink()" data-i18n="squadBind">Привязать канал</button>
-            <div id="squadLinkResult" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.4);">
-                <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 5px;" data-i18n="squadYourLink">Ваша официальная ссылка:</div>
-                <div id="generatedSquadLink" style="font-size: 12px; color: #fbbf24; word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
-                <button class="support-btn" style="background: #27272a; color: white; width: 100%; padding: 8px; font-size: 13px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()" data-i18n="copy">📋 Скопировать</button>
+            <div id="squadLinkResult" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.4);">
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;" data-i18n="squadYourLink">Ваша официальная ссылка:</div>
+                <div id="generatedSquadLink" style="font-size: 12px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-weight: bold;"></div>
+                <button class="support-btn" style="background: var(--panel-border); color: var(--text-main); width: 100%; padding: 8px; font-size: 13px; margin-top: 0; box-shadow: none;" onclick="copySquadLink()" data-i18n="copy">📋 Скопировать</button>
             </div>
         </div>
     </div>
@@ -352,11 +506,11 @@
         </div>
         <div class="sheet-content">
             <div class="section-label" data-i18n="artifactsTitle">🏆 Telegram Артефакты</div>
-            <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px; text-align: left;" data-i18n="artifactsDesc">Экипируйте мемы для глобального буста.</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; text-align: left;" data-i18n="artifactsDesc">Экипируйте мемы для глобального буста.</div>
             <div id="artifactsContainer" class="artifacts-grid"></div>
 
             <div class="section-label" style="margin-top: 30px;" data-i18n="arenaStylesTitle">⚔️ Стили Арены (PvP)</div>
-            <div id="arenaStylesContainer"></div> <!-- Сюда загружаются стили арен -->
+            <div id="arenaStylesContainer"></div>
         </div>
     </div>
 
@@ -377,8 +531,11 @@
         
         <!-- Вкладка 1: ИГРА -->
         <div id="main" class="screen active">
+            <!-- КНОПКА ПРОФИЛЯ -->
+            <button class="top-profile-btn" onclick="openProfile()">👤</button>
+
             <div id="rocketBadge" class="rocket-badge"><span data-i18n="rocketActive">🚀 РАКЕТА АКТИВНА! (x5 к тапу)</span> <span id="rocketTimer">15</span>s</div>
-            <div class="score-container"><span id="score">0</span><span style="font-size: 18px; color: #a1a1aa; padding-top: 14px; font-weight: 700; margin-left: 4px;">$ROB</span></div>
+            <div class="score-container"><span id="score">0</span><span style="font-size: 18px; color: var(--text-muted); padding-top: 14px; font-weight: 700; margin-left: 4px;">$ROB</span></div>
             <div class="robux-estimate"><span data-i18n="leagueRank">Рейтинг:</span> #<span id="rankPlaceholder">1543</span></div>
             <div class="tap-button" id="tapBtn">
                 <img id="activeArtifactOverlay" class="artifact-overlay" src="" alt="Artifact">
@@ -386,7 +543,7 @@
             <div class="energy-container">⚡ <span id="energyText">1000</span> / <span id="maxEnergyUI">1000</span><div class="energy-bar-bg"><div id="energyBar" class="energy-bar-fill"></div></div></div>
         </div>
 
-        <!-- Вкладка 2: БИЗНЕС (Обновлена на категории) -->
+        <!-- Вкладка 2: БИЗНЕС -->
         <div id="business" class="screen">
             <div class="title" data-i18n="navBusiness">💼 Бизнес</div>
             <div class="subtitle" data-i18n="businessSubtitle">Инвестируйте в свое развитие</div>
@@ -425,80 +582,80 @@
 
             <div class="task-box" style="text-align: center; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1);">
                 <b style="font-size: 16px; color: #ef4444;">🎙️ Аудио-Майнинг</b><br>
-                <span style="font-size: 12px; color: #a1a1aa;">Шуми в микрофон, чтобы фармить!</span>
-                <div style="font-size: 14px; font-weight: bold; color: #fbbf24; margin-top: 8px;">🔋 Зарядов: <span id="turbineChargesUI">...</span></div>
+                <span style="font-size: 12px; color: var(--text-muted);">Шуми в микрофон, чтобы фармить!</span>
+                <div style="font-size: 14px; font-weight: bold; color: var(--gold); margin-top: 8px;">🔋 Зарядов: <span id="turbineChargesUI">...</span></div>
                 <button class="support-btn btn-danger" style="width: 100%; padding: 10px; margin-top: 10px; box-shadow: none;" onclick="startAudioTurbine()">Запустить Турбину 🚀</button>
             </div>
 
             <div class="staking-box">
                 <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-bottom: 4px;" data-i18n="stakingTitle">🏦 Web3 Инвестиции</div>
-                <div style="font-size: 13px; color: #a1a1aa; margin-bottom: 12px;" data-i18n="stakingDesc">Заморозь монеты на 14 дней и получи +40%.</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="stakingDesc">Заморозь монеты на 14 дней и получи +40%.</div>
                 <button class="support-btn btn-green" style="width: 100%; box-shadow: none;" onclick="tg.showAlert(currentLang === 'en' ? 'Staking available in Phase 2!' : 'Стейкинг откроется в Фазе 2!')" data-i18n="stakeBtn">Инвестировать (Скоро)</button>
             </div>
 
             <div class="task-box" style="text-align: center; border-color: rgba(251, 191, 36, 0.4);">
-                <b style="font-size: 16px; color: #fbbf24;" data-i18n="dailyRewardTitle">📆 Ежедневная Награда</b><br>
+                <b style="font-size: 16px; color: var(--gold);" data-i18n="dailyRewardTitle">📆 Ежедневная Награда</b><br>
                 <div style="margin-top: 8px; text-align: left;">
-                    <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="dailyStreak">Серия входов:</span> <b id="dailyStreakText" style="color: #fbbf24;">0</b> <span data-i18n="days">дней</span></span>
+                    <span style="font-size: 13px; color: var(--text-muted);"><span data-i18n="dailyStreak">Серия входов:</span> <b id="dailyStreakText" style="color: var(--gold);">0</b> <span data-i18n="days">дней</span></span>
                     <button id="btnDailyReward" class="support-btn" style="padding: 10px; font-size: 14px; margin-top: 8px; width: 100%;" onclick="claimDailyServer()">Загрузка...</button>
                 </div>
             </div>
 
             <div class="task-box">
-                <b style="font-size: 15px; color: #fbbf24;" data-i18n="dailyGoalTitle">🎯 Цель: 5000 тапов</b><br>
-                <span style="font-size: 13px; color: #a1a1aa;"><span data-i18n="progress">Прогресс:</span> <b id="dailyTapsText" style="color: #fbbf24;">0</b> / 5000</span>
+                <b style="font-size: 15px; color: var(--gold);" data-i18n="dailyGoalTitle">🎯 Цель: 5000 тапов</b><br>
+                <span style="font-size: 13px; color: var(--text-muted);"><span data-i18n="progress">Прогресс:</span> <b id="dailyTapsText" style="color: var(--gold);">0</b> / 5000</span>
                 <div class="level-bar-bg"><div id="dailyTapsBar" class="level-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: #27272a; color: white; padding: 10px; width: 100%; box-shadow: none; margin-top: 10px;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
+                <button id="btnDailyQuest" class="support-btn" style="background: var(--panel-border); color: var(--text-main); padding: 10px; width: 100%; box-shadow: none; margin-top: 10px;" onclick="claimDailyQuestServer()" data-i18n="claimGoal">Выполни цель 🎯</button>
             </div>
             
             <div class="task-box" style="text-align: center;">
                 <b style="font-size: 15px;" data-i18n="rocketTitle">🚀 Сверхзвуковая Ракета</b><br>
-                <span style="font-size: 12px; color: #a1a1aa;"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
+                <span style="font-size: 12px; color: var(--text-muted);"><span data-i18n="rocketAvailable">Доступно:</span> <b id="rocketCount">3/3</b></span>
                 <button id="btnActivateRocket" class="support-btn" style="background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; width: 100%; padding: 10px; font-size: 14px; margin-top: 8px; box-shadow: none;" onclick="activateRocket()" data-i18n="launchRocket">Запустить Ракету 🚀</button>
             </div>
 
             <div class="task-box">
-                <b>Спонсоры Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <b>Спонсоры Grutap</b><br><span style="color: var(--gold);">+450 $ROB</span><br>
                 <button id="btnSponsor1" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Обновления grubot</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <b>Обновления grubot</b><br><span style="color: var(--gold);">+450 $ROB</span><br>
                 <button id="btnSponsor2" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Фанаты Grutap</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <b>Фанаты Grutap</b><br><span style="color: var(--gold);">+450 $ROB</span><br>
                 <button id="btnSponsor3" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')" data-i18n="subscribe">Подписаться</button>
             </div>
             <div class="task-box">
-                <b>Релиз комнат</b><br><span style="color: #fbbf24;">+450 $ROB</span><br>
+                <b>Релиз комнат</b><br><span style="color: var(--gold);">+450 $ROB</span><br>
                 <button id="btnSponsor4" class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="clickSponsor(4, 'https://t.me/gruroom')" data-i18n="subscribe">Подписаться</button>
             </div>
             
             <div class="task-box">
-                <b data-i18n="tenFriends">10 друзей</b><br><span style="color: #fbbf24;">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
+                <b data-i18n="tenFriends">10 друзей</b><br><span style="color: var(--gold);">+1000 $ROB</span><br><span id="taskFriendsCount">0</span>/10<br>
                 <button class="support-btn" style="padding: 8px 16px; font-size: 13px; margin-top: 8px;" onclick="inviteFriend()" data-i18n="inviteLink">Пригласить</button>
             </div>
         </div>
 
         <!-- Вкладка 4: ТОП -->
         <div id="top" class="screen">
-            <div style="background: rgba(20,20,25,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; width: 100%; margin-bottom: 20px;">
+            <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; width: 100%; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div id="userName" style="font-size: 18px; font-weight: 800; color: #ffffff;">@Username</div>
-                    <button class="lang-switch" onclick="toggleLanguage()">🌐 <span id="currentLangLabel">RU</span></button>
+                    <div id="userName" style="font-size: 18px; font-weight: 800; color: var(--text-main);">@Username</div>
+                    <!-- Кнопка языка отсюда убрана и перенесена в Профиль -->
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div style="text-align: left;">
-                        <div style="color: #a1a1aa; font-size: 12px; margin-bottom: 4px;" data-i18n="yourLeague">Ваша лига:</div>
+                        <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;" data-i18n="yourLeague">Ваша лига:</div>
                         <div id="userLeagueName" style="font-size: 18px; font-weight: 900;">Diamond</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="color: #a1a1aa; font-size: 12px; margin-bottom: 4px;" data-i18n="balance">Баланс:</div>
-                        <div style="font-size: 18px; font-weight: 900; color: #fbbf24;"><span id="profileScore">0</span> $ROB</div>
+                        <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;" data-i18n="balance">Баланс:</div>
+                        <div style="font-size: 18px; font-weight: 900; color: var(--gold);"><span id="profileScore">0</span> $ROB</div>
                     </div>
                 </div>
-                <div id="mySquadInfo" style="display:none; font-size: 13px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(251, 191, 36, 0.3);"><span data-i18n="squadLabel">Сквад:</span> <b id="mySquadNameText" style="color: white;"></b></div>
-                <button class="support-btn" style="background: #27272a; color: #a1a1aa; width: 100%; box-shadow: none; font-size: 14px; padding: 12px;" onclick="tg.showAlert(currentLang === 'en' ? 'Withdrawal opens in Phase 2' : 'Вывод откроется в Фазе 2')" data-i18n="withdrawBtn">🔒 Вывести токены (Скоро)</button>
+                <div id="mySquadInfo" style="display:none; font-size: 13px; color: var(--gold); background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 15px; border: 1px solid rgba(251, 191, 36, 0.3);"><span data-i18n="squadLabel">Сквад:</span> <b id="mySquadNameText" style="color: var(--text-main);"></b></div>
+                <button class="support-btn" style="background: var(--panel-border); color: var(--text-muted); width: 100%; box-shadow: none; font-size: 14px; padding: 12px;" onclick="tg.showAlert(currentLang === 'en' ? 'Withdrawal opens in Phase 2' : 'Вывод откроется в Фазе 2')" data-i18n="withdrawBtn">🔒 Вывести токены (Скоро)</button>
             </div>
 
             <!-- КНОПКА PVP АРЕНЫ -->
@@ -508,7 +665,7 @@
             <div class="title" style="margin-bottom: 10px;" data-i18n="topTitle">🏆 Лидерборд</div>
             <div class="tabs-container">
                 <button id="tabPlayers" class="tab-btn active" onclick="switchLeaderboardTab('players')" data-i18n="tabPlayers">👤 Игроки</button>
-                <button id="tabSquads" class="tab-btn" style="background: #27272a;" onclick="switchLeaderboardTab('squads')" data-i18n="tabSquads">📢 Сквады</button>
+                <button id="tabSquads" class="tab-btn" onclick="switchLeaderboardTab('squads')" data-i18n="tabSquads">📢 Сквады</button>
             </div>
             
             <div id="createSquadContainer" style="display: none; width: 100%;">
@@ -516,7 +673,7 @@
             </div>
             
             <div id="leaderboardList" style="width: 100%; box-sizing: border-box; padding-bottom: 20px;">
-                <div style="color: #71717a; padding: 20px;">Загрузка списка...</div>
+                <div style="color: var(--text-muted); padding: 20px;">Загрузка списка...</div>
             </div>
         </div>
     </div>
@@ -530,14 +687,59 @@
     </div>
 
     <script>
+        // ==========================================
+        // ЛОГИКА SPLASH SCREEN (КИБЕР-МАСОНСТВО)
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splashScreen');
+            const eye = document.getElementById('splashEye');
+            const title = document.getElementById('splashTitle');
+            const loader = document.getElementById('splashLoader');
+
+            // 1. Наблюдатель (0 - 2.2 сек)
+            setTimeout(() => {
+                // 2. Захват цели (2.2 сек) - Глаз центрируется и замирает
+                eye.classList.add('targeting');
+                title.style.opacity = '0';
+                loader.style.opacity = '0';
+            }, 2200);
+
+            setTimeout(() => {
+                // 3. Сингулярность (2.8 сек) - Взрыв на золотые искры
+                const rect = eye.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                
+                // Создаем 60 искр
+                for(let i = 0; i < 60; i++) {
+                    let spark = document.createElement('div');
+                    spark.className = 'spark';
+                    spark.style.left = x + 'px';
+                    spark.style.top = y + 'px';
+                    // Разлет по кругу
+                    spark.style.setProperty('--dx', (Math.random() * 500 - 250) + 'px');
+                    spark.style.setProperty('--dy', (Math.random() * 500 - 250) + 'px');
+                    spark.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+                    splash.appendChild(spark);
+                }
+                eye.style.opacity = '0';
+                
+                // Растворение черного фона
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.remove(), 500);
+                }, 200);
+            }, 2800);
+        });
+
+        // ==========================================
+        // БАЗОВАЯ ИНИЦИАЛИЗАЦИЯ
+        // ==========================================
         let tg = window.Telegram.WebApp;
         tg.expand();
         
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
         
-        // ==========================================
-        // СЛОВАРЬ (i18n)
-        // ==========================================
         const TRANSLATIONS = {
             ru: {
                 navGame: "Игра", navBusiness: "Бизнес", navAirdrop: "Airdrop", navTop: "Топ",
@@ -561,7 +763,8 @@
                 pvpTitle: "⚔️ Арена Дуэлей", pvpDesc: "Победитель забирает банк (комиссия сети 5%).", findOpponent: "Найти противника 🔍",
                 businessSubtitle: "Инвестируйте в свое развитие", catRealEstate: "🏢 Недвижимость", catRealEstateDesc: "Пассивный доход и прокачка ваших студий",
                 catTech: "⚙️ Технологии", catTechDesc: "Мультитап, Энергия, Авто-Бот", catCustom: "💎 Кастомизация", catCustomDesc: "Telegram мемы, Стили Арены, Флекс",
-                arenaStylesTitle: "⚔️ Стили Арены (PvP)"
+                arenaStylesTitle: "⚔️ Стили Арены (PvP)", profileTitle: "Web3 Паспорт", playerId: "Игрок", connectWallet: "Connect Wallet (Скоро)",
+                settingsTitle: "Настройки", languageLabel: "Язык", themeLabel: "Тема Platinum", statsTitle: "Статистика"
             },
             en: {
                 navGame: "Game", navBusiness: "Business", navAirdrop: "Airdrop", navTop: "Top",
@@ -585,7 +788,8 @@
                 pvpTitle: "⚔️ Duel Arena", pvpDesc: "Winner takes the bank (5% network fee).", findOpponent: "Find Opponent 🔍",
                 businessSubtitle: "Invest in your progress", catRealEstate: "🏢 Real Estate", catRealEstateDesc: "Passive income and studio upgrades",
                 catTech: "⚙️ Technologies", catTechDesc: "Multitap, Energy, Auto-Bot", catCustom: "💎 Customization", catCustomDesc: "Telegram memes, Arena Styles, Flex",
-                arenaStylesTitle: "⚔️ Arena Styles (PvP)"
+                arenaStylesTitle: "⚔️ Arena Styles (PvP)", profileTitle: "Web3 Passport", playerId: "Player", connectWallet: "Connect Wallet (Soon)",
+                settingsTitle: "Settings", languageLabel: "Language", themeLabel: "Platinum Theme", statsTitle: "Statistics"
             }
         };
 
@@ -601,11 +805,38 @@
                 if (dict[key]) el.innerText = dict[key];
             });
             renderArtifacts(); 
-            renderArenaStyles(); // Отрисовываем стили при смене языка
+            renderArenaStyles(); 
         }
 
         function toggleLanguage() {
             setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+            tg.HapticFeedback.selectionChanged();
+        }
+
+        // ==========================================
+        // ПРОФИЛЬ И ТЕМЫ (НОВОЕ)
+        // ==========================================
+        function openProfile() {
+            document.getElementById('profileSidebar').classList.add('open');
+            // Обновляем статистику профиля
+            document.getElementById('profileSidebarStreak').innerText = globalDailyStreak;
+            if (tg.initDataUnsafe?.user) {
+                document.getElementById('profileSidebarName').innerText = `@${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`;
+                document.querySelector('[data-i18n="playerId"]').innerText = `${currentLang === 'en' ? 'Player' : 'Игрок'} #${tg.initDataUnsafe.user.id}`;
+            }
+        }
+        function closeProfile() {
+            document.getElementById('profileSidebar').classList.remove('open');
+        }
+
+        function toggleTheme(checkbox) {
+            const theme = checkbox.checked ? 'platinum' : 'dark';
+            if (theme === 'platinum') {
+                document.documentElement.setAttribute('data-theme', 'platinum');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            if (tg.CloudStorage) tg.CloudStorage.setItem('app_theme', theme);
             tg.HapticFeedback.selectionChanged();
         }
 
@@ -630,12 +861,10 @@
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0; let energy = 1000; let maxEnergy = 1000; 
         let currentRoomLevel = 0; let ownedArtifactIds = ['default']; let currentArtifactId = 'default';
 
-        // ИНТЕГРАЦИЯ PREMIUM ДЛЯ ТУРБИНЫ
         let isPremium = tg.initDataUnsafe?.user?.is_premium || false;
         let maxTurbineCharges = isPremium ? 5 : 3;
         let currentTurbineCharges = maxTurbineCharges; 
 
-        // ИНТЕГРАЦИЯ СТИЛЕЙ АРЕНЫ
         let ownedArenaThemes = ['meme'];
         let currentArenaTheme = 'meme';
 
@@ -691,9 +920,6 @@
         function getCurrentUserLeague(score) { let current = LEAGUES_CONFIG[0]; for (let i = 0; i < LEAGUES_CONFIG.length; i++) { if (score >= LEAGUES_CONFIG[i].minScore) { current = LEAGUES_CONFIG[i]; } } return current; }
         function getUpgradeCost(baseCost, currentLevel) { return baseCost * Math.pow(2, currentLevel - (baseCost === 5000 && currentLevel === 0 ? 0 : 1)); }
 
-        // ==========================================
-        // ЛОГИКА ШОРТ-ШИТОВ (ПАПОК БИЗНЕСА)
-        // ==========================================
         function openSheet(sheetId) {
             document.getElementById('globalOverlay').style.display = 'block';
             setTimeout(() => { 
@@ -774,7 +1000,6 @@
             }).catch(() => { btnElement.innerText = originalText; btnElement.disabled = false; tg.showAlert("❌ Error."); });
         }
 
-        // ОТРИСОВКА АРТЕФАКТОВ В КАТЕГОРИИ КАСТОМИЗАЦИИ
         function renderArtifacts() {
             const container = document.getElementById('artifactsContainer'); container.innerHTML = '';
             ARTIFACTS.forEach(art => {
@@ -801,9 +1026,6 @@
             }).catch(() => { tg.showAlert("❌ Error."); btnElement.innerHTML = originalText; btnElement.disabled = false; });
         }
 
-        // ==========================================
-        // ОТРИСОВКА СТИЛЕЙ АРЕНЫ (МАГАЗИН В БИЗНЕСЕ)
-        // ==========================================
         function renderArenaStyles() {
             const container = document.getElementById('arenaStylesContainer');
             if(!container) return;
@@ -821,14 +1043,14 @@
                     btnHTML = `<button class="support-btn" style="padding: 10px; background: transparent; border: 1px solid #fbbf24; color: #fbbf24; box-shadow: none;">${currentLang === 'en' ? 'Equipped ✅' : 'Выбрано ✅'}</button>`; 
                 } 
                 else if (isOwned) { 
-                    btnHTML = `<button class="support-btn" style="padding: 10px; background: #27272a; color: white; box-shadow: none;" onclick="selectArenaTheme('${theme.id}')">${currentLang === 'en' ? 'Equip' : 'Применить'}</button>`; 
+                    btnHTML = `<button class="support-btn" style="padding: 10px; background: var(--panel-border); color: var(--text-main); box-shadow: none;" onclick="selectArenaTheme('${theme.id}')">${currentLang === 'en' ? 'Equip' : 'Применить'}</button>`; 
                 } 
                 else { 
                     btnHTML = `<button class="support-btn" style="padding: 10px; background: ${theme.color}; color: ${theme.textColor}; border: ${theme.borderColor === 'transparent' ? 'none' : '1px solid ' + theme.borderColor};" onclick="processPurchase(() => buyArenaTheme('${theme.id}', this))">${currentLang === 'en' ? 'Buy' : 'Купить'} ${theme.cost === 0 ? '' : theme.cost.toLocaleString('ru-RU')}</button>`; 
                 }
                 
                 let priceText = theme.cost === 0 ? (currentLang === 'en' ? 'Free' : 'Бесплатно') : theme.cost.toLocaleString('ru-RU') + ' $ROB';
-                let priceColor = theme.id === 'cyber' ? '#ef4444' : (theme.id === 'meme' ? '#a1a1aa' : '#10b981');
+                let priceColor = theme.id === 'cyber' ? '#ef4444' : (theme.id === 'meme' ? 'var(--text-muted)' : '#10b981');
                 
                 container.insertAdjacentHTML('beforeend', `
                     <div class="${cardClass}" style="${extraCSS}">
@@ -872,14 +1094,22 @@
         function updateLevelVisuals(totalScore) {
             let league = getCurrentUserLeague(totalScore); 
             const leagueUi = document.getElementById('userLeagueName'); leagueUi.innerText = league.name; leagueUi.style.color = league.color;
+            document.getElementById('profileSidebarLeague').innerText = league.name;
+            document.getElementById('profileSidebarLeague').style.color = league.color;
+            
             if (currentMySquad !== '') { document.getElementById('mySquadInfo').style.display = 'block'; document.getElementById('mySquadNameText').innerText = currentMySquad; } else { document.getElementById('mySquadInfo').style.display = 'none'; }
         }
 
         function closeOfflineModal() { document.getElementById('offlineModal').style.display = 'none'; tg.HapticFeedback.notificationOccurred('success'); }
         
         function switchLeaderboardTab(tab) {
-            currentLbTab = tab; document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); document.getElementById('tabPlayers').style.background = tab === 'players' ? '#fbbf24' : '#18181b'; document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); document.getElementById('tabSquads').style.background = tab === 'squads' ? '#fbbf24' : '#18181b';
-            document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; loadLeaderboard();
+            currentLbTab = tab; 
+            document.getElementById('tabPlayers').classList.toggle('active', tab === 'players'); 
+            document.getElementById('tabPlayers').style.background = tab === 'players' ? 'var(--gold)' : 'var(--panel-border)'; 
+            document.getElementById('tabSquads').classList.toggle('active', tab === 'squads'); 
+            document.getElementById('tabSquads').style.background = tab === 'squads' ? 'var(--gold)' : 'var(--panel-border)';
+            document.getElementById('createSquadContainer').style.display = tab === 'squads' ? 'block' : 'none'; 
+            loadLeaderboard();
         }
 
         function activateRocket() {
@@ -890,7 +1120,7 @@
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
-                    if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
+                    if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "var(--panel-border)"; btn.disabled = true; }
                     else { btn.innerText = origText; btn.disabled = false; }
                     isRocketActive = true; document.getElementById('rocketBadge').style.display = 'block'; showScreen('main', document.querySelector('.menu-btn'));
                     let timeLeft = 15; document.getElementById('rocketTimer').innerText = timeLeft;
@@ -916,7 +1146,7 @@
         function copySquadLink() { let link = document.getElementById('generatedSquadLink').innerText; if (navigator.clipboard) { navigator.clipboard.writeText(link).then(() => { tg.showAlert("✅ Copied!"); closeSquadModal(); }).catch(() => { tg.showAlert("🔗 Link: " + link); }); } else { tg.showAlert("🔗 Link: " + link); } }
 
         function loadLeaderboard() {
-            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'Loading leaders...' : 'Загрузка списка лидеров...'}</div>`;
+            const listContainer = document.getElementById('leaderboardList'); listContainer.innerHTML = `<div style="color: var(--text-muted); padding: 20px;">${currentLang === 'en' ? 'Loading leaders...' : 'Загрузка списка лидеров...'}</div>`;
             fetch(`${BACKEND_URL}/leaderboard`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, tab: currentLbTab }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
@@ -924,24 +1154,23 @@
                     if (data.tab === "players") {
                         data.list.forEach((player, index) => {
                             const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let bgStyle = player.isMe ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.08);'; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px;">${player.name}</div><div style="font-weight: bold; color: #fbbf24; font-size: 15px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
+                            let bgStyle = player.isMe ? 'background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4);' : 'background: var(--panel-bg); border: 1px solid var(--panel-border);'; 
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle}"><div style="font-size: 18px; font-weight: 900; color: var(--text-muted); width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 15px; margin-left: 10px; color: var(--text-main);">${player.name}</div><div style="font-weight: bold; color: var(--gold); font-size: 15px;">${player.score.toLocaleString('ru-RU')}</div></div>`);
                             if(player.isMe) document.getElementById('rankPlaceholder').innerText = rank;
                         });
                     } else if (data.tab === "squads") {
                         data.list.forEach((squad, index) => {
                             const rank = index + 1; let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`; 
-                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.08)'; let bgStyle = squad.isMySquad ? 'background: rgba(251, 191, 36, 0.08);' : 'background: rgba(20, 20, 25, 0.7);'; 
+                            let isClickable = rank <= 5; let opacity = isClickable ? '1' : '0.6'; let borderStyle = squad.isMySquad ? '1px solid var(--gold)' : '1px solid var(--panel-border)'; let bgStyle = squad.isMySquad ? 'background: rgba(251, 191, 36, 0.08);' : 'background: var(--panel-bg);'; 
                             let actionHtml = isClickable ? `<button class="support-btn" style="margin: 0; padding: 6px 12px; font-size: 12px; background: linear-gradient(90deg, #10b981, #059669);" onclick="tg.openTelegramLink('https://t.me/${squad.id.replace('@', '')}')">${currentLang === 'en' ? 'Join' : 'Вступить'}</button>` : ''; 
-                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 18px; font-weight: 900; color: #a1a1aa; width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 14px; margin-left: 10px; color: white;">${squad.id} ${squad.isMySquad ? '(You)' : ''}<br><span style="font-size: 11px; color: #a1a1aa;">👥 ${squad.members} ${currentLang === 'en' ? 'players' : 'игроков'}</span><br><span style="font-size: 12px; color: #fbbf24; font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
+                            listContainer.insertAdjacentHTML('beforeend', `<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 14px; margin-bottom: 8px; ${bgStyle} opacity: ${opacity}; border: ${borderStyle};"><div style="font-size: 18px; font-weight: 900; color: var(--text-muted); width: 35px; text-align: center;">${rankDisplay}</div><div style="flex-grow: 1; text-align: left; font-weight: bold; font-size: 14px; margin-left: 10px; color: var(--text-main);">${squad.id} ${squad.isMySquad ? '(You)' : ''}<br><span style="font-size: 11px; color: var(--text-muted);">👥 ${squad.members} ${currentLang === 'en' ? 'players' : 'игроков'}</span><br><span style="font-size: 12px; color: var(--gold); font-weight: bold;">${squad.score.toLocaleString('ru-RU')} $ROB</span></div><div>${actionHtml}</div></div>`);
                         });
                     }
-                    if (data.list.length === 0) listContainer.innerHTML = `<div style="color: #71717a; padding: 20px;">${currentLang === 'en' ? 'List is empty...' : 'Список пока пуст...'}</div>`;
+                    if (data.list.length === 0) listContainer.innerHTML = `<div style="color: var(--text-muted); padding: 20px;">${currentLang === 'en' ? 'List is empty...' : 'Список пока пуст...'}</div>`;
                 } else { listContainer.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading leaderboard</div>'; }
             });
         }
 
-        // РАСЧЕТ БАЛАНСА
         function getUnsyncedEarn() {
             let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             let baseEarn = multitapLevel + activeArt.bonus;
@@ -958,7 +1187,7 @@
         }
 
         function updateEnergyVisual() { energyText.innerText = Math.max(0, Math.floor(energy)); let percent = (Math.max(0, energy) / maxEnergy) * 100; energyBar.style.width = `${percent}%`; }
-        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("RobuxTap! 🚀")}`); }
+        function inviteFriend() { const userId = tg.initDataUnsafe?.user?.id; if (!userId) return; tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${userId}`)}&text=${encodeURIComponent("GruTap! 🚀")}`); }
         
         function renderDailyRewardUI() {
             document.getElementById('dailyStreakText').innerText = globalDailyStreak;
@@ -966,11 +1195,11 @@
             const todayStr = new Date().toISOString().slice(0, 10);
             
             if (globalLastClaimDate === todayStr) {
-                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Забрано ✅"; btn.style.background = "#27272a"; btn.style.color = "#a1a1aa"; btn.disabled = true;
+                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Забрано ✅"; btn.style.background = "var(--panel-border)"; btn.style.color = "var(--text-muted)"; btn.disabled = true;
             } else {
                 let nextDay = (globalDailyStreak % 7) + 1;
                 btn.innerText = `${currentLang === 'en' ? 'Claim' : 'Забрать'} +${nextDay * 100} $ROB`;
-                btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000"; btn.disabled = false;
+                btn.style.background = "var(--gold-grad)"; btn.style.color = "#000"; btn.disabled = false;
             }
         }
 
@@ -983,11 +1212,11 @@
             
             let btn = document.getElementById('btnDailyQuest');
             if (globalQuestClaimed === 1 || globalQuestClaimed === true) {
-                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Получено ✅"; btn.style.background = "#27272a"; btn.disabled = true; btn.style.color = "#a1a1aa";
+                btn.innerText = currentLang === 'en' ? "Claimed ✅" : "Получено ✅"; btn.style.background = "var(--panel-border)"; btn.disabled = true; btn.style.color = "var(--text-muted)";
             } else if (visualDailyTaps >= 5000) {
                 btn.innerText = `${currentLang === 'en' ? 'Claim' : 'Забрать'} 10 000 $ROB 🎁`; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.disabled = false; btn.style.color = "white";
             } else {
-                btn.innerText = currentLang === 'en' ? "Complete Goal 🎯" : "Выполни цель 🎯"; btn.style.background = "#27272a"; btn.disabled = true;
+                btn.innerText = currentLang === 'en' ? "Complete Goal 🎯" : "Выполни цель 🎯"; btn.style.background = "var(--panel-border)"; btn.disabled = true;
             }
         }
 
@@ -1020,11 +1249,11 @@
                 let btn = document.getElementById('btnSponsor' + id);
                 if (!btn) continue;
                 if (globalClaimedSponsors.includes(id)) {
-                    btn.innerText = currentLang === 'en' ? "Completed ✅" : "Выполнено ✅"; btn.style.background = "#27272a"; btn.disabled = true;
+                    btn.innerText = currentLang === 'en' ? "Completed ✅" : "Выполнено ✅"; btn.style.background = "var(--panel-border)"; btn.style.color = "var(--text-muted)"; btn.disabled = true;
                 } else if (sponsorStates[id] === "clicked") {
-                    btn.innerText = currentLang === 'en' ? "Verify 🔄" : "Проверить 🔄"; btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000";
+                    btn.innerText = currentLang === 'en' ? "Verify 🔄" : "Проверить 🔄"; btn.style.background = "var(--gold-grad)"; btn.style.color = "#000";
                 } else {
-                    btn.innerText = currentLang === 'en' ? "Subscribe" : "Подписаться"; btn.style.background = "linear-gradient(90deg, #d4af37, #f59e0b)"; btn.style.color = "#000"; btn.disabled = false;
+                    btn.innerText = currentLang === 'en' ? "Subscribe" : "Подписаться"; btn.style.background = "var(--gold-grad)"; btn.style.color = "#000"; btn.disabled = false;
                 }
             }
         }
@@ -1048,7 +1277,7 @@
         function finishLoading() { setLanguage(currentLang); updateTechGridVisuals(); updateStudioVisuals(); updateEnergyVisual(); renderArtifacts(); renderArenaStyles(); updateVisualScore(); syncWithServer(true); }
 
         if (tg.CloudStorage) {
-            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_artifact', 'current_room_level', 'current_arena_theme'], (err, values) => {
+            tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level', 'owned_skins', 'current_artifact', 'current_room_level', 'current_arena_theme', 'app_theme'], (err, values) => {
                 if (!err && values) {
                     if (values.multitap_level) multitapLevel = parseInt(values.multitap_level, 10) || 1;
                     if (values.max_energy_level) maxEnergyLevel = parseInt(values.max_energy_level, 10) || 1;
@@ -1057,15 +1286,18 @@
                     if (values.owned_skins) { try { ownedArtifactIds = JSON.parse(values.owned_skins); } catch(e){} }
                     if (values.current_artifact) currentArtifactId = values.current_artifact;
                     if (values.current_arena_theme) currentArenaTheme = values.current_arena_theme;
+                    
+                    if (values.app_theme === 'platinum') {
+                        document.documentElement.setAttribute('data-theme', 'platinum');
+                        document.getElementById('themeSwitch').checked = true;
+                    }
+
                     maxEnergy = 1000 + ((maxEnergyLevel - 1) * 500);
                 }
                 finishLoading();
             });
         } else { finishLoading(); }
 
-        // ==========================================
-        // ЛОГИКА ШЕРИНГА (Stories / TikTok)
-        // ==========================================
         function shareResult(text) {
             if (tg.shareToStory) { 
                 tg.shareToStory('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000', { text: text }); 
@@ -1074,9 +1306,6 @@
             }
         }
 
-        // ==========================================
-        // 🎙️ АУДИО-МАЙНИНГ С ЗАПРОСОМ НА БЭКЕНД
-        // ==========================================
         let audioContext, analyser, microphone, javascriptNode;
         let turbineActive = false; let turbineScore = 0; let turbineTimer = 10; let turbineInterval;
 
@@ -1161,18 +1390,13 @@
 
         function claimAndShareTurbine() { claimAndExitTurbine(true); }
 
-        // ==========================================
-        // ⚔️ PVP-АРЕНА С КАСТОМНЫМИ ЭКРАНАМИ
-        // ==========================================
         let pvpBet = 10000; let pvpMode = 'touch';
         let pvpTimer = 15; let pvpInterval;
         let myPos = 50; 
         
         function openPvPModal() { document.getElementById('pvpSetupModal').style.display = 'flex'; }
         function closePvPModal() { document.getElementById('pvpSetupModal').style.display = 'none'; }
-        
         function setPvPBet(amount) { document.getElementById('pvpBetInput').value = amount; }
-
         function setPvPBetPercent(pct) {
             let currentTotal = serverTaps + serverBonus + getUnsyncedEarn();
             let calcAmount = Math.floor(currentTotal * pct);
@@ -1216,7 +1440,7 @@
 
             pvpInterval = setInterval(() => {
                 pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
-                moveRope(-1); // Бот тянет на себя
+                moveRope(-1); 
                 if(pvpTimer <= 0) endBattle();
             }, 1000);
         }
@@ -1230,9 +1454,7 @@
             document.getElementById('pvpTop').style.flexBasis = `${100 - myPos}%`;
         }
 
-        // ОТПРАВЛЯЕМ РЕЗУЛЬТАТЫ ДУЭЛИ НА СЕРВЕР И ПОКАЗЫВАЕМ ЭКРАН ТЕМЫ
         let lastPvPWinAmount = 0;
-        
         function endBattle(forceLose = false) {
             clearInterval(pvpInterval);
             if(pvpMode === 'voice' && audioContext) { audioContext.close(); }
@@ -1247,12 +1469,11 @@
                     serverTaps = data.new_taps_balance;
                     serverBonus = data.new_bonus_balance;
                     updateVisualScore();
-                    showCustomPvPResult(isWin); // Вызываем красивый экран вместо стандартного tg.showAlert
+                    showCustomPvPResult(isWin); 
                 } else { tg.showAlert(`❌ ${data.error}`); }
             }).catch(() => { tg.showAlert("❌ Ошибка соединения с сервером."); });
         }
 
-        // ЛОГИКА КАСТОМНЫХ ЭКРАНОВ АРЕНЫ
         function showCustomPvPResult(isWin) {
             const resScreen = document.getElementById('pvpResultScreen');
             const icon = document.getElementById('pvpResultIcon');
@@ -1301,39 +1522,30 @@
                 btnShare.style.display = isWin ? 'block' : 'none';
                 btnExit.innerText = isWin ? 'Покинуть Арену' : 'Отключиться';
             }
-            
             tg.HapticFeedback.notificationOccurred(isWin ? 'success' : 'error');
         }
 
         function closePvPResult(share) {
             document.getElementById('pvpResultScreen').style.display = 'none';
-            if(share) {
-                shareResult(`⚔️ Я разнес оппонента на Арене и забрал ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB! Хватит смелости бросить мне вызов? Ссылка в профиле.`);
-            }
+            if(share) { shareResult(`⚔️ Я разнес оппонента на Арене и забрал ${lastPvPWinAmount.toLocaleString('ru-RU')} $ROB! Хватит смелости бросить мне вызов? Ссылка в профиле.`); }
         }
 
-        // ОБРАБОТЧИК КЛИКА (ТАП)
         tapBtn.addEventListener('click', (e) => {
             if (!isRocketActive) { if (energy <= 0) { tg.showAlert(currentLang === 'en' ? "⚡ No energy!" : "⚡ Энергия на нулю!"); return; } energy--; updateEnergyVisual(); }
-            
             if (isRocketActive) { pendingRocketClicks += 1; } 
             else { pendingStandardClicks += 1; }
-            
             updateVisualScore(); 
             if (globalQuestClaimed !== 1) renderDailyQuestUI();
             
             tg.HapticFeedback.impactOccurred('medium');
             let activeArt = ARTIFACTS.find(a => a.id === currentArtifactId) || ARTIFACTS[0];
             let earnAmount = isRocketActive ? (multitapLevel + activeArt.bonus) * 5 : (multitapLevel + activeArt.bonus); 
-
             let x, y; 
             if (e.clientX && e.clientY) { x = e.clientX; y = e.clientY; } 
             else { const rect = tapBtn.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top + rect.height / 2; }
-            
             showFloatingEffects(x, y, earnAmount, isRocketActive);
         });
 
-        // СИНХРОНИЗАЦИЯ (Загрузка купленных стилей Арены с сервера)
         function syncWithServer(isInitial = false) {
             let stdToSend = pendingStandardClicks; let rktToSend = pendingRocketClicks;
             inFlightStandardClicks += stdToSend; inFlightRocketClicks += rktToSend;
@@ -1356,22 +1568,18 @@
                     if (data.rockets_left !== undefined) {
                         rocketsLeft = data.rockets_left; document.getElementById('rocketCount').innerText = `${rocketsLeft}/3`;
                         let btn = document.getElementById('btnActivateRocket');
-                        if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "#27272a"; btn.disabled = true; }
+                        if (rocketsLeft <= 0) { btn.innerText = currentLang === 'en' ? "Finished ❌" : "Закончились ❌"; btn.style.background = "var(--panel-border)"; btn.disabled = true; }
                         else if (!isRocketActive) { btn.innerText = currentLang === 'en' ? "Launch Rocket 🚀" : "Запустить Ракету 🚀"; btn.style.background = "linear-gradient(90deg, #ef4444, #f59e0b)"; btn.disabled = false; }
                     }
-
                     if (data.turbine_charges !== undefined) {
                         currentTurbineCharges = data.turbine_charges; maxTurbineCharges = data.max_charges;
                         document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
                     }
-
-                    // Обновляем список купленных тем с сервера
                     if (data.owned_arena_themes !== undefined) {
                         ownedArenaThemes = data.owned_arena_themes;
                         if (!ownedArenaThemes.includes(currentArenaTheme)) currentArenaTheme = 'meme';
                         renderArenaStyles();
                     }
-
                     updateVisualScore();
                     if (isInitial && data.earned_offline > 0) { document.getElementById('offlineRewardAmount').innerText = data.earned_offline.toLocaleString('ru-RU'); document.getElementById('offlineModal').style.display = 'flex'; }
                 } else {
