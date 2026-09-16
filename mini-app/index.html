@@ -8,22 +8,20 @@
     <style>
         :root { --bg-main: #000000; --text-main: #ffffff; --text-muted: #a1a1aa; --panel-bg: rgba(20, 20, 25, 0.9); --panel-border: rgba(255, 255, 255, 0.1); --gold: #fbbf24; --gold-grad: linear-gradient(90deg, #d4af37, #f59e0b); }
         * { box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
 
-        /* ИНТЕРФЕЙС И МЕНЮ */
         #gameContent { position: absolute; top: 0; left: 0; right: 0; bottom: 85px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
-        .screen { display: none; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100%; text-align: center; padding-bottom: 30px; }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; text-align: center; padding-bottom: 30px; }
         .screen.active { display: flex; }
         #main { justify-content: center; position: relative; }
 
         .bottom-menu { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 70px; background: var(--panel-bg); backdrop-filter: blur(16px); border: 1px solid var(--panel-border); border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 60px; font-weight: 600; gap: 4px; transition: transform 0.3s; }
+        .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 4px; transition: transform 0.3s; }
         .menu-icon { font-size: 24px; filter: grayscale(100%); transition: all 0.3s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .menu-btn.active { color: var(--gold); transform: translateY(-10px); }
         .menu-btn.active .menu-icon { filter: grayscale(0%); background: #18181b; border: 2px solid var(--gold); box-shadow: 0 8px 15px rgba(251, 191, 36, 0.4); }
 
-        /* КНОПКА ТАПА И БАЛАНС */
-        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 30px; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); }
+        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
         .tap-button { width: 260px; height: 260px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: contain; background-position: center; background-repeat: no-repeat; border-radius: 50%; cursor: pointer; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(250, 204, 21, 0.15); transition: transform 0.05s ease-out; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; border: 1px solid var(--panel-border); background-color: #0f0f14; }
         .tap-button:active { transform: scale(0.93) translateY(4px); }
         
@@ -34,41 +32,34 @@
         .floating-text { position: absolute; color: white; font-size: 30px; font-weight: 900; pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(1.2); } }
 
-        /* ИНВЕНТАРЬ (ПРОФИЛЬ) НА ГЛАВНОМ ЭКРАНЕ */
-        .profile-btn-top { position: absolute; top: 10px; right: 10px; background: var(--panel-bg); border: 1px solid var(--gold); color: var(--gold); padding: 8px 16px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); z-index: 50; }
-        
-        .inventory-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; flex-direction: column; padding: 20px; backdrop-filter: blur(5px); }
+        .profile-btn-top { position: absolute; top: 10px; right: 10px; background: var(--panel-bg); border: 1px solid var(--gold); color: var(--gold); padding: 8px 16px; border-radius: 12px; font-weight: 900; cursor: pointer; z-index: 50; }
+        .inventory-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; flex-direction: column; padding: 20px; backdrop-filter: blur(5px); overflow-y: auto; }
         .inv-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; margin-top: 20px; text-align: left; }
-        .inv-title { font-size: 24px; font-weight: 900; color: var(--gold); margin-bottom: 20px; text-align: center; }
         .inv-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .inv-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--panel-border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; text-align: center; margin-bottom: 20px; font-weight: bold; }
+        .inv-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--panel-border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; margin-bottom: 0; flex-grow: 1; }
         
         .progress-req { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
         .progress-bar-sm { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-bottom: 12px; }
         .progress-fill-sm { height: 100%; background: #10b981; border-radius: 3px; }
 
-        /* ОБЩИЕ ЭЛЕМЕНТЫ */
         .title { font-size: 24px; font-weight: 900; margin-bottom: 20px; width: 100%; text-align: left; color: var(--gold); }
         .task-box { background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 18px; border-radius: 20px; width: 100%; margin-bottom: 15px; text-align: left; }
-        .support-btn { background: var(--gold-grad); color: #000; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 900; cursor: pointer; border: none; width: 100%; margin-top: 10px; transition: transform 0.1s; text-transform: uppercase; }
-        .support-btn:active { transform: scale(0.96); }
+        .support-btn { background: var(--gold-grad); color: #000; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 900; cursor: pointer; border: none; width: 100%; margin-top: 10px; text-transform: uppercase; }
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; }
         .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
-        /* АУДИОМАЙНИНГ */
         .btn-turbine { position: absolute; top: 10px; left: 10px; background: linear-gradient(90deg, #ef4444, #dc2626); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); cursor: pointer; z-index: 50; }
         .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
         .turbine-circle { width: 220px; height: 220px; border-radius: 50%; border: 8px solid #333; position: relative; display: flex; align-items: center; justify-content: center; margin: 30px auto; }
         .turbine-inner { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0%, transparent 0%); position: absolute; top:0; left:0; opacity: 0.8; }
         .turbine-text { font-size: 64px; font-weight: 900; color: white; z-index: 10; }
 
-        /* PVP АРЕНА */
+        .pvp-select-btn { border: 1px solid rgba(255,255,255,0.1); background: rgba(20,20,25,0.8); color: white; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 5px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .pvp-select-btn.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.1); color: var(--gold); }
         .battle-arena { display: none; flex-direction: column; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 5000; background: #000; }
-        .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: flex-basis 0.2s; }
-        .battle-top { background: linear-gradient(180deg, #7f1d1d 0%, #000 100%); }
-        .battle-bottom { background: linear-gradient(0deg, #1e3a8a 0%, #000 100%); cursor: pointer; }
+        .battle-half { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; transition: flex-basis 0.2s; }
         .battle-divider { height: 4px; width: 100%; background: var(--gold); position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; box-shadow: 0 0 20px var(--gold); }
-        .battle-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 36px; font-weight: 900; z-index: 20; color: white; }
+        .lobby-room { background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -76,34 +67,36 @@
     <!-- ИНВЕНТАРЬ (ПРОФИЛЬ) -->
     <div id="inventoryModal" class="inventory-modal">
         <button style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer;" onclick="closeInventory()">×</button>
-        <div class="inv-title">🎒 Инвентарь</div>
+        <div style="font-size: 24px; font-weight: 900; color: var(--gold); text-align: center;">🎒 Инвентарь</div>
         
         <div class="inv-card">
             <div class="inv-row"><span>🆔 Ваш ID:</span> <b id="invGameId" style="color: var(--gold);">G00000</b></div>
-            <div class="inv-row"><span>🏆 Текущая Лига:</span> <b id="invLeague">Bronze</b></div>
+            <div class="inv-row"><span>🏆 Лига:</span> <b id="invLeague">Bronze</b></div>
             <div class="inv-row" style="border: none; padding: 0;"><span>⏱ Время в игре:</span> <b id="invTime">0 ч.</b></div>
         </div>
 
         <div class="inv-card">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Ваш никнейм в Roblox:</div>
-            <input type="text" id="robloxNickInput" class="inv-input" placeholder="Введите ник">
+            
+            <!-- ФИКС КЛАВИАТУРЫ iPHONE: inputmode="text" enterkeyhint="done" и кнопка "Сохранить" -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="robloxNickInput" class="inv-input" placeholder="Roblox Ник" inputmode="text" enterkeyhint="done">
+                <button class="support-btn" style="width: auto; margin-top: 0; padding: 0 20px; font-size: 18px;" onclick="saveRobloxNick()">💾</button>
+            </div>
             
             <div style="font-weight: 900; margin-bottom: 15px; text-align: center;">Условия вывода:</div>
-            
             <div class="progress-req"><span>Баланс: 50.0000 $ROB</span> <span id="reqBalText">0/50</span></div>
-            <div class="progress-bar-sm"><div id="reqBalFill" class="progress-fill-sm" style="width: 0%;"></div></div>
-            
+            <div class="progress-bar-sm"><div id="reqBalFill" class="progress-fill-sm"></div></div>
             <div class="progress-req"><span>Время в игре: 2 часа</span> <span id="reqTimeText">0/2</span></div>
-            <div class="progress-bar-sm"><div id="reqTimeFill" class="progress-fill-sm" style="width: 0%;"></div></div>
-            
+            <div class="progress-bar-sm"><div id="reqTimeFill" class="progress-fill-sm"></div></div>
             <div class="progress-req"><span>Приглашено друзей: 10</span> <span id="reqRefText">0/10</span></div>
-            <div class="progress-bar-sm"><div id="reqRefFill" class="progress-fill-sm" style="width: 0%;"></div></div>
+            <div class="progress-bar-sm"><div id="reqRefFill" class="progress-fill-sm"></div></div>
 
             <button id="btnWithdraw" class="support-btn" style="background: linear-gradient(90deg, #10b981, #059669); color: white;" onclick="requestWithdraw()">Запросить выплату</button>
         </div>
     </div>
 
-    <!-- ТУРБИНА -->
+    <!-- ТУРБИНА И РЕЗУЛЬТАТ -->
     <div id="turbineArena" class="turbine-modal">
         <div id="turbineActiveState" style="text-align: center;">
             <div style="font-size: 32px; font-weight: 900; color: #ef4444; margin-bottom: 10px;">АУДИОМАЙНИНГ 🎙️</div>
@@ -112,22 +105,40 @@
                 <div class="turbine-inner" id="turbineFill"></div>
                 <div class="turbine-text" id="turbineTimer">15</div>
             </div>
-            <div style="font-size: 18px; font-weight: bold; color: #a1a1aa;">Нафармлено: <br><span id="turbineScore" style="color: var(--gold); font-size: 32px;">0.0000</span> <span style="font-size: 16px;">$ROB</span></div>
+            <div style="font-size: 18px; font-weight: bold; color: #a1a1aa;">Нафармлено:<br><span id="turbineScoreUI" style="color: var(--gold); font-size: 32px;">0.0000</span> $ROB</div>
+        </div>
+        
+        <div id="turbineResultState" style="display: none; text-align: center; width: 100%; padding: 20px; max-width: 350px;">
+            <div style="font-size: 24px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">Турбина остановлена!</div>
+            <div style="font-size: 18px; color: white; margin-bottom: 30px;">Нафармлено: <b id="turbineFinalScoreUI">0.0000</b> $ROB</div>
+            <button class="support-btn" onclick="closeTurbineAndShare(true)" style="margin-bottom: 10px;">Похвастаться в Stories 📸</button>
+            <button class="support-btn" onclick="closeTurbineAndShare(false)" style="background: #27272a; color: #a1a1aa; margin-top: 0; box-shadow: none;">Забрать и выйти</button>
         </div>
     </div>
 
-    <!-- АРЕНА (PVP) -->
+    <!-- АРЕНА БОЙ И РЕЗУЛЬТАТ -->
     <div id="pvpArena" class="battle-arena">
-        <div id="pvpTimer" class="battle-timer">15</div>
-        <div id="pvpTop" class="battle-half battle-top">
-            <div style="position: absolute; top: 10px; right: 10px; color: #ef4444; font-weight: 900;">ENEMY</div>
+        <div id="pvpBattleState" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+            <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 36px; font-weight: 900; z-index: 20; color: white; text-shadow: 0 0 10px #000;" id="pvpTimer">15</div>
+            <div id="pvpTop" class="battle-half" style="background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%);">
+                <div style="position: absolute; top: 10px; right: 10px; color: white; font-weight: 900; font-size: 18px;" id="pvpTopName">Enemy</div>
+            </div>
+            <div id="pvpBottom" class="battle-half" style="background: linear-gradient(0deg, #3b82f6 0%, #1e3a8a 100%); cursor: pointer;" onclick="pvpPlayerTap()">
+                <div style="position: absolute; bottom: 10px; left: 10px; color: white; font-weight: 900; font-size: 18px;" id="pvpBottomName">You (TAP!)</div>
+            </div>
+            <div id="pvpDivider" class="battle-divider"></div>
         </div>
-        <div id="pvpBottom" class="battle-half battle-bottom" onclick="pvpPlayerTap()">
-            <div style="position: absolute; bottom: 10px; left: 10px; color: #3b82f6; font-weight: 900;">YOU (TAP!)</div>
+        
+        <div id="pvpResultState" style="display: none; align-items: center; justify-content: center; flex-direction: column; width: 100%; height: 100%; padding: 20px; text-align: center;">
+            <div id="pvpResIcon" style="font-size: 60px; margin-bottom: 10px;">🏆</div>
+            <div id="pvpResTitle" style="font-size: 32px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">ПОБЕДА!</div>
+            <div id="pvpResAmount" style="font-size: 24px; color: white; margin-bottom: 30px; font-weight: bold;">+ 0.0000 $ROB</div>
+            <button id="pvpResShareBtn" class="support-btn" onclick="closePvPAndShare(true)" style="margin-bottom: 10px;">Похвастаться в Stories 📸</button>
+            <button class="support-btn" onclick="closePvPAndShare(false)" style="background: #27272a; color: #a1a1aa; margin-top: 0; box-shadow: none;">Закрыть</button>
         </div>
-        <div id="pvpDivider" class="battle-divider"></div>
     </div>
 
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="gameContent">
         <!-- 1. ИГРА -->
         <div id="main" class="screen active">
@@ -144,23 +155,20 @@
             <div class="title">💼 Бизнес (Апгрейды)</div>
             <div class="tech-grid">
                 <div class="task-box" style="text-align: center; margin-bottom: 0;" onclick="buyTech('multitap')">
-                    <div style="font-size: 40px; margin-bottom: 10px;">👆</div>
-                    <b style="color: var(--text-main);">Мультитап</b><br>
+                    <div style="font-size: 40px; margin-bottom: 10px;">👆</div><b style="color: white;">Мультитап</b><br>
                     <span style="font-size: 12px; color: var(--gold);">Ур. <span id="uiLvlMultitap">1</span></span>
-                    <button class="support-btn" style="padding: 10px; font-size: 13px;">Прокачать</button>
+                    <button class="support-btn" style="padding: 10px; font-size: 13px;">Прокачать (2.0000)</button>
                 </div>
                 <div class="task-box" style="text-align: center; margin-bottom: 0;" onclick="buyTech('energy')">
-                    <div style="font-size: 40px; margin-bottom: 10px;">🔋</div>
-                    <b style="color: var(--text-main);">Энергия</b><br>
+                    <div style="font-size: 40px; margin-bottom: 10px;">🔋</div><b style="color: white;">Энергия</b><br>
                     <span style="font-size: 12px; color: var(--gold);">Ур. <span id="uiLvlEnergy">1</span></span>
-                    <button class="support-btn" style="padding: 10px; font-size: 13px;">Прокачать</button>
+                    <button class="support-btn" style="padding: 10px; font-size: 13px;">Прокачать (2.0000)</button>
                 </div>
             </div>
             <div class="task-box" style="margin-top: 15px; text-align: center;" onclick="buyTech('bot')">
-                <div style="font-size: 40px; margin-bottom: 10px;">🤖</div>
-                <b style="color: var(--text-main);">Авто-Бот (Офлайн доход)</b><br>
+                <div style="font-size: 40px; margin-bottom: 10px;">🤖</div><b style="color: white;">Авто-Бот (Офлайн доход)</b><br>
                 <span style="font-size: 12px; color: var(--gold);">Ур. <span id="uiLvlBot">0</span></span>
-                <button class="support-btn" style="padding: 12px; font-size: 14px;">Улучшить бота</button>
+                <button class="support-btn" style="padding: 12px; font-size: 14px;">Улучшить бота (5.0000)</button>
             </div>
         </div>
 
@@ -178,7 +186,7 @@
                 <b style="font-size: 15px; color: var(--gold);">🎯 Дневная цель: 5000 тапов</b><br>
                 <span style="font-size: 13px; color: var(--text-muted);">Прогресс: <b id="dailyTapsText" style="color: var(--gold);">0</b> / 5000</span>
                 <div class="progress-bar-sm" style="margin-top: 8px;"><div id="dailyTapsBar" class="progress-fill-sm" style="width: 0%; background: var(--gold-grad);"></div></div>
-                <button id="btnDailyQuest" class="support-btn" style="background: var(--panel-border); color: white; padding: 10px; box-shadow: none;" onclick="claimDailyQuestServer()">Выполни цель</button>
+                <button id="btnDailyQuest" class="support-btn" style="background: var(--panel-border); color: white; padding: 10px; box-shadow: none;" onclick="claimDailyQuestServer()">Выполни цель (+1.0000)</button>
             </div>
             
             <div class="task-box">
@@ -187,21 +195,36 @@
                 <button class="support-btn" style="padding: 10px; font-size: 14px;" onclick="inviteFriend()">Пригласить друга</button>
             </div>
 
-            <div class="title" style="font-size: 18px; margin-top: 10px;">Каналы Спонсоров</div>
-            <div class="task-box"><b>Спонсоры Grutap</b><br><span style="color: var(--gold);">+0.5000 $ROB</span><button id="btnSponsor1" class="support-btn" style="padding: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')">Подписаться</button></div>
-            <div class="task-box"><b>Обновления grubot</b><br><span style="color: var(--gold);">+0.5000 $ROB</span><button id="btnSponsor2" class="support-btn" style="padding: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')">Подписаться</button></div>
-            <div class="task-box"><b>Фанаты Grutap</b><br><span style="color: var(--gold);">+0.5000 $ROB</span><button id="btnSponsor3" class="support-btn" style="padding: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')">Подписаться</button></div>
+            <div class="title" style="font-size: 18px; margin-top: 10px;">Спонсоры (по +0.5000)</div>
+            <div class="task-box"><b>Спонсоры Grutap</b><button id="btnSponsor1" class="support-btn" style="padding: 8px;" onclick="clickSponsor(1, 'https://t.me/grusponsors')">Подписаться</button></div>
+            <div class="task-box"><b>Обновления grubot</b><button id="btnSponsor2" class="support-btn" style="padding: 8px;" onclick="clickSponsor(2, 'https://t.me/grulvl')">Подписаться</button></div>
+            <div class="task-box"><b>Фанаты Grutap</b><button id="btnSponsor3" class="support-btn" style="padding: 8px;" onclick="clickSponsor(3, 'https://t.me/grufans')">Подписаться</button></div>
         </div>
 
-        <!-- 4. ТОП И АРЕНА -->
+        <!-- 4. ТОП И АРЕНА (ЛОББИ) -->
         <div id="top" class="screen">
-            <div class="title">🏆 Топ и Арена</div>
-            <div class="task-box" style="text-align: center; background: radial-gradient(circle, rgba(239,68,68,0.2) 0%, var(--panel-bg) 100%); border-color: rgba(239,68,68,0.4);">
-                <b style="font-size: 20px; color: #ef4444;">⚔️ АРЕНА ДУЭЛЕЙ</b><br>
-                <span style="font-size: 13px; color: var(--text-muted);">Ставка: 1.0000 $ROB. Победитель забирает всё (комиссия 5%).</span>
-                <button class="support-btn" style="background: linear-gradient(90deg, #ef4444, #dc2626); color: white;" onclick="startPvP()">Найти противника 🔍</button>
+            <div class="title">⚔️ Арена Дуэлей (Лобби)</div>
+            <div class="task-box" style="border-color: rgba(239,68,68,0.4); background: rgba(20,20,25,0.9);">
+                <div style="font-weight: bold; margin-bottom: 10px;">Создать комнату (Ставка):</div>
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <button class="pvp-select-btn" onclick="createRoom(10000)">1.0000</button>
+                    <button class="pvp-select-btn" onclick="createRoom(50000)">5.0000</button>
+                    <button class="pvp-select-btn" onclick="createRoom(100000)">10.0000</button>
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                    <button class="pvp-select-btn" onclick="createRoomPercent(0.25)">25%</button>
+                    <button class="pvp-select-btn" onclick="createRoomPercent(0.50)">50%</button>
+                    <button class="pvp-select-btn" style="color: #ef4444; border-color: #ef4444;" onclick="createRoomPercent(1.0)">MAX</button>
+                </div>
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 10px; color: var(--gold);">Открытые комнаты (Нажми, чтобы войти):</div>
+                <div id="lobbyRoomsList" style="max-height: 150px; overflow-y: auto;">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Загрузка комнат...</div>
+                </div>
             </div>
-            <div id="leaderboardList" style="width: 100%;">Загрузка рейтинга...</div>
+
+            <div class="title" style="margin-top: 20px;">🏆 Лидерборд</div>
+            <div id="leaderboardList" style="width: 100%; padding-bottom: 20px;">Загрузка...</div>
         </div>
     </div>
 
@@ -210,37 +233,28 @@
         <button class="menu-btn active" onclick="showScreen('main', this)"><span class="menu-icon">🎮</span>Игра</button>
         <button class="menu-btn" onclick="showScreen('business', this)"><span class="menu-icon">💼</span>Бизнес</button>
         <button class="menu-btn" onclick="showScreen('airdrop', this)"><span class="menu-icon">📋</span>Задания</button>
-        <button class="menu-btn" onclick="showScreen('top', this)"><span class="menu-icon">🏆</span>Топ</button>
+        <button class="menu-btn" onclick="showScreen('top', this)"><span class="menu-icon">🏆</span>Арена</button>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg = window.Telegram.WebApp; tg.expand();
         const BACKEND_URL = "https://grutap-backend.onrender.com/api"; 
 
-        // ИГРОВЫЕ ПЕРЕМЕННЫЕ (В БД ХРАНЯТСЯ ЦЕЛЫЕ ЧИСЛА)
+        // ИГРОВЫЕ ПЕРЕМЕННЫЕ
         let serverTaps = 0; let serverBonus = 0; 
         let pendingClicks = 0; let inFlightClicks = 0;
         let globalDailyStreak = 0; let globalLastClaimDate = "";
         let globalClaimedSponsors = []; let globalDailyTaps = 0; let globalQuestClaimed = 0;
         let sponsorStates = { 1: "init", 2: "init", 3: "init" }; 
-
         let energy = 1000; let maxEnergy = 1000; 
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0;
-        
         let currentTurbineCharges = 1; let maxTurbineCharges = 1;
-        
-        // ДАННЫЕ ПРОФИЛЯ
-        let totalPlayTime = 0; let refsCount = 0; let gameId = "G00000";
+        let totalPlayTime = 0; let refsCount = 0; let gameId = "G00000"; let myRobloxNick = "";
 
-        // ФОРМАТИРОВАНИЕ (ДЕЛЕНИЕ НА 10000)
+        // ФОРМАТИРОВАНИЕ (Деление на 10000)
         function formatRobux(intAmount) { return (intAmount / 10000).toFixed(4); }
-        function getLeague(score) {
-            if(score >= 10000000) return 'Diamond 💎'; if(score >= 1000000) return 'Gold 🥇';
-            if(score >= 100000) return 'Silver 🥈'; return 'Bronze 🥉';
-        }
+        function getLeague(score) { if(score >= 10000000) return 'Diamond 💎'; if(score >= 1000000) return 'Gold 🥇'; if(score >= 100000) return 'Silver 🥈'; return 'Bronze 🥉'; }
 
-        // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
         function updateVisualScore() {
             let totalInt = serverTaps + serverBonus + (pendingClicks + inFlightClicks) * multitapLevel;
             document.getElementById('score').innerText = formatRobux(totalInt);
@@ -251,36 +265,33 @@
             document.getElementById('maxEnergyUI').innerText = maxEnergy;
             document.getElementById('energyBar').style.width = `${(Math.max(0, energy) / maxEnergy) * 100}%`; 
         }
+        setInterval(() => { if (energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 2); updateEnergyVisual(); } }, 1000);
 
         function showScreen(screenId, btnElement) { 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); 
-            document.getElementById(screenId).classList.add('active'); 
-            btnElement.classList.add('active'); 
-            if (screenId === 'top') loadLeaderboard(); 
+            document.getElementById(screenId).classList.add('active'); btnElement.classList.add('active'); 
+            if (screenId === 'top') { loadLeaderboard(); loadLobby(); } 
         }
 
         // КЛИКЕР
         document.getElementById('tapBtn').addEventListener('click', (e) => {
             if (energy <= 0) { tg.HapticFeedback.notificationOccurred('error'); return; }
-            energy--; updateEnergyVisual();
-            pendingClicks++; updateVisualScore();
+            energy--; updateEnergyVisual(); pendingClicks++; updateVisualScore();
             if (globalQuestClaimed !== 1) renderDailyQuestUI();
-            
             tg.HapticFeedback.impactOccurred('light');
+            
             let earnAmount = formatRobux(multitapLevel);
             let rect = e.target.getBoundingClientRect();
             let x = e.clientX || (rect.left + rect.width/2); let y = e.clientY || (rect.top + rect.height/2);
-            
             let num = document.createElement('div'); num.className = 'floating-text'; num.innerText = `+${earnAmount}`;
             num.style.left = `${x - 20}px`; num.style.top = `${y - 40}px`;
             document.body.appendChild(num); setTimeout(() => num.remove(), 800);
         });
 
-        // СИНХРОНИЗАЦИЯ С СЕРВЕРОМ
+        // СИНХРОНИЗАЦИЯ
         function syncWithServer(isInitial = false) {
             let stdToSend = pendingClicks; inFlightClicks += stdToSend; pendingClicks = 0;
-            
             fetch(`${BACKEND_URL}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, standard_clicks: stdToSend }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
@@ -290,60 +301,57 @@
                     globalDailyTaps = data.daily_taps; globalQuestClaimed = data.daily_quest_claimed;
                     currentTurbineCharges = data.turbine_charges; maxTurbineCharges = data.max_charges;
                     gameId = data.game_id; totalPlayTime = data.total_play_time; refsCount = data.refs_count;
+                    if(data.roblox_nick) { myRobloxNick = data.roblox_nick; document.getElementById('robloxNickInput').value = myRobloxNick; }
                     
                     document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
                     document.getElementById('taskFriendsCount').innerText = refsCount;
-                    
                     inFlightClicks = Math.max(0, inFlightClicks - stdToSend);
                     renderDailyRewardUI(); renderDailyQuestUI(); renderSponsorsUI(); updateVisualScore();
-                    
-                    if (isInitial && data.earned_offline > 0) { tg.showAlert(`🤖 Авто-Бот собрал пока вас не было: ${formatRobux(data.earned_offline)} $ROB!`); }
+                    if (isInitial && data.earned_offline > 0) tg.showAlert(`🤖 Авто-Бот собрал пока вас не было: ${formatRobux(data.earned_offline)} $ROB!`);
                 } else { pendingClicks += stdToSend; inFlightClicks = Math.max(0, inFlightClicks - stdToSend); updateVisualScore(); }
             }).catch(() => { pendingClicks += stdToSend; inFlightClicks = Math.max(0, inFlightClicks - stdToSend); updateVisualScore(); });
         }
         setInterval(() => syncWithServer(false), 3000);
 
-        // ИНВЕНТАРЬ И ВЫВОД
+        // ИНВЕНТАРЬ (ФИКС КЛАВИАТУРЫ iPHONE)
+        function saveRobloxNick() {
+            let nick = document.getElementById('robloxNickInput').value.trim();
+            document.getElementById('robloxNickInput').blur(); // Принудительно скрываем клавиатуру iOS
+            fetch(`${BACKEND_URL}/save-nick`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, roblox_nick: nick }) })
+            .then(res => res.json()).then(data => {
+                if(data.status === "success") { myRobloxNick = nick; tg.showAlert("✅ Никнейм успешно сохранен!"); }
+            });
+        }
+
         function openInventory() {
             document.getElementById('inventoryModal').style.display = 'flex';
-            document.getElementById('invGameId').innerText = gameId;
-            document.getElementById('invTime').innerText = (totalPlayTime / 3600).toFixed(1) + " ч.";
-            
+            document.getElementById('invGameId').innerText = gameId; document.getElementById('invTime').innerText = (totalPlayTime / 3600).toFixed(1) + " ч.";
             let totalBal = serverTaps + serverBonus;
-            let balPct = Math.min(100, (totalBal / 500000) * 100);
-            document.getElementById('reqBalText').innerText = `${formatRobux(totalBal)} / 50.0000`;
-            document.getElementById('reqBalFill').style.width = `${balPct}%`;
             
-            let timePct = Math.min(100, (totalPlayTime / 7200) * 100);
-            document.getElementById('reqTimeText').innerText = `${(totalPlayTime / 3600).toFixed(1)} / 2.0`;
-            document.getElementById('reqTimeFill').style.width = `${timePct}%`;
-            
-            let refPct = Math.min(100, (refsCount / 10) * 100);
-            document.getElementById('reqRefText').innerText = `${refsCount} / 10`;
-            document.getElementById('reqRefFill').style.width = `${refPct}%`;
+            document.getElementById('reqBalText').innerText = `${formatRobux(totalBal)} / 50.0000`; document.getElementById('reqBalFill').style.width = `${Math.min(100, (totalBal / 500000) * 100)}%`;
+            document.getElementById('reqTimeText').innerText = `${(totalPlayTime / 3600).toFixed(1)} / 2.0`; document.getElementById('reqTimeFill').style.width = `${Math.min(100, (totalPlayTime / 7200) * 100)}%`;
+            document.getElementById('reqRefText').innerText = `${refsCount} / 10`; document.getElementById('reqRefFill').style.width = `${Math.min(100, (refsCount / 10) * 100)}%`;
 
             let btn = document.getElementById('btnWithdraw');
             if(totalBal >= 500000 && totalPlayTime >= 7200 && refsCount >= 10) { btn.disabled = false; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; } 
             else { btn.disabled = true; btn.style.background = "var(--panel-border)"; }
         }
         function closeInventory() { document.getElementById('inventoryModal').style.display = 'none'; }
-
+        
         function requestWithdraw() {
-            let nick = document.getElementById('robloxNickInput').value;
-            if(!nick) { tg.showAlert("❌ Введите свой Roblox Ник!"); return; }
+            if(!myRobloxNick) { tg.showAlert("❌ Сначала сохраните Roblox Ник (кнопка 💾)!"); return; }
             let btn = document.getElementById('btnWithdraw'); btn.innerText = "Отправка..."; btn.disabled = true;
-            
-            fetch(`${BACKEND_URL}/withdraw`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, roblox_nick: nick }) })
+            fetch(`${BACKEND_URL}/withdraw`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
             .then(res => res.json()).then(data => {
                 if(data.status === "success") { tg.showAlert("✅ Заявка успешно отправлена! Ожидайте пополнения."); closeInventory(); syncWithServer(false); } 
                 else { tg.showAlert(`❌ ${data.error}`); btn.innerText = "Запросить выплату"; btn.disabled = false; }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); btn.innerText = "Запросить выплату"; btn.disabled = false; });
         }
 
-        // ПОКУПКИ (БИЗНЕС)
+        // БИЗНЕС
         function buyTech(type) {
             if(pendingClicks > 0 || inFlightClicks > 0) { syncWithServer(); setTimeout(()=>buyTech(type), 500); return; }
-            tg.showConfirm(`Прокачать ${type}? Стоимость 2.0000 $ROB (20000)`, (confirmed) => {
+            tg.showConfirm(`Улучшить ${type}? Стоимость указана на кнопке.`, (confirmed) => {
                 if(!confirmed) return;
                 fetch(`${BACKEND_URL}/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, type: "tech", item_id: type }) })
                 .then(res => res.json()).then(data => {
@@ -360,12 +368,10 @@
 
         // ЗАДАНИЯ
         function inviteFriend() { tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/grutap_robot?start=ref_${tg.initDataUnsafe?.user?.id}`)}&text=${encodeURIComponent("GruTap! 🚀")}`); }
-        
         function renderDailyRewardUI() {
-            document.getElementById('dailyStreakText').innerText = globalDailyStreak;
-            let btn = document.getElementById('btnDailyReward');
+            document.getElementById('dailyStreakText').innerText = globalDailyStreak; let btn = document.getElementById('btnDailyReward');
             if (globalLastClaimDate === new Date().toISOString().slice(0, 10)) { btn.innerText = "Получено ✅"; btn.disabled = true; btn.style.background = "var(--panel-border)"; btn.style.color = "var(--text-muted)"; } 
-            else { btn.innerText = `Забрать +${formatRobux((globalDailyStreak%7 + 1)*10000)} $ROB`; btn.disabled = false; btn.style.background = "var(--gold-grad)"; btn.style.color = "#000"; }
+            else { btn.innerText = `Забрать бонус`; btn.disabled = false; btn.style.background = "var(--gold-grad)"; btn.style.color = "#000"; }
         }
         function claimDailyServer() {
             fetch(`${BACKEND_URL}/daily-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
@@ -374,12 +380,9 @@
                 else { tg.showAlert(`❌ ${data.error}`); }
             });
         }
-
         function renderDailyQuestUI() {
-            let vis = globalDailyTaps + (pendingClicks+inFlightClicks)*multitapLevel;
-            if(vis > 5000) vis = 5000;
-            document.getElementById('dailyTapsText').innerText = vis;
-            document.getElementById('dailyTapsBar').style.width = `${(vis/5000)*100}%`;
+            let vis = globalDailyTaps + (pendingClicks+inFlightClicks)*multitapLevel; if(vis > 5000) vis = 5000;
+            document.getElementById('dailyTapsText').innerText = vis; document.getElementById('dailyTapsBar').style.width = `${(vis/5000)*100}%`;
             let btn = document.getElementById('btnDailyQuest');
             if(globalQuestClaimed === 1) { btn.innerText = "Получено ✅"; btn.disabled = true; btn.style.background = "var(--panel-border)"; btn.style.color = "var(--text-muted)"; } 
             else if(vis >= 5000) { btn.innerText = "Забрать +1.0000 $ROB"; btn.disabled = false; btn.style.background = "linear-gradient(90deg, #10b981, #059669)"; btn.style.color = "white"; }
@@ -391,7 +394,6 @@
                 else { tg.showAlert(`❌ ${data.error}`); }
             });
         }
-
         function renderSponsorsUI() {
             for(let id=1; id<=3; id++) {
                 let btn = document.getElementById('btnSponsor'+id);
@@ -400,7 +402,6 @@
             }
         }
         function clickSponsor(id, url) {
-            let btn = document.getElementById('btnSponsor'+id);
             if(sponsorStates[id] === "init") { tg.openTelegramLink(url); sponsorStates[id] = "clicked"; renderSponsorsUI(); } 
             else if(sponsorStates[id] === "clicked") {
                 fetch(`${BACKEND_URL}/claim-sponsor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, sponsor_id: id }) })
@@ -411,13 +412,17 @@
             }
         }
 
-        // АУДИОМАЙНИНГ (ТУРБИНА)
+        // ==========================================
+        // 🎙️ АУДИОМАЙНИНГ (КНОПКА STORIES)
+        // ==========================================
         let audioContext, analyser, microphone, javascriptNode, turbineActive = false, turbineScoreInt = 0, turbineTimer = 15, turbineInterval;
         async function startAudioTurbine() {
             if (currentTurbineCharges <= 0) { tg.showAlert("❌ Заряды исчерпаны! Возвращайтесь завтра."); return; }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 document.getElementById('turbineArena').style.display = 'flex';
+                document.getElementById('turbineActiveState').style.display = 'block';
+                document.getElementById('turbineResultState').style.display = 'none';
                 turbineScoreInt = 0; turbineTimer = 15; turbineActive = true;
                 
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -429,9 +434,8 @@
                     if(!turbineActive) return;
                     let array = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(array);
                     let avg = array.reduce((a,b) => a+b, 0) / array.length;
-                    
                     document.getElementById('turbineFill').style.background = `conic-gradient(#ef4444 ${Math.min(100, avg * 1.5)}%, transparent 0%)`;
-                    if (avg > 20) { turbineScoreInt += Math.floor(avg/5); document.getElementById('turbineScore').innerText = formatRobux(turbineScoreInt); }
+                    if (avg > 20) { turbineScoreInt += Math.floor(avg/5); document.getElementById('turbineScoreUI').innerText = formatRobux(turbineScoreInt); }
                 }
                 turbineInterval = setInterval(() => {
                     turbineTimer--; document.getElementById('turbineTimer').innerText = turbineTimer;
@@ -442,52 +446,121 @@
         function endAudioTurbine(stream) {
             clearInterval(turbineInterval); turbineActive = false;
             stream.getTracks().forEach(track => track.stop()); if(audioContext) audioContext.close(); 
-            document.getElementById('turbineArena').style.display = 'none';
-            tg.showAlert("⏳ Отправка результатов...");
+            document.getElementById('turbineActiveState').style.display = 'none';
             
+            // Отправляем на сервер, НО экран оставляем открытым для выбора (Забрать / Сторис)
             fetch(`${BACKEND_URL}/turbine-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, amount: turbineScoreInt }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
                     serverBonus = data.new_bonus_balance; currentTurbineCharges = data.turbine_charges;
                     document.getElementById('turbineChargesUI').innerText = `${currentTurbineCharges}/${maxTurbineCharges}`;
                     updateVisualScore(); tg.HapticFeedback.notificationOccurred('success');
-                    tg.showAlert(`🚀 Отлично! Вы нафармили ${formatRobux(turbineScoreInt)} $ROB!`);
-                } else { tg.showAlert(`❌ ${data.error}`); }
-            }).catch(() => tg.showAlert("❌ Ошибка сервера."));
+                    
+                    document.getElementById('turbineFinalScoreUI').innerText = formatRobux(turbineScoreInt);
+                    document.getElementById('turbineResultState').style.display = 'block'; // Показываем кнопки Забрать / Stories
+                } else { tg.showAlert(`❌ ${data.error}`); document.getElementById('turbineArena').style.display = 'none'; }
+            }).catch(() => { tg.showAlert("❌ Ошибка сервера."); document.getElementById('turbineArena').style.display = 'none'; });
+        }
+        function closeTurbineAndShare(doShare) {
+            document.getElementById('turbineArena').style.display = 'none';
+            if(doShare && tg.shareToStory) { tg.shareToStory('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1000', { text: `🚀 Я надул ${formatRobux(turbineScoreInt)} $ROB в турбине! Попробуй обогнать меня! Ссылка в профиле.` }); }
         }
 
-        // PVP АРЕНА (ЧЕСТНАЯ)
-        let myPos = 50, pvpTimer = 15, pvpInterval, myPvPScore = 0;
-        function startPvP() {
-            let total = serverTaps + serverBonus;
-            if(total < 10000) { tg.showAlert("❌ Нужно минимум 1.0000 $ROB для ставки!"); return; }
-            tg.showAlert("🔍 Ищем противника...");
-            setTimeout(() => {
-                document.getElementById('pvpArena').style.display = 'flex';
-                myPos = 50; pvpTimer = 15; myPvPScore = 0;
-                document.getElementById('pvpTimer').innerText = '15';
-                document.getElementById('pvpDivider').style.top = '50%';
-                
-                pvpInterval = setInterval(() => {
-                    pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
-                    myPos = Math.max(0, myPos - 1); document.getElementById('pvpDivider').style.top = `${100 - myPos}%`;
-                    if(pvpTimer <= 0) {
-                        clearInterval(pvpInterval); document.getElementById('pvpArena').style.display = 'none';
-                        tg.showAlert("⏳ Ожидание ответа сервера...");
-                        fetch(`${BACKEND_URL}/pvp-result`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, bet: 10000, score: myPvPScore }) })
-                        .then(res => res.json()).then(data => {
-                            if(data.status === "success") {
-                                if(data.is_win) { tg.HapticFeedback.notificationOccurred('success'); tg.showAlert("🏆 ПОБЕДА! +0.9500 $ROB"); } 
-                                else { tg.HapticFeedback.notificationOccurred('error'); tg.showAlert("💀 ПОРАЖЕНИЕ. -1.0000 $ROB"); }
-                                syncWithServer();
-                            } else if(data.refund) { tg.showAlert("😔 Противник не найден. Ставка возвращена."); }
-                            else { tg.showAlert(`❌ ${data.error}`); }
-                        });
-                    }
-                }, 1000);
-            }, 1500);
+        // ==========================================
+        // ⚔️ PVP ЛОББИ И РЕАЛЬНЫЙ ОНЛАЙН БОЙ (С НИКАМИ)
+        // ==========================================
+        let currentRoomId = null; let pvpTimer = 15; let pvpInterval; let myPvPScore = 0; let myPos = 50;
+        
+        function loadLobby() {
+            fetch(`${BACKEND_URL}/pvp-lobby`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData }) })
+            .then(res => res.json()).then(data => {
+                if(data.status === "success") {
+                    let html = "";
+                    data.rooms.forEach(r => {
+                        html += `<div class="lobby-room"><div><b>${r.creator}</b><br><span style="color:var(--gold); font-size:12px;">Ставка: ${formatRobux(r.bet)}</span></div><button class="support-btn" style="width: auto; margin:0; padding: 6px 12px; font-size: 13px;" onclick="joinRoom('${r.id}')">В бой ⚔️</button></div>`;
+                    });
+                    document.getElementById('lobbyRoomsList').innerHTML = html || '<div style="text-align: center; color: var(--text-muted); font-size: 13px;">Нет открытых комнат</div>';
+                }
+            });
         }
+        
+        function createRoomPercent(pct) { let bal = serverTaps + serverBonus; createRoom(Math.floor(bal * pct)); }
+        
+        function createRoom(betInt) {
+            if((serverTaps+serverBonus) < betInt) { tg.showAlert("Мало $ROB!"); return; }
+            if(!myRobloxNick) { tg.showAlert("❌ Сохраните Roblox Ник в Инвентаре перед боем!"); return; }
+            fetch(`${BACKEND_URL}/pvp-create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, bet: betInt }) })
+            .then(res => res.json()).then(data => {
+                if(data.status === "success") {
+                    currentRoomId = data.room_id; tg.showAlert("⏳ Комната создана. Ждем противника...");
+                    let poll = setInterval(() => {
+                        fetch(`${BACKEND_URL}/pvp-status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_id: currentRoomId }) })
+                        .then(res => res.json()).then(st => {
+                            if(st.room && st.room.status === 'active') { clearInterval(poll); startPvPBattle(st.room.joiner_nick, "You"); }
+                        });
+                    }, 2000);
+                } else { tg.showAlert(data.error); }
+            });
+        }
+        
+        function joinRoom(roomId) {
+            if(!myRobloxNick) { tg.showAlert("❌ Сохраните Roblox Ник в Инвентаре перед боем!"); return; }
+            fetch(`${BACKEND_URL}/pvp-join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, room_id: roomId }) })
+            .then(res => res.json()).then(data => {
+                if(data.status === "success") { currentRoomId = roomId; startPvPBattle("You", data.room.creator_nick); } 
+                else { tg.showAlert(data.error); loadLobby(); }
+            });
+        }
+
+        function startPvPBattle(bottomName, topName) {
+            document.getElementById('pvpArena').style.display = 'flex';
+            document.getElementById('pvpBattleState').style.display = 'flex';
+            document.getElementById('pvpResultState').style.display = 'none';
+            document.getElementById('pvpBottomName').innerText = bottomName + " (TAP!)";
+            document.getElementById('pvpTopName').innerText = topName;
+            
+            myPos = 50; pvpTimer = 15; myPvPScore = 0; document.getElementById('pvpTimer').innerText = '15'; document.getElementById('pvpDivider').style.top = '50%';
+            
+            pvpInterval = setInterval(() => {
+                pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
+                // Имитация перетягивания для визуала (сервер решает исход по кликам)
+                myPos = Math.max(0, myPos - 1); document.getElementById('pvpDivider').style.top = `${100 - myPos}%`;
+                if(pvpTimer <= 0) endPvPBattle();
+            }, 1000);
+        }
+
         function pvpPlayerTap() { myPvPScore++; myPos = Math.min(100, myPos + 2); document.getElementById('pvpDivider').style.top = `${100 - myPos}%`; tg.HapticFeedback.impactOccurred('light'); }
+
+        let lastWinAmount = 0;
+        function endPvPBattle() {
+            clearInterval(pvpInterval);
+            document.getElementById('pvpBattleState').style.display = 'none';
+            tg.showAlert("⏳ Ожидание ответа сервера...");
+            
+            fetch(`${BACKEND_URL}/pvp-submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, room_id: currentRoomId, score: myPvPScore }) })
+            .then(res => res.json()).then(data => {
+                document.getElementById('pvpResultState').style.display = 'flex'; // Показываем экран с кнопкой Stories
+                if(data.status === "success") {
+                    if(data.is_win) { 
+                        lastWinAmount = formatRobux(data.win_amount); tg.HapticFeedback.notificationOccurred('success');
+                        document.getElementById('pvpResIcon').innerText = "🏆"; document.getElementById('pvpResTitle').innerText = "ПОБЕДА!";
+                        document.getElementById('pvpResTitle').style.color = "var(--gold)"; document.getElementById('pvpResAmount').innerText = `+ ${lastWinAmount} $ROB`;
+                        document.getElementById('pvpResShareBtn').style.display = 'block';
+                    } else { 
+                        tg.HapticFeedback.notificationOccurred('error');
+                        document.getElementById('pvpResIcon').innerText = "💀"; document.getElementById('pvpResTitle').innerText = "ПОРАЖЕНИЕ";
+                        document.getElementById('pvpResTitle').style.color = "#ef4444"; document.getElementById('pvpResAmount').innerText = "Ставка сгорела.";
+                        document.getElementById('pvpResShareBtn').style.display = 'none';
+                    }
+                    syncWithServer(false); loadLobby();
+                } else { tg.showAlert(`❌ ${data.error}`); document.getElementById('pvpArena').style.display = 'none'; loadLobby(); }
+            });
+        }
+
+        function closePvPAndShare(doShare) {
+            document.getElementById('pvpArena').style.display = 'none';
+            if(doShare && tg.shareToStory) { tg.shareToStory('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000', { text: `⚔️ Я только что вынес оппонента на Арене и забрал ${lastWinAmount} $ROB! Хватит смелости бросить мне вызов?` }); }
+        }
 
         // ЛИДЕРБОРД
         function loadLeaderboard() {
