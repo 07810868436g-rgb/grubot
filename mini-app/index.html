@@ -13,7 +13,7 @@
         #gameContent { position: absolute; top: 0; left: 0; right: 0; bottom: 85px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; text-align: center; padding-bottom: 30px; }
         .screen.active { display: flex; }
-        #main { justify-content: center; position: relative; }
+        #main { justify-content: flex-start; position: relative; padding-top: 20px; }
 
         .bottom-menu { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 70px; background: var(--panel-bg); backdrop-filter: blur(16px); border: 1px solid var(--panel-border); border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; font-weight: 600; gap: 4px; transition: transform 0.3s; }
@@ -21,7 +21,7 @@
         .menu-btn.active { color: var(--gold); transform: translateY(-10px); }
         .menu-btn.active .menu-icon { filter: grayscale(0%); background: #18181b; border: 2px solid var(--gold); box-shadow: 0 8px 15px rgba(251, 191, 36, 0.4); }
 
-        .score-container { font-size: 48px; font-weight: 900; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
+        .score-container { font-size: 48px; font-weight: 900; margin-top: 60px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; text-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
         .tap-button { width: 260px; height: 260px; background-image: url('https://img.icons8.com/fluency/512/roblox.png'); background-size: contain; background-position: center; background-repeat: no-repeat; border-radius: 50%; cursor: pointer; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(250, 204, 21, 0.15); transition: transform 0.05s ease-out; margin: 0 auto; touch-action: manipulation; -webkit-user-drag: none; border: 1px solid var(--panel-border); background-color: #0f0f14; }
         .tap-button:active { transform: scale(0.93) translateY(4px); }
         
@@ -32,7 +32,10 @@
         .floating-text { position: absolute; color: white; font-size: 30px; font-weight: 900; pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 1000; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(1.2); } }
 
-        .profile-btn-top { position: absolute; top: 10px; right: 10px; background: var(--panel-bg); border: 1px solid var(--gold); color: var(--gold); padding: 8px 16px; border-radius: 12px; font-weight: 900; cursor: pointer; z-index: 50; }
+        /* ИНВЕНТАРЬ И ТУРБИНА (Обновленные) */
+        .profile-btn-top { position: absolute; top: 15px; right: 15px; background: rgba(20,20,25,0.9); border: 1px solid var(--gold); font-size: 26px; padding: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); z-index: 50; display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
+        .btn-turbine { position: absolute; bottom: 100px; left: 15px; background: linear-gradient(90deg, #ef4444, #dc2626); color: white; border: none; padding: 12px 18px; border-radius: 16px; font-weight: 900; font-size: 16px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); cursor: pointer; z-index: 50; display: flex; align-items: center; gap: 6px; }
+
         .inventory-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; flex-direction: column; padding: 20px; backdrop-filter: blur(5px); overflow-y: auto; }
         .inv-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; margin-top: 20px; text-align: left; }
         .inv-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
@@ -48,7 +51,6 @@
         .support-btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; }
         .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
-        .btn-turbine { position: absolute; top: 10px; left: 10px; background: linear-gradient(90deg, #ef4444, #dc2626); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); cursor: pointer; z-index: 50; }
         .turbine-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000 100%); z-index: 4500; flex-direction: column; align-items: center; justify-content: center; }
         .turbine-circle { width: 220px; height: 220px; border-radius: 50%; border: 8px solid #333; position: relative; display: flex; align-items: center; justify-content: center; margin: 30px auto; }
         .turbine-inner { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0%, transparent 0%); position: absolute; top:0; left:0; opacity: 0.8; }
@@ -78,7 +80,6 @@
         <div class="inv-card">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Ваш никнейм в Roblox:</div>
             
-            <!-- ФИКС КЛАВИАТУРЫ iPHONE: inputmode="text" enterkeyhint="done" и кнопка "Сохранить" -->
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <input type="text" id="robloxNickInput" class="inv-input" placeholder="Roblox Ник" inputmode="text" enterkeyhint="done">
                 <button class="support-btn" style="width: auto; margin-top: 0; padding: 0 20px; font-size: 18px;" onclick="saveRobloxNick()">💾</button>
@@ -142,7 +143,7 @@
     <div id="gameContent">
         <!-- 1. ИГРА -->
         <div id="main" class="screen active">
-            <button class="profile-btn-top" onclick="openInventory()">🎒 Инвентарь</button>
+            <button class="profile-btn-top" onclick="openInventory()">🎒</button>
             <button class="btn-turbine" onclick="startAudioTurbine()">🎙️ <span id="turbineChargesUI">1/1</span></button>
 
             <div class="score-container"><span id="score">0.0000</span><span style="font-size: 20px; color: var(--text-muted); padding-top: 14px;">$ROB</span></div>
@@ -205,19 +206,21 @@
         <div id="top" class="screen">
             <div class="title">⚔️ Арена Дуэлей (Лобби)</div>
             <div class="task-box" style="border-color: rgba(239,68,68,0.4); background: rgba(20,20,25,0.9);">
-                <div style="font-weight: bold; margin-bottom: 10px;">Создать комнату (Ставка):</div>
+                <div style="font-weight: bold; margin-bottom: 10px; color: #a1a1aa;">Быстрая ставка:</div>
                 <div style="display: flex; gap: 5px; margin-bottom: 10px;">
                     <button class="pvp-select-btn" onclick="createRoom(10000)">1.0000</button>
                     <button class="pvp-select-btn" onclick="createRoom(50000)">5.0000</button>
                     <button class="pvp-select-btn" onclick="createRoom(100000)">10.0000</button>
                 </div>
-                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-                    <button class="pvp-select-btn" onclick="createRoomPercent(0.25)">25%</button>
-                    <button class="pvp-select-btn" onclick="createRoomPercent(0.50)">50%</button>
-                    <button class="pvp-select-btn" style="color: #ef4444; border-color: #ef4444;" onclick="createRoomPercent(1.0)">MAX</button>
+                
+                <div style="font-weight: bold; margin-bottom: 10px; color: #a1a1aa;">Своя ставка ($ROB):</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="number" id="customBetInput" class="inv-input" style="margin-bottom: 0;" placeholder="Например: 7.77" step="0.01">
+                    <button class="support-btn" style="margin-top: 0; width: auto; padding: 0 20px;" onclick="createCustomRoom()">Создать</button>
                 </div>
+
                 <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
-                <div style="font-weight: bold; margin-bottom: 10px; color: var(--gold);">Открытые комнаты (Нажми, чтобы войти):</div>
+                <div style="font-weight: bold; margin-bottom: 10px; color: var(--gold);">Открытые комнаты:</div>
                 <div id="lobbyRoomsList" style="max-height: 150px; overflow-y: auto;">
                     <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Загрузка комнат...</div>
                 </div>
@@ -249,7 +252,7 @@
         let energy = 1000; let maxEnergy = 1000; 
         let multitapLevel = 1; let maxEnergyLevel = 1; let autoBotLevel = 0;
         let currentTurbineCharges = 1; let maxTurbineCharges = 1;
-        let totalPlayTime = 0; let refsCount = 0; let gameId = "G00000"; let myRobloxNick = "";
+        let totalPlayTime = 0; let refsCount = 0; let gameId = "G00000"; let myRobloxNick = ""; let myUserId = tg.initDataUnsafe?.user?.id;
 
         // ФОРМАТИРОВАНИЕ (Деление на 10000)
         function formatRobux(intAmount) { return (intAmount / 10000).toFixed(4); }
@@ -313,10 +316,10 @@
         }
         setInterval(() => syncWithServer(false), 3000);
 
-        // ИНВЕНТАРЬ (ФИКС КЛАВИАТУРЫ iPHONE)
+        // ИНВЕНТАРЬ
         function saveRobloxNick() {
             let nick = document.getElementById('robloxNickInput').value.trim();
-            document.getElementById('robloxNickInput').blur(); // Принудительно скрываем клавиатуру iOS
+            document.getElementById('robloxNickInput').blur(); 
             fetch(`${BACKEND_URL}/save-nick`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, roblox_nick: nick }) })
             .then(res => res.json()).then(data => {
                 if(data.status === "success") { myRobloxNick = nick; tg.showAlert("✅ Никнейм успешно сохранен!"); }
@@ -413,7 +416,7 @@
         }
 
         // ==========================================
-        // 🎙️ АУДИОМАЙНИНГ (КНОПКА STORIES)
+        // 🎙️ АУДИОМАЙНИНГ
         // ==========================================
         let audioContext, analyser, microphone, javascriptNode, turbineActive = false, turbineScoreInt = 0, turbineTimer = 15, turbineInterval;
         async function startAudioTurbine() {
@@ -448,7 +451,6 @@
             stream.getTracks().forEach(track => track.stop()); if(audioContext) audioContext.close(); 
             document.getElementById('turbineActiveState').style.display = 'none';
             
-            // Отправляем на сервер, НО экран оставляем открытым для выбора (Забрать / Сторис)
             fetch(`${BACKEND_URL}/turbine-claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, amount: turbineScoreInt }) })
             .then(res => res.json()).then(data => {
                 if (data.status === "success") {
@@ -457,7 +459,7 @@
                     updateVisualScore(); tg.HapticFeedback.notificationOccurred('success');
                     
                     document.getElementById('turbineFinalScoreUI').innerText = formatRobux(turbineScoreInt);
-                    document.getElementById('turbineResultState').style.display = 'block'; // Показываем кнопки Забрать / Stories
+                    document.getElementById('turbineResultState').style.display = 'block';
                 } else { tg.showAlert(`❌ ${data.error}`); document.getElementById('turbineArena').style.display = 'none'; }
             }).catch(() => { tg.showAlert("❌ Ошибка сервера."); document.getElementById('turbineArena').style.display = 'none'; });
         }
@@ -467,7 +469,7 @@
         }
 
         // ==========================================
-        // ⚔️ PVP ЛОББИ И РЕАЛЬНЫЙ ОНЛАЙН БОЙ (С НИКАМИ)
+        // ⚔️ PVP ЛОББИ И РЕАЛЬНЫЙ ОНЛАЙН БОЙ
         // ==========================================
         let currentRoomId = null; let pvpTimer = 15; let pvpInterval; let myPvPScore = 0; let myPos = 50;
         
@@ -477,15 +479,23 @@
                 if(data.status === "success") {
                     let html = "";
                     data.rooms.forEach(r => {
-                        html += `<div class="lobby-room"><div><b>${r.creator}</b><br><span style="color:var(--gold); font-size:12px;">Ставка: ${formatRobux(r.bet)}</span></div><button class="support-btn" style="width: auto; margin:0; padding: 6px 12px; font-size: 13px;" onclick="joinRoom('${r.id}')">В бой ⚔️</button></div>`;
+                        let actionBtn = r.is_mine 
+                            ? `<button class="support-btn" style="width: auto; margin:0; padding: 6px 12px; font-size: 13px; background: #ef4444; color: white;" onclick="cancelRoom('${r.id}')">❌ Удалить</button>`
+                            : `<button class="support-btn" style="width: auto; margin:0; padding: 6px 12px; font-size: 13px;" onclick="joinRoom('${r.id}')">В бой ⚔️</button>`;
+                            
+                        html += `<div class="lobby-room"><div><b>${r.creator}</b><br><span style="color:var(--gold); font-size:12px;">Ставка: ${formatRobux(r.bet)}</span></div>${actionBtn}</div>`;
                     });
                     document.getElementById('lobbyRoomsList').innerHTML = html || '<div style="text-align: center; color: var(--text-muted); font-size: 13px;">Нет открытых комнат</div>';
                 }
             });
         }
         
-        function createRoomPercent(pct) { let bal = serverTaps + serverBonus; createRoom(Math.floor(bal * pct)); }
-        
+        function createCustomRoom() {
+            let val = parseFloat(document.getElementById('customBetInput').value);
+            if (!val || val < 0.05) { tg.showAlert("Минимальная ставка 0.0500 $ROB!"); return; }
+            createRoom(Math.floor(val * 10000));
+        }
+
         function createRoom(betInt) {
             if((serverTaps+serverBonus) < betInt) { tg.showAlert("Мало $ROB!"); return; }
             if(!myRobloxNick) { tg.showAlert("❌ Сохраните Roblox Ник в Инвентаре перед боем!"); return; }
@@ -493,13 +503,23 @@
             .then(res => res.json()).then(data => {
                 if(data.status === "success") {
                     currentRoomId = data.room_id; tg.showAlert("⏳ Комната создана. Ждем противника...");
+                    loadLobby();
                     let poll = setInterval(() => {
                         fetch(`${BACKEND_URL}/pvp-status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_id: currentRoomId }) })
                         .then(res => res.json()).then(st => {
                             if(st.room && st.room.status === 'active') { clearInterval(poll); startPvPBattle(st.room.joiner_nick, "You"); }
+                            else if(st.error) { clearInterval(poll); } // Если удалили комнату
                         });
                     }, 2000);
                 } else { tg.showAlert(data.error); }
+            });
+        }
+
+        function cancelRoom(roomId) {
+            fetch(`${BACKEND_URL}/pvp-cancel`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, room_id: roomId }) })
+            .then(res => res.json()).then(data => {
+                if(data.status === "success") { tg.showAlert("✅ Комната удалена, баланс возвращен!"); syncWithServer(false); loadLobby(); }
+                else { tg.showAlert(`❌ ${data.error}`); loadLobby(); }
             });
         }
         
@@ -523,7 +543,6 @@
             
             pvpInterval = setInterval(() => {
                 pvpTimer--; document.getElementById('pvpTimer').innerText = pvpTimer;
-                // Имитация перетягивания для визуала (сервер решает исход по кликам)
                 myPos = Math.max(0, myPos - 1); document.getElementById('pvpDivider').style.top = `${100 - myPos}%`;
                 if(pvpTimer <= 0) endPvPBattle();
             }, 1000);
@@ -539,7 +558,7 @@
             
             fetch(`${BACKEND_URL}/pvp-submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, room_id: currentRoomId, score: myPvPScore }) })
             .then(res => res.json()).then(data => {
-                document.getElementById('pvpResultState').style.display = 'flex'; // Показываем экран с кнопкой Stories
+                document.getElementById('pvpResultState').style.display = 'flex';
                 if(data.status === "success") {
                     if(data.is_win) { 
                         lastWinAmount = formatRobux(data.win_amount); tg.HapticFeedback.notificationOccurred('success');
@@ -578,7 +597,6 @@
             });
         }
 
-        // ЗАПУСК
         if (tg.CloudStorage) {
             tg.CloudStorage.getItems(['multitap_level', 'max_energy_level', 'bot_level'], (err, values) => {
                 if (!err && values) {

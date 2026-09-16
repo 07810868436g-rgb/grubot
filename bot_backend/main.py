@@ -38,7 +38,6 @@ dp = Dispatcher()
 db_pool = None 
 
 # --- PVP ОЧЕРЕДЬ И ЛОББИ ---
-# Формат: { room_id: { creator_id, creator_nick, bet, joiner_id, joiner_nick, status, creator_score, joiner_score, created_at } }
 pvp_rooms = {}
 
 async def init_db():
@@ -194,14 +193,18 @@ async def get_user_display_name(conn, user_id):
     return "Player"
 
 async def pvp_lobby_api(request):
+    data = await request.json()
+    user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
+    req_user_id = user_data.get("id") if user_data else 0
     now = time.time()
-    # Очистка старых комнат (больше 3 минут)
-    keys_to_delete = [k for k, v in pvp_rooms.items() if now - v['created_at'] > 180 and v['status'] == 'waiting']
+    
+    keys_to_delete = [k for k, v in pvp_rooms.items() if now - v['created_at'] > 300 and v['status'] == 'waiting']
     async with db_pool.acquire() as conn:
         for k in keys_to_delete:
             await conn.execute("UPDATE users SET bonus_balance = bonus_balance + $1 WHERE user_id = $2", pvp_rooms[k]['bet'], pvp_rooms[k]['creator_id'])
             del pvp_rooms[k]
-    rooms = [{"id": k, "creator": v['creator_nick'], "bet": v['bet']} for k, v in pvp_rooms.items() if v['status'] == 'waiting']
+            
+    rooms = [{"id": k, "creator": v['creator_nick'], "bet": v['bet'], "is_mine": v['creator_id'] == req_user_id} for k, v in pvp_rooms.items() if v['status'] == 'waiting']
     return web.json_response({"status": "success", "rooms": rooms})
 
 async def pvp_create_api(request):
@@ -209,7 +212,7 @@ async def pvp_create_api(request):
     user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
     if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
     user_id = user_data.get("id"); bet = int(data.get("bet", 0))
-    if bet < 100: return web.json_response({"error": "Минимальная ставка 0.0100 $ROB (100)!"}, status=400)
+    if bet < 500: return web.json_response({"error": "Минимальная ставка 0.0500 $ROB!"}, status=400) # 500/10000 = 0.05
     
     async with db_pool.acquire() as conn:
         async with conn.transaction():
@@ -222,6 +225,24 @@ async def pvp_create_api(request):
     room_id = str(uuid.uuid4())
     pvp_rooms[room_id] = {'creator_id': user_id, 'creator_nick': nick, 'bet': bet, 'status': 'waiting', 'created_at': time.time(), 'joiner_id': None, 'joiner_nick': None, 'creator_score': -1, 'joiner_score': -1}
     return web.json_response({"status": "success", "room_id": room_id})
+
+async def pvp_cancel_api(request):
+    data = await request.json()
+    user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
+    if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
+    user_id = user_data.get("id")
+    room_id = data.get("room_id")
+    
+    room = pvp_rooms.get(room_id)
+    if not room or room['status'] != 'waiting' or room['creator_id'] != user_id:
+        return web.json_response({"error": "Невозможно удалить комнату!"}, status=400)
+
+    bet = room['bet']
+    async with db_pool.acquire() as conn:
+        await conn.execute("UPDATE users SET bonus_balance = bonus_balance + $1 WHERE user_id = $2", bet, user_id)
+    
+    del pvp_rooms[room_id]
+    return web.json_response({"status": "success"})
 
 async def pvp_join_api(request):
     data = await request.json()
@@ -260,7 +281,6 @@ async def pvp_submit_api(request):
     if room['creator_id'] == user_id: room['creator_score'] = score
     elif room['joiner_id'] == user_id: room['joiner_score'] = score
     
-    # Ожидание второго игрока
     for _ in range(30):
         if room['creator_score'] != -1 and room['joiner_score'] != -1: break
         await asyncio.sleep(0.5)
@@ -307,8 +327,8 @@ async def daily_claim_api(request):
         if row['last_claim_date'] == today_str: return web.json_response({"error": "Уже забрали!"}, status=400)
         streak = (int(row['daily_streak']) % 7) + 1 if row['last_claim_date'] == yesterday_str else 1
         
-        # Микро-награды: 0.0500, 0.1000 ... 0.3500 (в базе это 500, 1000 ... 3500)
-        rewards_map = {1: 500, 2: 1000, 3: 1500, 4: 2000, 5: 2500, 6: 3000, 7: 5000}
+        # Микро-награды: 0.0500, 0.1000 ... 0.5000
+        rewards_map = {1: 500, 2: 1000, 3: 1500, 4: 2000, 5: 3000, 6: 4000, 7: 5000}
         reward = rewards_map.get(streak, 500)
         
         new_bonus = int(row['bonus_balance']) + reward
@@ -447,6 +467,7 @@ async def main():
     cors.add(app.router.add_post('/api/pvp-join', pvp_join_api))
     cors.add(app.router.add_post('/api/pvp-status', pvp_status_api))
     cors.add(app.router.add_post('/api/pvp-submit', pvp_submit_api))
+    cors.add(app.router.add_post('/api/pvp-cancel', pvp_cancel_api))
     cors.add(app.router.add_post('/api/withdraw', withdraw_api))
     
     runner = web.AppRunner(app)
