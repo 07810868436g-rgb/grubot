@@ -38,7 +38,8 @@ BANNER_GAME = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-db_pool = None 
+db_pool = None
+LEADERBOARD_RATELIMIT = {}
 
 ROOM_LEVELS = {
     1: {'cost': 15000, 'income': 3},
@@ -47,9 +48,16 @@ ROOM_LEVELS = {
 }
 
 ARTIFACT_COSTS = {
-    'pepe': 50000, 
-    'spotty': 250000, 
+    'pepe': 50000,
+    'spotty': 250000,
     'durov_cap': 1000000
+}
+
+ARTIFACT_BONUSES = {
+    'default': 0,
+    'pepe': 3,
+    'spotty': 5,
+    'durov_cap': 15
 }
 
 ARENA_THEMES_COSTS = {
@@ -165,6 +173,7 @@ async def sync_api(request):
 
         standard_clicks = data.get("standard_clicks", 0)
         rocket_clicks = data.get("rocket_clicks", 0)
+        current_artifact_id = data.get("currentArtifactId", "default")
         first_name = user_data.get("first_name", "Игрок")
         username = user_data.get("username", "")
         current_time = time.time()
@@ -207,11 +216,19 @@ async def sync_api(request):
             else:
                 valid_standard, valid_rocket = 0, 0
 
-            earned_from_taps = valid_standard * user_db['multitap_level']
+            try:
+                owned_skins = json.loads(user_db['owned_skins'] or '["default"]')
+            except Exception:
+                owned_skins = ['default']
+
+            artifact_bonus = ARTIFACT_BONUSES.get(current_artifact_id, 0) if current_artifact_id in owned_skins else 0
+            tap_income = user_db['multitap_level'] + artifact_bonus
+
+            earned_from_taps = valid_standard * tap_income
             if current_time <= user_db['rocket_expires_at'] + 8.0:
-                earned_from_taps += valid_rocket * user_db['multitap_level'] * 5
+                earned_from_taps += valid_rocket * tap_income * 5
             else:
-                earned_from_taps += valid_rocket * user_db['multitap_level']
+                earned_from_taps += valid_rocket * tap_income
                 
             daily_taps += earned_from_taps
             
@@ -338,43 +355,44 @@ async def buy_api(request):
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         user_id = user_data.get("id"); buy_type = data.get("type") 
         async with db_pool.acquire() as conn:
-            user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
-            taps_bal = int(user_db['taps_balance'] or 0); bonus_bal = int(user_db['bonus_balance'] or 0)
-            total_balance = taps_bal + bonus_bal; cost = 0; column_to_update = ""; new_value = 0
-            
-            if buy_type == "tech":
-                item_id = data.get("item_id")
-                if item_id == "multitap": cost = get_upgrade_cost(2000, int(user_db['multitap_level'] or 1)); column_to_update = "multitap_level"; new_value = int(user_db['multitap_level'] or 1) + 1
-                elif item_id == "energy": cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1)); column_to_update = "max_energy_level"; new_value = int(user_db['max_energy_level'] or 1) + 1
-                elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
-            
-            elif buy_type == "skin":
-                item_id = data.get("item_id")
-                cost = ARTIFACT_COSTS.get(item_id, 0) 
-                owned_skins = json.loads(user_db['owned_skins'] or '[]')
-                if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
-                owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
-            
-            elif buy_type == "room_upgrade":
-                level_id = data.get("level"); cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
+            async with conn.transaction():
+                user_db = await conn.fetchrow("SELECT * FROM users WHERE user_id = $1", user_id)
+                taps_bal = int(user_db['taps_balance'] or 0); bonus_bal = int(user_db['bonus_balance'] or 0)
+                total_balance = taps_bal + bonus_bal; cost = 0; column_to_update = ""; new_value = 0
 
-            elif buy_type == "arena_theme":
-                item_id = data.get("item_id")
-                cost = ARENA_THEMES_COSTS.get(item_id, 0)
-                try: owned_themes = json.loads(user_db['owned_arena_themes'] or '["meme"]')
-                except Exception: owned_themes = ["meme"]
-                
-                if item_id in owned_themes: return web.json_response({"error": "Уже куплено"}, status=400)
-                owned_themes.append(item_id)
-                column_to_update = "owned_arena_themes"
-                new_value = json.dumps(owned_themes)
-            
-            if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
-            if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
-            else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
-            
-            if column_to_update: await conn.execute(f'UPDATE users SET taps_balance = $1, bonus_balance = $2, {column_to_update} = $3 WHERE user_id = $4', new_taps_bal, new_bonus_bal, new_value, user_id)
-            return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
+                if buy_type == "tech":
+                    item_id = data.get("item_id")
+                    if item_id == "multitap": cost = get_upgrade_cost(2000, int(user_db['multitap_level'] or 1)); column_to_update = "multitap_level"; new_value = int(user_db['multitap_level'] or 1) + 1
+                    elif item_id == "energy": cost = get_upgrade_cost(2000, int(user_db['max_energy_level'] or 1)); column_to_update = "max_energy_level"; new_value = int(user_db['max_energy_level'] or 1) + 1
+                    elif item_id == "bot": cost = get_upgrade_cost(5000, int(user_db['bot_level'] or 0)); column_to_update = "bot_level"; new_value = int(user_db['bot_level'] or 0) + 1
+
+                elif buy_type == "skin":
+                    item_id = data.get("item_id")
+                    cost = ARTIFACT_COSTS.get(item_id, 0)
+                    owned_skins = json.loads(user_db['owned_skins'] or '[]')
+                    if item_id in owned_skins: return web.json_response({"error": "Уже куплено"}, status=400)
+                    owned_skins.append(item_id); column_to_update = "owned_skins"; new_value = json.dumps(owned_skins)
+
+                elif buy_type == "room_upgrade":
+                    level_id = data.get("level"); cost = ROOM_LEVELS[level_id]['cost']; column_to_update = "current_room_level"; new_value = level_id
+
+                elif buy_type == "arena_theme":
+                    item_id = data.get("item_id")
+                    cost = ARENA_THEMES_COSTS.get(item_id, 0)
+                    try: owned_themes = json.loads(user_db['owned_arena_themes'] or '["meme"]')
+                    except Exception: owned_themes = ["meme"]
+
+                    if item_id in owned_themes: return web.json_response({"error": "Уже куплено"}, status=400)
+                    owned_themes.append(item_id)
+                    column_to_update = "owned_arena_themes"
+                    new_value = json.dumps(owned_themes)
+
+                if cost > 0 and total_balance < cost: return web.json_response({"error": "Недостаточно средств"}, status=400)
+                if bonus_bal >= cost: new_bonus_bal = bonus_bal - cost; new_taps_bal = taps_bal
+                else: remainder = cost - bonus_bal; new_bonus_bal = 0; new_taps_bal = taps_bal - remainder
+
+                if column_to_update: await conn.execute(f'UPDATE users SET taps_balance = $1, bonus_balance = $2, {column_to_update} = $3 WHERE user_id = $4', new_taps_bal, new_bonus_bal, new_value, user_id)
+                return web.json_response({"status": "success", "new_taps_balance": new_taps_bal, "new_bonus_balance": new_bonus_bal})
     except Exception as e: return web.json_response({"error": str(e)}, status=500)
 
 async def claim_daily_quest_api(request):
@@ -468,6 +486,12 @@ async def leaderboard_api(request):
         user_data = validate_telegram_data(data.get("initData"), BOT_TOKEN)
         if not user_data: return web.json_response({"error": "Unauthorized"}, status=401)
         req_user_id = user_data.get("id")
+        current_time = time.time()
+        last_request_time = LEADERBOARD_RATELIMIT.get(req_user_id, 0)
+        if current_time - last_request_time < 5:
+            return web.json_response({"error": "Too many requests", "status": 429}, status=429)
+        LEADERBOARD_RATELIMIT[req_user_id] = current_time
+
         async with db_pool.acquire() as conn:
             if tab == "players":
                 rows = await conn.fetch('SELECT user_id, first_name, username, (taps_balance + bonus_balance) as score FROM users ORDER BY score DESC LIMIT 50')
